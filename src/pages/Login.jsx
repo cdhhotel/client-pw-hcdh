@@ -158,7 +158,7 @@ export const Login = () => {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>🔐 Credenciales de prueba:</p>
+          <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}> Credenciales de prueba:</p>
           <p style={{ fontFamily: 'var(--font-sans)' }}>Usuario: <span style={{ fontFamily: 'var(--mono)', color: 'var(--primary)' }}>admin@casadolores.com</span></p>
           <p style={{ fontFamily: 'var(--font-sans)' }}>Contraseña: <span style={{ fontFamily: 'var(--mono)', color: 'var(--primary)' }}>admin123</span></p>
         </div>

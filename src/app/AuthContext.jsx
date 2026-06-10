@@ -24,14 +24,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      // Intentamos llamar a la API real
-      const data = await api.post('/auth/login', { email, password });
-      
-      if (data.token && data.user) {
-        localStorage.setItem('casa_dolores_token', data.token);
-        localStorage.setItem('casa_dolores_user', JSON.stringify(data.user));
-        setUser(data.user);
-        return data.user;
+      const res = await api.post('/auth/login', { email, password });
+
+      // Soporta ambas formas de respuesta:
+      // 1) { token, user }
+      // 2) { success: true, data: { token, user } }
+      const payload = res?.data ?? res;
+      const token = payload?.token ?? payload?.data?.token;
+      const user = payload?.user ?? payload?.data?.user;
+
+      if (token && user) {
+        localStorage.setItem('casa_dolores_token', token);
+        localStorage.setItem('casa_dolores_user', JSON.stringify(user));
+        setUser(user);
+        return user;
       }
       throw new Error('Respuesta inválida del servidor');
     } catch (error) {
@@ -48,7 +54,8 @@ export const AuthProvider = ({ children }) => {
         return mockUser;
       }
       
-      throw new Error('Credenciales incorrectas (Usa admin@casadolores.com / admin123 para desarrollo)');
+      const message = error?.message || 'Credenciales incorrectas (Usa admin@casadolores.com / admin123 para desarrollo)';
+      throw new Error(message);
     }
   };
 
