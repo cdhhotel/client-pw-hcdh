@@ -34,4 +34,3 @@ Plantillas reutilizables para diferentes áreas del sistema.
 
 Estilos globales, variables CSS y animaciones.
 
-Esta organización permite escalabilidad, mantenimiento sencillo y separación clara de responsabilidades.
