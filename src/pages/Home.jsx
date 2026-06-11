@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath } from 'lucide-react';
-import { motion } from 'motion/react';
 
 import portadaInicio from '../assets/portada-inicio.jpg';
 
@@ -153,12 +152,8 @@ export const Home = () => {
               const isFrameEmpty = activeId !== room.id;
 
               return (
-                <motion.div
+                <div
                   key={room.id}
-                  initial={{ opacity: 0, x: 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  viewport={{ once: true }}
                   onMouseEnter={() => setHoveredId(room.id)}
                   style={{
                     flex: isFrameEmpty ? '0 0 280px' : '0 0 400px',
@@ -273,7 +268,7 @@ export const Home = () => {
                       </div>
                     </div>
                   )}
-                </motion.div>
+                </div>
               );
             })}
           </div>
