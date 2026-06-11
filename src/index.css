@@ -1,22 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
+@import "tailwindcss";
+
 
 :root {
-  /* Paleta de Colores Boutique */
-  --primary: #c15c3d;          /* Terracota barro de Dolores */
-  --primary-hover: #a3482d;
-  --secondary: #354a3e;        /* Verde oliva / jardines del hotel */
-  --secondary-hover: #26362d;
-  --accent: #d4af37;           /* Oro latón / artesanal */
-  --accent-hover: #bda030;
-  --bg-linen: #fdfcf9;         /* Lino crema de fondo */
-  --bg-sand: #f6f3eb;          /* Arena suave para secciones/cards */
-  --text-main: #2b2522;        /* Sepia oscuro / casi negro */
-  --text-muted: #736762;       /* Tierra mate / texto secundario */
-  --border: #e9e4d9;           /* Borde sutil y cálido */
-  --white: #ffffff;
-  --shadow-sm: 0 2px 8px rgba(43, 37, 34, 0.04);
-  --shadow-md: 0 8px 24px rgba(43, 37, 34, 0.08);
-  --shadow-lg: 0 16px 40px rgba(43, 37, 34, 0.12);
+  /* Paleta de Colores */
+  --primary: #A0442A;           /* Títulos y Botones Primarios */
+  --primary-hover: #B55239;     /* Hovers y Enlaces activos */
+  --secondary: #6B4A2F;         /* Texto principal y acentos oscuros */
+  --secondary-hover: #523823;   /* Nogal Oscuro */
+  --accent: #7A8061;            /* Detalles orgánicos y jardines */
+  --accent-hover: #63684d;      
+  --gold: #B38A3A;              /* Iconos y detalles artesanal */
+  --gold-hover: #D9B45B;      
+  --text-h: #F5F0E6;          
+  
+  --bg-linen: #F5F0E6;          /*Fondo base */
+  --bg-sand: #D8C8A8;           /* Para secciones, tarjetas y footers */
+  --text-main: #6B4A2F;         /* texto base */
+  --text-muted: #8C7662;        /* texto secundario */
+  --border: #C8B99B;            /* divisiones sutiles */
+  --white: #FDFBF7;             /* Blanco */
+  
+  /* Sombras */
+  /* --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.05);
+  --shadow-md: 0 8px 24px rgba(107, 74, 47, 0.1);
+  --shadow-lg: 0 16px 40px rgba(107, 74, 47, 0.15); */
+  --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.08);
+  --shadow-md: 0 8px 24px rgba(107, 74, 47, 0.12);
+  --shadow-lg: 0 16px 40px rgba(107, 74, 47, 0.18);
   
   /* Fuentes */
   --font-serif: 'Playfair Display', Georgia, serif;
@@ -24,23 +35,23 @@
   
   /* Transiciones */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --border-radius-sm: 6px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 24px;
+  --border-radius-sm: 0px;
+  --border-radius-md: 1px;
+  --border-radius-lg: 2px;
 }
 
-/* Soporte de Tema Oscuro Elegante */
+/* Soporte de Tema Oscuro  */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-linen: #12100f;
-    --bg-sand: #1d1a18;
-    --text-main: #f5f0eb;
-    --text-muted: #a39790;
-    --border: #2d2623;
-    --white: #1d1a18;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.4);
+    --bg-linen: #1C1510;       
+    --bg-sand: #292018;         
+    --text-main: #F5F0E6;       
+    --text-muted: #C8B99B;      
+    --border: #3D3025;
+    --white: #292018;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -73,7 +84,13 @@ button, input, select, textarea {
 /* Títulos con Serif */
 h1, h2, h3, h4 {
   font-family: var(--font-serif);
-  color: var(--text-main);
+  color: var(--text-h); 
+  font-weight: 600;
+  line-height: 1.25;
+}
+h3 {
+  font-family: var(--font-serif);
+  color: var(--primary); 
   font-weight: 600;
   line-height: 1.25;
 }
@@ -90,18 +107,27 @@ h1, h2, h3, h4 {
   display: block;
   width: 60px;
   height: 2px;
-  background-color: var(--accent);
+  background-color: var(--gold); 
   margin: 1rem auto 2rem;
 }
 
 .section-subtitle {
-  text-align: center;
+  /* text-align: center;
   font-size: 1.1rem;
   color: var(--text-muted);
   margin-bottom: 3rem;
   font-family: var(--font-sans);
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 2px; */
+  text-align: center;
+  font-size: 1rem; 
+  color: var(--text-muted);
+  margin-bottom: 3rem;
+  font-family: var(--font-sans);
+  text-transform: none; 
+  letter-spacing: 0; 
+  font-weight: 400;
+  line-height: 1.7;
 }
 
 /* Botones Premium */
@@ -121,7 +147,7 @@ h1, h2, h3, h4 {
 
 .btn-primary {
   background-color: var(--primary);
-  color: #fff;
+  color: var(--bg-linen);
 }
 
 .btn-primary:hover {
@@ -131,7 +157,7 @@ h1, h2, h3, h4 {
 
 .btn-secondary {
   background-color: var(--secondary);
-  color: #fff;
+  color: var(--bg-linen);
 }
 
 .btn-secondary:hover {
@@ -139,21 +165,32 @@ h1, h2, h3, h4 {
   transform: translateY(-2px);
 }
 
-.btn-outline {
+/* .btn-outline {
   background-color: transparent;
   border-color: var(--primary);
   color: var(--primary);
+} */
+.btn-outline {
+  background-color: transparent;
+  border-color: var(--secondary); 
+  color: var(--secondary);
+  font-family: var(--font-sans);
 }
 
 .btn-outline:hover {
-  background-color: var(--primary);
-  color: #fff;
+  /* background-color: var(--primary);
+  color: var(--bg-linen);
+  transform: translateY(-2px); */
+  background-color: var(--secondary);
+  color: var(--bg-linen);
+  border-color: var(--secondary);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-accent {
   background-color: var(--accent);
-  color: #12100f;
+  color: var(--bg-linen);
 }
 
 .btn-accent:hover {
@@ -163,17 +200,17 @@ h1, h2, h3, h4 {
 
 /* Glassmorphism y Contenedores */
 .glass-panel {
-  background: rgba(253, 252, 249, 0.8);
+  background: rgba(245, 240, 230, 0.85); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(233, 228, 217, 0.5);
+  border: 1px solid rgba(200, 185, 155, 0.4);
   box-shadow: var(--shadow-md);
 }
 
 @media (prefers-color-scheme: dark) {
   .glass-panel {
-    background: rgba(29, 26, 24, 0.8);
-    border: 1px solid rgba(45, 38, 35, 0.5);
+    background: rgba(28, 21, 16, 0.85);
+    border: 1px solid rgba(61, 48, 37, 0.4);
   }
 }
 
@@ -215,7 +252,7 @@ h1, h2, h3, h4 {
   padding: 0.8rem 1rem;
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border);
-  background-color: var(--bg-linen);
+  background-color: var(--white);
   color: var(--text-main);
   transition: var(--transition);
   font-size: 0.95rem;
@@ -224,12 +261,12 @@ h1, h2, h3, h4 {
 .form-control:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(193, 92, 61, 0.1);
+  box-shadow: 0 0 0 3px rgba(160, 68, 42, 0.15); 
 }
 
 /* Tarjeta de Habitación */
 .room-card {
-  background-color: var(--bg-sand);
+  background-color: var(--white);
   border-radius: var(--border-radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
@@ -264,7 +301,7 @@ h1, h2, h3, h4 {
   bottom: 1rem;
   right: 1rem;
   background-color: var(--primary);
-  color: #fff;
+  color: var(--bg-linen);
   padding: 0.4rem 0.8rem;
   font-weight: bold;
   border-radius: var(--border-radius-sm);
@@ -278,6 +315,7 @@ h1, h2, h3, h4 {
 .room-card-title {
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
+  color: var(--secondary); 
 }
 
 .room-card-desc {
@@ -309,7 +347,7 @@ h1, h2, h3, h4 {
 
 /* Admin Dashboard Table */
 .admin-table-container {
-  background-color: var(--bg-sand);
+  background-color: var(--white);
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border);
   overflow: hidden;
@@ -323,12 +361,13 @@ h1, h2, h3, h4 {
 }
 
 .admin-table th {
-  background-color: var(--border);
+  background-color: var(--bg-sand);
   padding: 1rem;
   font-weight: 600;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: var(--secondary);
 }
 
 .admin-table td {
@@ -341,7 +380,7 @@ h1, h2, h3, h4 {
   border-bottom: none;
 }
 
-/* Badges */
+/* Badges de Estados con la nueva identidad */
 .badge {
   display: inline-flex;
   padding: 0.25rem 0.6rem;
@@ -352,18 +391,18 @@ h1, h2, h3, h4 {
 }
 
 .badge-success {
-  background-color: rgba(53, 74, 62, 0.15);
-  color: #27382d;
+  background-color: rgba(122, 128, 97, 0.2); 
+  color: #4E533C;
 }
 
 .badge-warning {
-  background-color: rgba(212, 175, 55, 0.15);
-  color: #8c7320;
+  background-color: rgba(179, 138, 58, 0.2); 
+  color: #735620;
 }
 
 .badge-danger {
-  background-color: rgba(193, 92, 61, 0.15);
-  color: #873e28;
+  background-color: rgba(160, 68, 42, 0.15); 
+  color: #A0442A;
 }
 
 /* Utilities */
@@ -381,7 +420,7 @@ h1, h2, h3, h4 {
 .text-center { text-align: center; }
 .d-flex { display: flex; }
 .gap-1 { gap: 1rem; }
-.justify-between { justify-content: space-between; }
+.justify-between { justify-between: space-between; }
 .align-center { align-items: center; }
 
 /* Micro-animaciones */
