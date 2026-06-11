@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath } from 'lucide-react';
 
-import portadaInicio from '../assets/portada-inicio.jpg';
+import portadaInicio from '../../../assets/portada-inicio.jpg';
 
 export const Home = () => {
   const navigate = useNavigate();

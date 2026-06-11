@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Calendar, Users, Briefcase, Mail, Phone, User, CheckCircle2, AlertCircle } from 'lucide-react';
-import { api } from '../services/api';
+import { api } from '../../../services/api';
 
 export const Booking = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   // Catálogo de habitaciones para calcular cotizaciones
   const roomsData = {
     'estandar-sencilla': { name: 'Estándar Colonial Sencilla', price: 1500, maxGuests: 2, image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=300&q=80' },
@@ -42,7 +42,7 @@ export const Booking = () => {
       const end = new Date(formData.checkOut);
       const difference = end.getTime() - start.getTime();
       const calculatedNights = Math.ceil(difference / (1000 * 3600 * 24));
-      
+
       if (calculatedNights > 0) {
         setNights(calculatedNights);
         const selectedRoomPrice = roomsData[formData.roomId]?.price || 0;
@@ -83,7 +83,7 @@ export const Booking = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const payload = {
       roomId: formData.roomId,
       roomName: roomsData[formData.roomId]?.name,
@@ -105,7 +105,7 @@ export const Booking = () => {
       setStep(4);
     } catch (err) {
       console.warn('Backend /bookings no disponible. Simulando registro de reserva para desarrollo local.');
-      
+
       // Simulador exitoso en local
       setTimeout(() => {
         setBookingResult({
@@ -148,15 +148,15 @@ export const Booking = () => {
       {/* Contenedor Principal (Formulario + Detalles de Cotización) */}
       {step < 4 ? (
         <div className="grid grid-2" style={{ gap: '2.5rem', alignItems: 'start' }}>
-          
+
           {/* Columna Izquierda: Formulario */}
           <div className="glass-panel animate-fade-in" style={{ padding: '2.5rem', borderRadius: 'var(--border-radius-md)' }}>
-            
+
             {/* Paso 1: Fechas y Suite */}
             {step === 1 && (
               <form onSubmit={handleNextStep}>
                 <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Selecciona Fechas & Suite</h2>
-                
+
                 <div className="form-group">
                   <label>Habitación / Suite</label>
                   <select name="roomId" value={formData.roomId} onChange={handleChange} className="form-control">
@@ -314,7 +314,7 @@ export const Booking = () => {
             <h3 style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
               Resumen de la Cotización
             </h3>
-            
+
             {selectedRoom && (
               <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                 <img src={selectedRoom.image} alt={selectedRoom.name} style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: 'var(--border-radius-sm)' }} />
@@ -347,7 +347,7 @@ export const Booking = () => {
         <div className="glass-panel text-center animate-fade-in" style={{ padding: '4rem 2rem', borderRadius: 'var(--border-radius-md)', maxWidth: '600px', margin: '0 auto' }}>
           <CheckCircle2 size={64} style={{ color: 'var(--secondary)', marginBottom: '1.5rem' }} />
           <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{bookingResult?.message}</h2>
-          
+
           <div style={{ backgroundColor: 'var(--bg-sand)', padding: '1.5rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border)', margin: '2rem 0', textAlign: 'left' }}>
             <p style={{ marginBottom: '0.5rem' }}><strong>Código de Reserva:</strong> <span style={{ fontFamily: 'var(--mono)', fontSize: '1.1rem', color: 'var(--primary)', fontWeight: 'bold' }}>{bookingResult?.code || 'CD-982341'}</span></p>
             <p style={{ marginBottom: '0.5rem' }}><strong>Habitación:</strong> {roomsData[formData.roomId]?.name}</p>

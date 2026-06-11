@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../app/AuthContext';
+import { useAuth } from '../../../app/AuthContext';
 import { Shield, Key, Mail, AlertTriangle } from 'lucide-react';
 
 export const Login = () => {
