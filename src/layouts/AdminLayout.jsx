@@ -65,7 +65,7 @@ export const AdminLayout = () => {
             <LayoutDashboard size={18} />
             Dashboard
           </NavLink>
-          
+
           <NavLink
             to="/admin/reservations"
             style={({ isActive }) => ({
@@ -99,6 +99,42 @@ export const AdminLayout = () => {
             <Bed size={18} />
             Habitaciones
           </NavLink>
+
+          {user?.role === 'admin-sistema' && (
+            <NavLink
+              to="/admin/hotels"
+              style={({ isActive }) => ({
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem',
+                padding: '0.8rem 1rem',
+                borderRadius: 'var(--border-radius-sm)',
+                backgroundColor: isActive ? 'var(--primary)' : 'transparent',
+                color: isActive ? '#fff' : 'var(--text-main)',
+                fontWeight: 500,
+              })}
+            >
+              <Shield size={18} />
+              Hotel
+            </NavLink>
+          )}
+          <NavLink
+            to="/admin/users"
+            style={({ isActive }) => ({
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              padding: '0.8rem 1rem',
+              borderRadius: 'var(--border-radius-sm)',
+              backgroundColor: isActive ? 'var(--primary)' : 'transparent',
+              color: isActive ? '#fff' : 'var(--text-main)',
+              fontWeight: 500,
+            })}
+          >
+            <Shield size={18} />
+            Usuarios
+          </NavLink>
+
         </nav>
 
         <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

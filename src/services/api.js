@@ -21,7 +21,16 @@ export const api = {
       headers,
     };
 
-    if (config.body && typeof config.body === 'object') {
+    // Ensure options.method is uppercase
+    if (config.method) {
+      config.method = config.method.toUpperCase();
+    }
+
+    // Adapt axios-like body/data arguments to fetch configuration
+    if (config.data && typeof config.data === 'object') {
+      config.body = JSON.stringify(config.data);
+      delete config.data;
+    } else if (config.body && typeof config.body === 'object') {
       config.body = JSON.stringify(config.body);
     }
 
@@ -32,7 +41,6 @@ export const api = {
       if (response.status === 401) {
         localStorage.removeItem('casa_dolores_token');
         localStorage.removeItem('casa_dolores_user');
-        // Opcional: recargar para forzar redirección en rutas protegidas
         if (!endpoint.includes('/auth/login')) {
           window.location.href = '/login?expired=true';
         }
@@ -56,11 +64,11 @@ export const api = {
   },
 
   post(endpoint, body, options = {}) {
-    return this.request(endpoint, { ...options, method: 'POST', body });
+    return this.request(endpoint, { ...options, method: 'POST', data: body });
   },
 
   put(endpoint, body, options = {}) {
-    return this.request(endpoint, { ...options, method: 'PUT', body });
+    return this.request(endpoint, { ...options, method: 'PUT', data: body });
   },
 
   delete(endpoint, options = {}) {
