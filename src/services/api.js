@@ -1,47 +1,52 @@
 const API_BASE_URL = '/api';
 
 /**
- * Cliente API centralizado que envuelve fetch
+ * Cliente API centralizado que envuelve fetch.
+ * Detecta automáticamente FormData y NO serializa ni sobreescribe Content-Type en ese caso,
+ * ya que el navegador lo hace solo (incluyendo el boundary del multipart).
  */
 export const api = {
   async request(endpoint, options = {}) {
     const token = localStorage.getItem('casa_dolores_token');
-    
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
+
+    const isFormData = options.body instanceof FormData;
+
+    const headers = { ...options.headers };
+
+    // Solo añadir Content-Type JSON si NO es FormData
+    if (!isFormData) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const config = {
-      ...options,
-      headers,
-    };
+    const config = { ...options, headers };
 
-    if (config.body && typeof config.body === 'object') {
+    // Serializar a JSON solo si el body es un objeto plano (no FormData, no string)
+    if (config.body && !isFormData && typeof config.body === 'object') {
       config.body = JSON.stringify(config.body);
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-      
-      // En caso de sesión expirada o token inválido
+
+      // Sesión expirada o token inválido
       if (response.status === 401) {
         localStorage.removeItem('casa_dolores_token');
         localStorage.removeItem('casa_dolores_user');
-        // Opcional: recargar para forzar redirección en rutas protegidas
         if (!endpoint.includes('/auth/login')) {
           window.location.href = '/login?expired=true';
         }
       }
 
       const data = await response.json().catch(() => ({}));
-      
+
       if (!response.ok) {
-        throw new Error(data.message || 'Ocurrió un error en la petición');
+        const serverMsg = data.message || data.error || JSON.stringify(data);
+        console.error(`API ${response.status} [${endpoint}]:`, serverMsg);
+        throw new Error(serverMsg || 'Ocurrió un error en la petición');
       }
 
       return data;

@@ -15,9 +15,12 @@ export const AdminLayout = () => {
   }
 
   // Redirigir a login si no está autenticado o no es administrador
+  // Deshabilitado temporalmente: todos tienen acceso público
+  /*
   if (!isAdmin) {
     return <Navigate to="/login" replace />;
   }
+  */
 
   const handleLogout = () => {
     logout();
@@ -157,8 +160,8 @@ export const AdminLayout = () => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user.name}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user.email}</div>
+              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{user?.name || 'Administrador'}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{user?.email || 'admin@casadolores.com'}</div>
             </div>
             <div
               style={{
