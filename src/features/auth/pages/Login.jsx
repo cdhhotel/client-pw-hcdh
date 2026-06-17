@@ -67,7 +67,7 @@ export const Login = () => {
           >
             <Shield size={24} />
           </div>
-          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Personal del Hotel</h2>
+          <h2 style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>Iniciar Sesión</h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Ingresa tus credenciales para acceder</p>
         </div>
 
@@ -158,9 +158,10 @@ export const Login = () => {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}> Credenciales de prueba:</p>
+          {/*<p style={{ fontWeight: 600, marginBottom: '0.25rem' }}> Credenciales de prueba:</p>
           <p style={{ fontFamily: 'var(--font-sans)' }}>Usuario: <span style={{ fontFamily: 'var(--mono)', color: 'var(--primary)' }}>admin@casadolores.com</span></p>
-          <p style={{ fontFamily: 'var(--font-sans)' }}>Contraseña: <span style={{ fontFamily: 'var(--mono)', color: 'var(--primary)' }}>admin123</span></p>
+          <p style={{ fontFamily: 'var(--font-sans)' }}>Contraseña: <span style={{ fontFamily: 'var(--mono)', color: 'var(--primary)' }}>admin123</span></p>*/}
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>¿No tienes cuenta? <a href="/register">Registrate</a></p>
         </div>
       </div>
     </div>

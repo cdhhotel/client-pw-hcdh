@@ -24,6 +24,7 @@ export const api = {
 
     const config = { ...options, headers };
 
+
     // Serializar a JSON solo si el body es un objeto plano (no FormData, no string)
     if (config.body && !isFormData && typeof config.body === 'object') {
       config.body = JSON.stringify(config.body);
@@ -61,11 +62,11 @@ export const api = {
   },
 
   post(endpoint, body, options = {}) {
-    return this.request(endpoint, { ...options, method: 'POST', body });
+    return this.request(endpoint, { ...options, method: 'POST', data: body });
   },
 
   put(endpoint, body, options = {}) {
-    return this.request(endpoint, { ...options, method: 'PUT', body });
+    return this.request(endpoint, { ...options, method: 'PUT', data: body });
   },
 
   delete(endpoint, options = {}) {

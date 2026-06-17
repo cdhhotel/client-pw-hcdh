@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 :root {
-  /* Paleta de Colores - Forzada en Modo Claro */
+  /* Paleta de Colores  */
   --primary: #A0442A;           /* Títulos y Botones Primarios */
   --primary-hover: #B55239;     /* Hovers y Enlaces activos */
   --secondary: #6B4A2F;         /* Texto principal y acentos oscuros */
@@ -24,11 +24,11 @@
   --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.08);
   --shadow-md: 0 8px 24px rgba(107, 74, 47, 0.12);
   --shadow-lg: 0 16px 40px rgba(107, 74, 47, 0.18);
-  
+
   /* Fuentes */
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
-  
+
   /* Transiciones */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --border-radius-sm: 0px;
@@ -59,7 +59,10 @@ a {
   transition: var(--transition);
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -69,9 +72,20 @@ h1, h2, h3, h4 {
   font-weight: 600;
   line-height: 1.25;
 }
+
+*/ h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  color: var(--text-h);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
 h3 {
   font-family: var(--font-serif);
-  color: var(--primary); 
+  color: var(--primary);
   font-weight: 600;
   line-height: 1.25;
 }
@@ -83,23 +97,14 @@ h3 {
   position: relative;
 }
 
-.section-title::after {
-  content: '';
-  display: block;
-  width: 60px;
-  height: 2px;
-  background-color: var(--gold); 
-  margin: 1rem auto 2rem;
-}
-
 .section-subtitle {
   text-align: center;
-  font-size: 1rem; 
+  font-size: 1rem;
   color: var(--text-muted);
   margin-bottom: 3rem;
   font-family: var(--font-sans);
-  text-transform: none; 
-  letter-spacing: 0; 
+  text-transform: none;
+  letter-spacing: 0;
   font-weight: 400;
   line-height: 1.7;
 }
@@ -141,7 +146,7 @@ h3 {
 
 .btn-outline {
   background-color: transparent;
-  border-color: var(--secondary); 
+  border-color: var(--secondary);
   color: var(--secondary);
   font-family: var(--font-sans);
 }
@@ -166,7 +171,7 @@ h3 {
 
 /* Contenedores */
 .glass-panel {
-  background: rgba(245, 240, 230, 0.85); 
+  background: rgba(245, 240, 230, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(200, 185, 155, 0.4);
@@ -222,7 +227,7 @@ h3 {
 .form-control:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(160, 68, 42, 0.15); 
+  box-shadow: 0 0 0 3px rgba(160, 68, 42, 0.15);
 }
 
 /* Tarjeta de Habitación */
@@ -276,7 +281,7 @@ h3 {
 .room-card-title {
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
-  color: var(--secondary); 
+  color: var(--secondary);
 }
 
 .room-card-desc {
@@ -313,7 +318,7 @@ h3 {
   border: 1px solid var(--border);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  overflow-x: auto; 
+  overflow-x: auto;
   width: 100%;
 }
 
@@ -354,17 +359,17 @@ h3 {
 }
 
 .badge-success {
-  background-color: rgba(122, 128, 97, 0.2); 
+  background-color: rgba(122, 128, 97, 0.2);
   color: #4E533C;
 }
 
 .badge-warning {
-  background-color: rgba(179, 138, 58, 0.2); 
+  background-color: rgba(179, 138, 58, 0.2);
   color: #735620;
 }
 
 .badge-danger {
-  background-color: rgba(160, 68, 42, 0.15); 
+  background-color: rgba(160, 68, 42, 0.15);
   color: #A0442A;
 }
 
@@ -380,10 +385,41 @@ h3 {
   padding: 5rem 0;
 }
 
-.text-center { text-align: center; }
-.d-flex { display: flex; }
-.gap-1 { gap: 1rem; }
-.justify-between { justify-content: space-between; } 
+.text-center {
+  text-align: center;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.gap-1 {
+  gap: 1rem;
+}
+
+.justify-between {
+  justify-between: space-between;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.d-flex {
+  display: flex;
+}
+
+.gap-1 {
+  gap: 1rem;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
 
 @media (max-width: 768px) {
   .flex-mobile-column {
@@ -391,12 +427,23 @@ h3 {
     gap: 1rem;
   }
 }
-.align-center { align-items: center; }
+
+.align-center {
+  align-items: center;
+}
+
 
 /* Micro-animaciones */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
