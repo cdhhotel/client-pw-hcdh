@@ -34,7 +34,7 @@ function App() {
             <Route path="reservations" element={<AdminReservations />} />
             <Route path="hotels" element={<Hotels />} />
             <Route path="users" element={<Users />} />
-            {/* <Route path="rooms" element={<AdminRooms />} /> — pendiente de crear */}
+            <Route path="rooms" element={<AdminRooms />} />
           </Route>
 
           {/* Redirecciones de conveniencia para accesos directos o erróneos */}
