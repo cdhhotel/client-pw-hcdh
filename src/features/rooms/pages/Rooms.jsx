@@ -1,66 +1,87 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, BedDouble, ShieldCheck, Tag } from 'lucide-react';
+import { Users, BedDouble, ShieldCheck, Tag, Loader2, AlertCircle, LayoutGrid } from 'lucide-react';
+import { api } from '../../../services/api';
+
+const SERVER_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+const FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80';
+
+/** Primera imagen de atributos_extra o fallback */
+function getRoomImage(room) {
+  const imagenes = room?.atributos_extra?.imagenes;
+  if (Array.isArray(imagenes) && imagenes.length > 0) {
+    const src = imagenes[0];
+    return src;
+  }
+  return FALLBACK_IMAGE;
+}
+
+/** Amenidades guardadas en atributos_extra */
+function getAmenidades(room) {
+  const extra = room?.atributos_extra;
+  if (!extra) return [];
+  if (Array.isArray(extra.amenidades)) return extra.amenidades;
+  if (Array.isArray(extra.amenities)) return extra.amenities;
+
+  // Si los atributos booleanos están presentes, los mostramos como chips
+  const chips = [];
+  if (extra.extras) chips.push('Productos de Baño');
+  if (extra.terraza) chips.push('Terraza');
+  if (extra.bano) chips.push('Baño completo');
+  if (extra.tv) chips.push('TV');
+  if (extra.wifi) chips.push('Wi-Fi');
+  return chips;
+}
 
 export const Rooms = () => {
   const navigate = useNavigate();
+
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [filterCapacity, setFilterCapacity] = useState('all');
   const [sortOrder, setSortOrder] = useState('none');
+  const [hoveredId, setHoveredId] = useState(null);
 
-  const roomsData = [
-    {
-      id: 'estandar-sencilla',
-      name: 'Estándar Colonial Sencilla',
-      image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80',
-      description: 'Acogedora habitación decorada con acabados rústicos, cama King size y vistas al callejón histórico.',
-      price: 1500,
-      capacity: 2,
-      beds: '1 Cama King Size',
-      amenities: ['Wifi Gratis', 'Smart TV', 'Cafetera Orgánica', 'Caja Fuerte'],
-    },
-    {
-      id: 'doble-deluxe',
-      name: 'Doble Colonial Deluxe',
-      image: 'https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80',
-      description: 'Ideal para familias. Cuenta con dos amplias camas Queen size y hermosos baños revestidos en azulejo Talavera.',
-      price: 2200,
-      capacity: 4,
-      beds: '2 Camas Queen Size',
-      amenities: ['Wifi Gratis', 'Smart TV', 'Cafetera Orgánica', 'Minibar', 'Aire Acondicionado'],
-    },
-    {
-      id: 'junior-suite',
-      name: 'Junior Suite Dolores',
-      image: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=600&q=80',
-      description: 'Hermosa habitación con balcón de herrería colonial al jardín central y tina de baño artesanal de cobre.',
-      price: 2400,
-      capacity: 2,
-      beds: '1 Cama King Size',
-      amenities: ['Wifi Gratis', 'Pantalla 55"', 'Tina de Cobre', 'Cafetera Espresso', 'Batas de Lujo'],
-    },
-    {
-      id: 'master-suite',
-      name: 'Master Suite Presidencial',
-      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80',
-      description: 'Nuestra suite insignia. Dispone de chimenea de cantera tallada, sala de estar privada y la mayor comodidad del hotel.',
-      price: 3800,
-      capacity: 4,
-      beds: '2 Camas King Size',
-      amenities: ['Wifi Premium', '2 Smart TVs', 'Chimenea', 'Minibar Premium', 'Tina Hidromasaje', 'Desayuno en Habitación'],
-    },
-  ];
+  // ── Carga desde el backend ────────────────────────────────────────────────
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await api.get('/room/rooms');
+        const data = response?.data ?? response;
+        // Solo mostrar habitaciones disponibles al público
+        const disponibles = Array.isArray(data)
+          ? data.filter((r) => r.estatus === 'disponible')
+          : [];
+        setRooms(disponibles);
+      } catch (err) {
+        console.error('Error al cargar habitaciones:', err);
+        setError(err.message || 'No se pudieron cargar las habitaciones.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRooms();
+  }, []);
 
-  // Filtrado de Habitaciones
-  const filteredRooms = roomsData
+  // ── Filtrado y ordenamiento ───────────────────────────────────────────────
+  const filteredRooms = rooms
     .filter((room) => {
       if (filterCapacity === 'all') return true;
-      if (filterCapacity === '2') return room.capacity === 2;
-      if (filterCapacity === '4') return room.capacity === 4;
+      const cap = Number(room.capacidad_maxima) || 0;
+      if (filterCapacity === '2') return cap <= 2;
+      if (filterCapacity === '4') return cap <= 4;
       return true;
     })
     .sort((a, b) => {
-      if (sortOrder === 'low-high') return a.price - b.price;
-      if (sortOrder === 'high-low') return b.price - a.price;
+      const pa = Number(a.precio_base_noche) || 0;
+      const pb = Number(b.precio_base_noche) || 0;
+      if (sortOrder === 'low-high') return pa - pb;
+      if (sortOrder === 'high-low') return pb - pa;
       return 0;
     });
 
@@ -68,10 +89,72 @@ export const Rooms = () => {
     navigate(`/booking?room=${roomId}`);
   };
 
+  // ── Estado: cargando ──────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div
+        className="animate-fade-in container py-section"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '50vh',
+          gap: '1.25rem',
+        }}
+      >
+        <Loader2
+          size={48}
+          style={{ color: 'var(--primary)', animation: 'spin 1s linear infinite' }}
+        />
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Cargando habitaciones…</p>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  // ── Estado: error ─────────────────────────────────────────────────────────
+  if (error) {
+    return (
+      <div
+        className="animate-fade-in container py-section"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '50vh',
+          gap: '1rem',
+          textAlign: 'center',
+        }}
+      >
+        <AlertCircle size={48} style={{ color: 'var(--primary)' }} />
+        <h2 style={{ fontSize: '1.4rem' }}>Error al cargar habitaciones</h2>
+        <p style={{ color: 'var(--text-muted)', maxWidth: '480px' }}>{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="btn btn-primary"
+          style={{ marginTop: '0.5rem' }}
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
+
+  // ── Vista principal ───────────────────────────────────────────────────────
   return (
-    <div className="animate-fade-in container py-section">
-      <h1 className="section-title">Habitaciones & Suites</h1>
-      <p className="section-subtitle">Cada habitación es una pieza de arte y confort único</p>
+    <div className="animate-fade-in container py-section" style={{ backgroundColor: '#1C1510', padding: '5rem 2rem', borderRadius: 'var(--border-radius-lg)' }}>
+      {/* Encabezado de la Sección */}
+      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <span style={{ color: 'var(--gold, #D4AF37)', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+          Descansa con estilo
+        </span>
+        <h1 className="section-title" style={{ color: '#F5F0E6', marginTop: '0.5rem', fontSize: '2.5rem' }}>Habitaciones &amp; Suites</h1>
+        <p className="section-subtitle" style={{ color: 'var(--text-muted, #A0A0A0)', marginTop: '0.5rem' }}>
+          Cada habitación es una pieza de arte y confort único. Espacios que combinan calidez y modernidad.
+        </p>
+      </div>
 
       {/* Panel de Filtros */}
       <div
@@ -85,17 +168,21 @@ export const Rooms = () => {
           padding: '1.25rem 2rem',
           borderRadius: 'var(--border-radius-md)',
           marginBottom: '3rem',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
         }}
       >
         <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
           {/* Filtro de Capacidad */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)' }}>Capacidad:</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(245, 240, 230, 0.8)' }}>
+              Capacidad:
+            </span>
             <select
               value={filterCapacity}
               onChange={(e) => setFilterCapacity(e.target.value)}
               className="form-control"
-              style={{ padding: '0.4rem 1.5rem 0.4rem 0.8rem', fontSize: '0.85rem' }}
+              style={{ padding: '0.4rem 1.5rem 0.4rem 0.8rem', fontSize: '0.85rem', backgroundColor: '#2C221E', color: '#FFF', border: '1px solid rgba(255,255,255,0.2)' }}
             >
               <option value="all">Todas las capacidades</option>
               <option value="2">Hasta 2 Huéspedes</option>
@@ -105,12 +192,14 @@ export const Rooms = () => {
 
           {/* Ordenar por Precio */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-muted)' }}>Ordenar:</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'rgba(245, 240, 230, 0.8)' }}>
+              Ordenar:
+            </span>
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
               className="form-control"
-              style={{ padding: '0.4rem 1.5rem 0.4rem 0.8rem', fontSize: '0.85rem' }}
+              style={{ padding: '0.4rem 1.5rem 0.4rem 0.8rem', fontSize: '0.85rem', backgroundColor: '#2C221E', color: '#FFF', border: '1px solid rgba(255,255,255,0.2)' }}
             >
               <option value="none">Por defecto</option>
               <option value="low-high">Precio: Menor a Mayor</option>
@@ -119,67 +208,196 @@ export const Rooms = () => {
           </div>
         </div>
 
-        <div style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-          Mostrando <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{filteredRooms.length}</span> suites
+        <div style={{ fontSize: '0.9rem', color: 'rgba(245, 240, 230, 0.8)', fontWeight: 500 }}>
+          Mostrando{' '}
+          <span style={{ color: 'var(--gold, #D4AF37)', fontWeight: 'bold' }}>
+            {filteredRooms.length}
+          </span>{' '}
+          {filteredRooms.length === 1 ? 'habitación' : 'habitaciones'}
         </div>
       </div>
 
-      {/* Grid de Habitaciones */}
-      <div className="grid grid-2" style={{ gap: '2.5rem' }}>
-        {filteredRooms.map((room) => (
-          <div key={room.id} className="room-card" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <div className="room-card-image" style={{ height: '280px' }}>
-              <img src={room.image} alt={room.name} />
-              <div className="room-card-price">${room.price} MXN / Noche</div>
-            </div>
-            
-            <div className="room-card-content" style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, justifyContent: 'space-between' }}>
-              <div>
-                <h2 className="room-card-title" style={{ fontSize: '1.6rem', marginBottom: '0.75rem' }}>{room.name}</h2>
-                <p className="room-card-desc" style={{ fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>{room.description}</p>
-                
-                {/* Detalles rápidos */}
-                <div className="room-card-features" style={{ marginBottom: '1.25rem' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><Users size={16} /> Max {room.capacity} personas</span>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}><BedDouble size={16} /> {room.beds}</span>
-                </div>
+      {/* Estado vacío */}
+      {filteredRooms.length === 0 ? (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+            padding: '4rem 2rem',
+            textAlign: 'center',
+            color: 'rgba(245, 240, 230, 0.6)',
+          }}
+        >
+          <LayoutGrid size={48} style={{ opacity: 0.35 }} />
+          <p style={{ fontSize: '1.1rem' }}>
+            No hay habitaciones disponibles con los filtros seleccionados.
+          </p>
+        </div>
+      ) : (
+        /* Carrusel / Acordeón Desplegable*/
+        <div
+          className="container-accordion"
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '1.5rem',
+            width: '100%',
+            maxWidth: '1200px',
+            margin: '0 auto',
+            overflowX: 'auto',
+            paddingBottom: '1.5rem',
+          }}
+        >
+          {filteredRooms.map((room) => {
+            const imageSrc = getRoomImage(room);
+            const precio = Number(room.precio_base_noche) || 0;
+            const descripcion = room.descripcion_corta || room.descripcion_larga || 'Sin descripción disponible.';
 
-                {/* Amenidades */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '2rem' }}>
-                  {room.amenities.map((amenity, idx) => (
-                    <span
-                      key={idx}
-                      style={{
-                        backgroundColor: 'var(--bg-linen)',
-                        border: '1px solid var(--border)',
-                        padding: '0.25rem 0.6rem',
-                        borderRadius: 'var(--border-radius-sm)',
-                        fontSize: '0.75rem',
-                        color: 'var(--text-muted)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                      }}
-                    >
-                      <ShieldCheck size={12} style={{ color: 'var(--secondary)' }} /> {amenity}
-                    </span>
-                  ))}
-                </div>
-              </div>
 
-              <div>
-                <button
-                  onClick={() => handleBooking(room.id)}
-                  className="btn btn-primary"
-                  style={{ width: '100%', gap: '0.5rem', padding: '0.9rem' }}
-                >
-                  <Tag size={18} /> Reservar Ahora
-                </button>
+            const activeId = hoveredId || (filteredRooms[0] ? filteredRooms[0].id : null);
+            const isFrameEmpty = activeId !== room.id;
+
+            return (
+              <div
+                key={room.id}
+                onMouseEnter={() => setHoveredId(room.id)}
+                style={{
+                  flex: isFrameEmpty ? '0 0 240px' : '0 0 380px',
+                  height: '500px',
+                  backgroundColor: isFrameEmpty ? 'transparent' : 'var(--white, #FFF)',
+                  border: isFrameEmpty ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid transparent',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+                  cursor: 'pointer',
+                }}
+              >
+                {/* VISTA TARJETA CONTRAÍDA  */}
+                {isFrameEmpty && (
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    padding: '2.5rem 1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    textAlign: 'center'
+                  }}>
+                    <h3 style={{
+                      fontSize: '0.95rem',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      color: 'rgba(245, 240, 230, 0.8)',
+                      lineHeight: '1.4',
+                      marginTop: '1.5rem'
+                    }}>
+                      {room.nombre}
+                    </h3>
+                  </div>
+                )}
+
+                {/* VISTA TARJETA EXPANDIDA */}
+                {!isFrameEmpty && (
+                  <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+                    {/* Título */}
+                    <div style={{ padding: '1.5rem 1rem 0.75rem 1rem', textAlign: 'center' }}>
+                      <h3 style={{
+                        fontSize: '1.1rem',
+                        fontWeight: '800',
+                        textTransform: 'uppercase',
+                        letterSpacing: '2px',
+                        color: 'var(--secondary, #1C1510)'
+                      }}>
+                        {room.nombre}
+                      </h3>
+                    </div>
+
+                    {/* Imagen y Precio */}
+                    <div style={{ position: 'relative', height: '200px', margin: '0 1.25rem', overflow: 'hidden' }}>
+                      <img
+                        src={imageSrc}
+                        alt={room.nombre}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.currentTarget.src = FALLBACK_IMAGE;
+                        }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '0',
+                        left: '0',
+                        right: '0',
+                        background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                        color: '#FFF',
+                        padding: '0.5rem',
+                        fontSize: '0.8rem',
+                        textAlign: 'center',
+                        fontWeight: 'bold'
+                      }}>
+                        ${precio.toLocaleString('es-MX')} MXN / Noche
+                      </div>
+                    </div>
+
+                    {/* Cuerpo de texto*/}
+                    <div style={{
+                      padding: '1.25rem 1.5rem 1.5rem 1.5rem',
+                      textAlign: 'center',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexGrow: 1
+                    }}>
+                      <p style={{
+                        color: 'var(--text-muted, #555)',
+                        fontSize: '0.85rem',
+                        lineHeight: '1.5',
+                        marginBottom: '1rem',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {descripcion}
+                      </p>
+
+                      <button
+                        onClick={() => handleBooking(room.id)}
+                        className="btn"
+                        style={{
+                          width: '100%',
+                          backgroundColor: 'rgba(0, 0, 0, 1)',
+                          color: '#FFF',
+                          border: 'none',
+                          padding: '0.75rem',
+                          fontSize: '0.75rem',
+                          fontWeight: '700',
+                          textTransform: 'uppercase',
+                          letterSpacing: '2px',
+                          borderRadius: '0px',
+                          transition: 'background-color 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary, #D4AF37)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 1)'}
+                      >
+                        Reservar Ahora
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

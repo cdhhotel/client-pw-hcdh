@@ -8,7 +8,7 @@ import { Booking } from './features/booking/pages/Booking';
 import { Login } from './features/auth/pages/Login';
 import { Dashboard as AdminDashboard } from './features/system-admin/pages/Dashboard';
 import { Reservations as AdminReservations } from './features/reservations/Reservations';
-// AdminRooms: './features/hotel-admin/pages/' está vacío — página pendiente de crear
+import { AdminRooms } from './features/hotel-admin/pages/AdminRooms';
 
 function App() {
   return (
@@ -27,7 +27,7 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="reservations" element={<AdminReservations />} />
-            {/* <Route path="rooms" element={<AdminRooms />} /> — pendiente de crear */}
+            <Route path="rooms" element={<AdminRooms />} />
           </Route>
         </Routes>
       </BrowserRouter>
