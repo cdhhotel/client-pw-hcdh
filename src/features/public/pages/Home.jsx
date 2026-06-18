@@ -103,7 +103,7 @@ export const Home = () => {
           }}
         >
           <>
-            {/* Bloque: Llegada */}
+            {/* Llegada */}
             <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
               <label style={{
                 display: 'flex',
@@ -120,7 +120,7 @@ export const Home = () => {
               <input type="date" className="form-control" style={{ width: '100%' }} required />
             </div>
 
-            {/* Bloque: Salida */}
+            {/* Salida */}
             <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
               <label style={{
                 display: 'flex',
@@ -137,7 +137,7 @@ export const Home = () => {
               <input type="date" className="form-control" style={{ width: '100%' }} required />
             </div>
 
-            {/* Bloque: Huéspedes */}
+            {/* Huéspedes */}
             <div style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
               <label style={{
                 display: 'flex',
@@ -190,7 +190,7 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Habitaciones Destacadas*/}
+      {/* Habitaciones */}
       <section style={{ padding: '5rem 0', overflow: 'hidden' }}>
         <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>

@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const WhatsAppButton = () => {
-  const TELEFONO = "4181481083";
+  const TELEFONO = "4181775155";
   const MENSAJE = "¡Hola! Me gustaría obtener más información sobre el hotel.";
 
   const handleWhatsAppClick = () => {

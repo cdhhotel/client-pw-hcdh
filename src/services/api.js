@@ -62,11 +62,11 @@ export const api = {
   },
 
   post(endpoint, body, options = {}) {
-    return this.request(endpoint, { ...options, method: 'POST', data: body });
+    return this.request(endpoint, { ...options, method: 'POST', body });
   },
 
   put(endpoint, body, options = {}) {
-    return this.request(endpoint, { ...options, method: 'PUT', data: body });
+    return this.request(endpoint, { ...options, method: 'PUT', body });
   },
 
   delete(endpoint, options = {}) {
