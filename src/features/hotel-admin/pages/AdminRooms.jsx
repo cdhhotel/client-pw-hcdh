@@ -233,8 +233,8 @@ export const AdminRooms = () => {
                     <h3 className="text-xl font-serif text-[var(--primary)]">No se encontraron habitaciones</h3>
                 </div>
             ) : (
-                <div className="admin-table-container w-full overflow-x-auto">
-                    <table className="admin-table min-w-[800px] w-full">
+                <div className="admin-table-container">
+                    <table className="admin-table w-full">
                         <thead>
                             <tr>
                                 <th className="w-24">Foto</th>
