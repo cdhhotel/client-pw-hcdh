@@ -274,7 +274,7 @@ export const Home = () => {
                           {room.nombre}
                         </h3>
                         <button
-                          onClick={() => navigate(`/habitacion/${room.id}`)}
+                          onClick={() => navigate(`/rooms?room=${room.id}`)}
                           className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
                           Ver Más
                         </button>
