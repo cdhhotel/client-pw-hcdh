@@ -9,7 +9,7 @@ export const api = {
   async request(endpoint, options = {}) {
     const token = localStorage.getItem('casa_dolores_token');
 
-    const isFormData = options.body instanceof FormData;
+    const isFormData = options.body instanceof FormData || options.data instanceof FormData;
 
     const headers = { ...options.headers };
 
@@ -25,8 +25,15 @@ export const api = {
     const config = { ...options, headers };
 
 
-    // Serializar a JSON solo si el body es un objeto plano (no FormData, no string)
-    if (config.body && !isFormData && typeof config.body === 'object') {
+    // Manejar body enviado como `data` (estilo axios) o como `body` directo
+    if (config.data instanceof FormData) {
+      config.body = config.data;
+      delete config.data;
+    } else if (config.data && typeof config.data === 'object') {
+      config.body = JSON.stringify(config.data);
+      delete config.data;
+    } else if (config.body && !isFormData && typeof config.body === 'object') {
+      // Serializar a JSON solo si el body es un objeto plano (no FormData)
       config.body = JSON.stringify(config.body);
     }
 

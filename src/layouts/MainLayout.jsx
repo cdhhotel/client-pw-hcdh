@@ -80,7 +80,7 @@ export const MainLayout = () => {
               </div>
             ) : (
               <Link to="/login" className="btn btn-primary py-2.5 px-6 text-sm rounded-md">
-                Iniciar Sesión
+                Reservar
               </Link>
             )}
           </nav>
