@@ -20,7 +20,8 @@
   --text-muted: #584330;        /* texto secundario */
   --border: #C8B99B;            /* divisiones sutiles */
   --white: #FDFBF7;             /* Blanco */
-  --btn-edit:#5c867c;
+  --btn-edit:#79865c;
+  --btn-actua:#ac9d6d;
   
   /* Sombras */
   --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.08);
@@ -183,6 +184,16 @@ h3 {
 
 .btn-gold:hover {
   background-color: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+.btn-actua {
+  background-color: var(--btn-actua);
+  color: var(--bg-linen);
+}
+
+.btn-actua:hover {
+  background-color: var(--btn-actua);
   transform: translateY(-2px);
 }
 

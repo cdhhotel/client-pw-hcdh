@@ -216,7 +216,7 @@ export const AdminRooms = () => {
                         <option value="ocupada">Ocupadas</option>
                     </select>
                 </div>
-                <button className="btn btn-outline p-3 w-full md:w-auto flex justify-center items-center" onClick={loadData} disabled={loading}>
+                <button className="btn btn-actua p-3 w-full md:w-auto flex justify-center items-center" onClick={loadData} disabled={loading}>
                     <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                 </button>
             </div>

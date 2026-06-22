@@ -323,11 +323,12 @@ export const RoomFormModal = ({
                         <p style={sectionTitle}>Atributos Especiales</p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
                             {[
-                                { name: 'extras', label: 'Productos de Baño' },
-                                { name: 'terraza', label: 'Terraza' },
+                                { name: 'extras', label: 'Amenidades' },
+                                { name: 'toallas', label: 'Toallas Suaves' },
                                 { name: 'bano', label: 'Baño completo' },
                                 { name: 'tv', label: 'TV' },
-                                { name: 'wifi', label: 'Wi-Fi' }
+                                { name: 'wifi', label: 'Wi-Fi' },
+                                { name: 'ventilador', label: 'Ventilador' }
                             ].map(({ name, label }) => (
                                 <label
                                     key={name}
