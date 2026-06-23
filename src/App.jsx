@@ -12,7 +12,8 @@ import { Hotels } from './features/system-admin/pages/Hotels';
 import { Register } from './features/auth/pages/Register';
 import { Users } from './features/system-admin/pages/Users';
 import { AdminRooms } from './features/hotel-admin/pages/AdminRooms';
-// AdminRooms: './features/hotel-admin/pages/' está vacío — página pendiente de crear
+import { AdminItinerary } from './features/hotel-admin/pages/AdminItinerary';
+import { Itinerary } from './features/itinerary/pages/Itinerary';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route index element={<Home />} />
             <Route path="rooms" element={<Rooms />} />
             <Route path="booking" element={<Booking />} />
+            <Route path="itinerary" element={<Itinerary />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
           </Route>
@@ -35,6 +37,7 @@ function App() {
             <Route path="hotels" element={<Hotels />} />
             <Route path="users" element={<Users />} />
             <Route path="rooms" element={<AdminRooms />} />
+            <Route path="itinerary" element={<AdminItinerary />} />
           </Route>
 
           {/* Redirecciones de conveniencia para accesos directos o erróneos */}
