@@ -18,6 +18,7 @@ import { Reservations } from "../../features/hotel-admin/pages/Reservations";
 // rutas para super admin
 import { SystemDashboard } from "../../features/system-admin/pages/Dashboard";
 import { Hotels } from "../../features/system-admin/pages/Hotels";
+import { Reservations } from "../../features/system-admin/pages/Reservations";
 import { Users } from "../../features/system-admin/pages/Users";
 
 import { PrivateRoute } from "./PrivateRoute";

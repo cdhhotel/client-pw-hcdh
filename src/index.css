@@ -1,42 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap');
 @import "tailwindcss";
 
-
 :root {
-  /* Paleta de Colores */
-  --primary: #A0442A;
-  /* Títulos y Botones Primarios */
-  --primary-hover: #B55239;
-  /* Hovers y Enlaces activos */
-  --secondary: #6B4A2F;
-  /* Texto principal y acentos oscuros */
-  --secondary-hover: #523823;
-  /* Nogal Oscuro */
-  --accent: #7A8061;
-  /* Detalles orgánicos y jardines */
-  --accent-hover: #63684d;
-  --gold: #B38A3A;
-  /* Iconos y detalles artesanal */
-  --gold-hover: #D9B45B;
-  --text-h: #F5F0E6;
-
-  --bg-linen: #F5F0E6;
-  /*Fondo base */
-  --bg-sand: #D8C8A8;
-  /* Para secciones, tarjetas y footers */
-  --text-main: #6B4A2F;
-  /* texto base */
-  --text-muted: #8C7662;
-  /* texto secundario */
-  --border: #C8B99B;
-  /* divisiones sutiles */
-  --white: #FDFBF7;
-  /* Blanco */
-
+  /* Paleta de Colores  */
+  --primary: #A0442A;           /* Títulos y Botones Primarios */
+  --primary-hover: #B55239;     /* Hovers y Enlaces activos */
+  --secondary: #6B4A2F;         /* Texto principal y acentos oscuros */
+  --secondary-hover: #523823;   /* Nogal Oscuro */
+  --accent: #7A8061;            /* Detalles orgánicos y jardines */
+  --accent-hover: #63684d;      
+  --gold: #B38A3A;              /* Iconos y detalles artesanal */
+  --gold-hover: #a17e2d;      
+  --text-h: #A0442A;          
+  --bg-secondary: #49372a;      /* Fondo secundario */
+  --bg-linen: #F5F0E6;          /* Fondo base (Tonalidad solicitada) */
+  --bg-sand: #D8C8A8;           /* Para secciones, tarjetas y footers */
+  --text-main: #6B4A2F;         /* texto base */
+  --text-muted: #584330;        /* texto secundario */
+  --border: #C8B99B;            /* divisiones sutiles */
+  --white: #FDFBF7;             /* Blanco */
+  
   /* Sombras */
-  /* --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.05);
-  --shadow-md: 0 8px 24px rgba(107, 74, 47, 0.1);
-  --shadow-lg: 0 16px 40px rgba(107, 74, 47, 0.15); */
   --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.08);
   --shadow-md: 0 8px 24px rgba(107, 74, 47, 0.12);
   --shadow-lg: 0 16px 40px rgba(107, 74, 47, 0.18);
@@ -52,20 +36,6 @@
   --border-radius-lg: 2px;
 }
 
-/* Soporte de Tema Oscuro  */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-linen: #1C1510;
-    --bg-sand: #292018;
-    --text-main: #F5F0E6;
-    --text-muted: #C8B99B;
-    --border: #3D3025;
-    --white: #292018;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
-  }
-}
 
 /* Reset & Estilos Base */
 * {
@@ -96,21 +66,7 @@ textarea {
   font-family: inherit;
 }
 
-/* Títulos con Serif */
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-serif);
-  color: var(--text-h);
-  font-weight: 600;
-  line-height: 1.25;
-}
-
-*/ h1,
-h2,
-h3,
-h4 {
+h1, h2, h3, h4 {
   font-family: var(--font-serif);
   color: var(--text-h);
   font-weight: 600;
@@ -125,20 +81,13 @@ h3 {
 }
 
 .section-title {
-  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-size: clamp(1.8rem, 5vw, 2.5rem); 
   text-align: center;
   margin-bottom: 0.5rem;
   position: relative;
 }
 
 .section-subtitle {
-  /* text-align: center;
-  font-size: 1.1rem;
-  color: var(--text-muted);
-  margin-bottom: 3rem;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  letter-spacing: 2px; */
   text-align: center;
   font-size: 1rem;
   color: var(--text-muted);
@@ -150,7 +99,7 @@ h3 {
   line-height: 1.7;
 }
 
-/* Botones Premium */
+/* Botones */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -185,11 +134,6 @@ h3 {
   transform: translateY(-2px);
 }
 
-/* .btn-outline {
-  background-color: transparent;
-  border-color: var(--primary);
-  color: var(--primary);
-} */
 .btn-outline {
   background-color: transparent;
   border-color: var(--secondary);
@@ -198,9 +142,6 @@ h3 {
 }
 
 .btn-outline:hover {
-  /* background-color: var(--primary);
-  color: var(--bg-linen);
-  transform: translateY(-2px); */
   background-color: var(--secondary);
   color: var(--bg-linen);
   border-color: var(--secondary);
@@ -218,7 +159,17 @@ h3 {
   transform: translateY(-2px);
 }
 
-/* Glassmorphism y Contenedores */
+.btn-gold {
+  background-color: var(--gold);
+  color: var(--bg-linen);
+}
+
+.btn-gold:hover {
+  background-color: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+/* Contenedores */
 .glass-panel {
   background: rgba(245, 240, 230, 0.85);
   backdrop-filter: blur(12px);
@@ -227,12 +178,6 @@ h3 {
   box-shadow: var(--shadow-md);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass-panel {
-    background: rgba(28, 21, 16, 0.85);
-    border: 1px solid rgba(61, 48, 37, 0.4);
-  }
-}
 
 /* Grid del Hotel */
 .grid {
@@ -253,7 +198,7 @@ h3 {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-/* Formulario Premium */
+/* Formulario  */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -403,7 +348,7 @@ h3 {
   border-bottom: none;
 }
 
-/* Badges de Estados con la nueva identidad */
+/* Badges de Estados */
 .badge {
   display: inline-flex;
   padding: 0.25rem 0.6rem;
@@ -431,9 +376,9 @@ h3 {
 /* Utilities */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 2.5rem;
 }
 
 .py-section {
@@ -452,9 +397,9 @@ h3 {
   gap: 1rem;
 }
 
-.justify-between {
+/* .justify-between {
   justify-between: space-between;
-}
+} */
 
 .align-center {
   align-items: center;
@@ -487,6 +432,10 @@ h3 {
   align-items: center;
 }
 
+@keyframes fadeScale {
+  0% { opacity: 0; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
 
 /* Micro-animaciones */
 @keyframes fadeIn {

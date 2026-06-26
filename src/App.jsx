@@ -7,10 +7,11 @@ import { Rooms } from './features/rooms/pages/Rooms';
 import { Booking } from './features/booking/pages/Booking';
 import { Login } from './features/auth/pages/Login';
 import { Dashboard as AdminDashboard } from './features/system-admin/pages/Dashboard';
-import { Reservations as AdminReservations } from './features/reservations/Reservations';
+import { Reservations as AdminReservations } from './features/system-admin/pages/Reservations';
 import { Hotels } from './features/system-admin/pages/Hotels';
 import { Register } from './features/auth/pages/Register';
 import { Users } from './features/system-admin/pages/Users';
+import { AdminRooms } from './features/hotel-admin/pages/AdminRooms';
 // AdminRooms: './features/hotel-admin/pages/' está vacío — página pendiente de crear
 
 function App() {
@@ -33,7 +34,7 @@ function App() {
             <Route path="reservations" element={<AdminReservations />} />
             <Route path="hotels" element={<Hotels />} />
             <Route path="users" element={<Users />} />
-            {/* <Route path="rooms" element={<AdminRooms />} /> — pendiente de crear */}
+            <Route path="rooms" element={<AdminRooms />} />
           </Route>
 
           {/* Redirecciones de conveniencia para accesos directos o erróneos */}

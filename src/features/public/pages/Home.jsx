@@ -1,40 +1,55 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath } from 'lucide-react';
+import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath, Loader2 } from 'lucide-react';
+import { api } from '../../../services/api';
+import portadaInicio from '../../../assets/background-home.jpeg';
+import bgsecondary from '../../../assets/bg-secondary.png';
+import videoEjemplo from '../../../assets/videoejemplo.mp4';
 
-import portadaInicio from '../../../assets/portada-inicio.png';
+
+const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80';
+
+function getRoomImage(room) {
+  const imagenes = room?.atributos_extra?.imagenes;
+  if (Array.isArray(imagenes) && imagenes.length > 0) {
+    return imagenes[0];
+  }
+  return FALLBACK_IMAGE;
+}
 
 export const Home = () => {
   const navigate = useNavigate();
 
-  const [hoveredId, setHoveredId] = useState('junior-suite');
+  const [hoveredId, setHoveredId] = useState(null);
+  const [featuredRooms, setFeaturedRooms] = useState([]);
+  const [loadingRooms, setLoadingRooms] = useState(true);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        setLoadingRooms(true);
+        const response = await api.get('/room/rooms');
+        const data = response?.data ?? response;
+        const disponibles = Array.isArray(data)
+          ? data.filter((r) => r.estatus === 'disponible')
+          : [];
+        setFeaturedRooms(disponibles);
+        if (disponibles.length > 0 && !hoveredId) {
+          setHoveredId(disponibles[0].id);
+        }
+      } catch (err) {
+        console.error('Error al cargar habitaciones:', err);
+      } finally {
+        setLoadingRooms(false);
+      }
+    };
+    fetchRooms();
+  }, []);
 
   const handleQuickSearch = (e) => {
     e.preventDefault();
     navigate('/booking');
   };
-
-  {/*Habitaciones principales */ }
-  const featuredRooms = [
-    {
-      id: 'terraza',
-      name: 'Terraza',
-      image: 'https://a0.muscache.com/im/pictures/miso/Hosting-1245172177357055990/original/faaab88c-425a-4c3d-b289-00fe40ae3f59.jpeg?im_w=1200',
-      description: 'Terraza con vista al jardín central.',
-      price: 2400,
-      capacity: '',
-      beds: '',
-    },
-    {
-      id: 'estelar',
-      name: 'Habitación Estelar',
-      image: 'https://a0.muscache.com/im/pictures/hosting/Hosting-1245172177357055990/original/5f6db88d-8905-485c-9b71-d7219b000f56.jpeg?im_w=1200',
-      description: 'Ideal para quienes buscan amplitud, confort y una vista única de la ciudad.',
-      price: 2400,
-      capacity: '2 Adultos',
-      beds: '1 Cama Matrimonial',
-    },
-  ];
 
   return (
     <div className="animate-fade-in">
@@ -53,6 +68,7 @@ export const Home = () => {
           color: '#fff',
           textAlign: 'center',
           padding: '0 1.5rem',
+          backdropFilter: 'blur(15px)',
         }}
       >
         <h1 style={{ color: '#fff', fontSize: '3.5rem', marginBottom: '1.5rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
@@ -69,6 +85,8 @@ export const Home = () => {
             display: 'flex',
             flexWrap: 'wrap',
             gap: '1.5rem',
+            justifyContent: 'center',
+            alignItems: 'center',
             padding: '1.5rem 2rem',
             borderRadius: 'var(--border-radius-md)',
             width: '100%',
@@ -78,58 +96,109 @@ export const Home = () => {
             position: 'absolute',
             bottom: '-40px',
             color: 'var(--text-main)',
+            backgroundColor: 'rgba(82, 56, 35, 0.92)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px 0 rgba(82, 56, 35, 0.37)',
           }}
         >
-          <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-              <Calendar size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Llegada
-            </label>
-            <input type="date" className="form-control" style={{ width: '100%' }} required />
-          </div>
-          <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-              <Calendar size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Salida
-            </label>
-            <input type="date" className="form-control" style={{ width: '100%' }} required />
-          </div>
-          <div style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
-            <label style={{ fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-              <Users size={12} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> Huéspedes
-            </label>
-            <select className="form-control" style={{ width: '100%' }}>
-              <option value="1">1 Huésped</option>
-              <option value="2">2 Huéspedes</option>
-              <option value="3">3 Huéspedes</option>
-              <option value="4">4+ Huéspedes</option>
-            </select>
-          </div>
-          <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
-            Buscar Tarifa
-          </button>
+          <>
+            {/* Llegada */}
+            <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                color: 'var(--white)'
+              }}>
+                <Calendar size={14} />
+                <span>Llegada</span>
+              </label>
+              <input type="date" className="form-control" style={{ width: '100%' }} required />
+            </div>
+
+            {/* Salida */}
+            <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                color: 'var(--white)'
+              }}>
+                <Calendar size={14} />
+                <span>Salida</span>
+              </label>
+              <input type="date" className="form-control" style={{ width: '100%' }} required />
+            </div>
+
+            {/* Huéspedes */}
+            <div style={{ flex: '1 1 150px', display: 'flex', flexDirection: 'column', gap: '0.35rem', textAlign: 'left' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.75rem',
+                fontWeight: 'bold',
+                textTransform: 'uppercase',
+                color: 'var(--white)'
+              }}>
+                <Users size={14} />
+                <span>Huéspedes</span>
+              </label>
+              <select className="form-control" style={{ width: '100%' }}>
+                <option value="1">1 Huésped</option>
+                <option value="2">2 Huéspedes</option>
+                <option value="3">3 Huéspedes</option>
+                <option value="4">4+ Huéspedes</option>
+              </select>
+            </div>
+            <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
+              Buscar Tarifa
+            </button>
+          </>
+
         </form>
       </section>
 
       <div style={{ height: '80px' }}></div>
-
       {/* Bienvenida */}
-      <section className="py-section container text-center">
-        <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.85rem' }}>
-          Bienvenido a Casa Dolores Hidalgo
-        </span>
-        <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', marginBottom: '1.5rem' }}>Donde la tradición se encuentra con el confort</h2>
-        <p style={{ maxWidth: '800px', margin: '0 auto', color: 'var(--text-muted)', fontSize: '1.05rem', lineHeight: '1.8' }}>
-          Ubicado en una casona señorial del siglo XVIII restaurada meticulosamente, el Hotel Casa Dolores preserva el esplendor de la época colonial combinándolo con amenidades modernas de la más alta calidad. Nuestras habitaciones lucen bóvedas de ladrillo hechas a mano, muros de cantera local, y decoraciones de Talavera pintadas por artesanos de Dolores Hidalgo.
-        </p>
+      <section
+        style={{
+          backgroundImage: `linear-gradient(rgba(20, 12, 6, 0), rgba(20, 12, 6, 0)), url(${bgsecondary})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          padding: '5rem 0',
+        }}
+      >
+        <div className="container text-center">
+          <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.85rem' }}>
+            Bienvenido a Casa Dolores Hidalgo
+          </span>
+          <h2 style={{ fontSize: '2.5rem', marginTop: '0.5rem', marginBottom: '1.5rem', color: '#F5F0E6' }}>
+            Donde la tradición se encuentra con el confort
+          </h2>
+          <p style={{ maxWidth: '800px', margin: '0 auto', color: 'rgba(255, 255, 255, 0.8)', fontSize: '1.05rem', lineHeight: '1.8' }}>
+            Ubicado en una casona señorial del siglo XVIII restaurada meticulosamente, el Hotel Casa Dolores preserva el esplendor de la época colonial combinándolo con amenidades modernas de la más alta calidad. Nuestras habitaciones lucen bóvedas de ladrillo hechas a mano, muros de cantera local, y decoraciones de Talavera pintadas por artesanos de Dolores Hidalgo.
+          </p>
+        </div>
       </section>
 
-      {/* Habitaciones Destacadas*/}
-      <section style={{ backgroundColor: '#1C1510', padding: '5rem 0', overflow: 'hidden' }}>
+      {/* Habitaciones */}
+      <section style={{ padding: '5rem 0', overflow: 'hidden' }}>
         <div className="container" style={{ maxWidth: '100%', padding: '0 2rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', fontSize: '0.8rem' }}>
               Descansa con estilo
             </span>
-            <h2 className="section-title" style={{ color: '#F5F0E6', marginTop: '0.5rem' }}>Habitaciones Destacadas</h2>
+            <h2 className="section-title">
+              Habitaciones
+            </h2>
             <p className="section-subtitle" style={{ color: 'var(--text-muted)' }}>
               Espacios únicos que combinan la calidez colonial con el confort moderno.
             </p>
@@ -147,128 +216,72 @@ export const Home = () => {
             overflowX: 'auto',
             paddingBottom: '1.5rem'
           }}>
-            {featuredRooms.map((room, index) => {
-              const activeId = hoveredId || 'junior-suite';
+            {loadingRooms ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '3rem 0' }}>
+                <Loader2 size={40} style={{ color: 'var(--primary)', animation: 'spin 1s linear infinite', marginBottom: '1rem' }} />
+                <span style={{ color: 'var(--text-muted)' }}>Cargando habitaciones...</span>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            ) : featuredRooms.length === 0 ? (
+              <div style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '3rem 0', color: 'var(--text-muted)' }}>
+                No hay habitaciones disponibles en este momento.
+              </div>
+            ) : featuredRooms.map((room) => {
+              const activeId = hoveredId || (featuredRooms[0] ? featuredRooms[0].id : null);
               const isFrameEmpty = activeId !== room.id;
+              const imageSrc = getRoomImage(room);
+              const descripcion = room.descripcion_corta || room.descripcion_larga || 'Sin descripción disponible.';
 
               return (
                 <div
                   key={room.id}
                   onMouseEnter={() => setHoveredId(room.id)}
-                  style={{
-                    flex: isFrameEmpty ? '0 0 280px' : '0 0 400px',
-                    height: '500px',
-                    backgroundColor: isFrameEmpty ? 'transparent' : 'var(--white)',
-                    border: isFrameEmpty ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid transparent',
-                    position: 'relative',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    transition: 'all 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
-                    cursor: 'pointer',
-                  }}
+                  className={`flex-shrink-0 relative flex flex-col justify-between transition-all duration-700 ease-in-out cursor-pointer overflow-hidden ${isFrameEmpty
+                    ? 'w-[100px] md:w-[140px] bg-transparent border border-black/15'
+                    : 'w-[280px] md:w-[680px] bg-[var(--white)] border-transparent'
+                    }`}
+                  style={{ height: '400px' }}
                 >
-                  {/* Vista de frame vacio */}
+                  {/* IMAGEN DE FONDO */}
+                  <div className="absolute inset-0 w-full h-full overflow-hidden">
+                    <img
+                      src={imageSrc}
+                      alt={room.nombre}
+                      className={`w-full h-full object-cover transition-all duration-700 ${isFrameEmpty ? 'scale-100 blur-[1px]' : 'scale-105 md:group-hover:scale-110'
+                        }`}
+                      onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                    />
+                  </div>
+
+                  {/* VISTA DE FRAME VACÍO */}
                   {isFrameEmpty && (
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      padding: '2.5rem 1.5rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'flex-start',
-                      alignItems: 'center',
-                      textAlign: 'center'
-                    }}>
-                      <h3 style={{
-                        fontSize: '1rem',
-                        fontFamily: 'var(--font-sans)',
-                        fontWeight: '700',
-                        textTransform: 'uppercase',
-                        letterSpacing: '2px',
-                        color: 'rgba(245, 240, 230, 0.8)',
-                        lineHeight: '1.4',
-                        marginTop: '1.5rem'
-                      }}>
-                        {room.name}
+                    <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-center items-center text-center border border-[var(--primary)] bg-[var(--bg-sand)]/70 backdrop-blur-[2px] transition-all duration-500">
+                      <h3 className="text-sm md:text-lg font-sans font-bold uppercase tracking-widest text-[var(--secondary-hover)] leading-relaxed transform md:-rotate-90 md:whitespace-nowrap transition-transform duration-500">
+                        {room.nombre}
                       </h3>
                     </div>
                   )}
-
-                  {/* Vista de frame activo*/}
+                  {/* VISTA DE FRAME ACTIVO */}
                   {!isFrameEmpty && (
-                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
-                      {/* Título */}
-                      <div style={{ padding: '2rem 1rem 1rem 1rem', textAlign: 'center' }}>
-                        <h3 style={{
-                          fontSize: '1.1rem',
-                          fontFamily: 'var(--font-sans)',
-                          fontWeight: '800',
-                          textTransform: 'uppercase',
-                          letterSpacing: '2px',
-                          color: 'var(--secondary)'
-                        }}>
-                          {room.name}
-                        </h3>
-                      </div>
-
-                      {/* Imagen */}
-                      <div style={{ position: 'relative', height: '220px', margin: '0 1.25rem', overflow: 'hidden' }}>
-                        <img
-                          src={room.image}
-                          alt={room.name}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        />
-                      </div>
-
-                      {/* Texto y Botón*/}
-                      <div style={{
-                        padding: '1.5rem 2rem 2rem 2rem',
-                        textAlign: 'center',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        flexGrow: 1
-                      }}>
-                        <p style={{
-                          color: 'var(--text-muted)',
-                          fontSize: '0.85rem',
-                          lineHeight: '1.5',
-                          marginBottom: '1rem',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden'
-                        }}>
-                          {room.description}
-                        </p>
-
-                        <button
-                          onClick={() => navigate(`/habitacion/${room.id}`)}
-                          className="btn"
-                          style={{
-                            width: '100%',
-                            backgroundColor: 'rgba(0, 0, 0, 1)',
-                            color: '#FFF',
-                            border: 'none',
-                            padding: '0.75rem',
-                            fontSize: '0.75rem',
-                            fontWeight: '700',
-                            textTransform: 'uppercase',
-                            letterSpacing: '2px',
-                            borderRadius: '0px',
-                            transition: 'background-color 0.3s ease'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 1)'}
+                    <div className="absolute inset-0 h-full w-full border-2 border-[var(--primary)] group dynamic-fade-in">
+                      <div className="absolute inset-0 bg-black/40 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+                        <h3
+                          className="text-xl md:text-3xl font-sans font-extrabold uppercase tracking-[0.2em] drop-shadow-lg mb-8"
+                          style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}
                         >
-                          Ver más
+                          {room.nombre}
+                        </h3>
+                        <button
+                          onClick={() => navigate(`/rooms?room=${room.id}`)}
+                          className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
+                          Ver Más
                         </button>
                       </div>
                     </div>
                   )}
                 </div>
+
               );
             })}
           </div>
@@ -276,8 +289,13 @@ export const Home = () => {
       </section>
 
       {/* Ubicación */}
-      <section style={{ backgroundColor: 'var(--bg-sand)', padding: '5rem 0' }}>
-        <div className="container">
+      <section style={{
+        backgroundColor: 'var(--bg-sand)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        padding: '5rem 0',
+      }}>
+        <div className="container" >
           <h2 className="section-title">¿En dónde nos ubicamos?</h2>
           <p className="section-subtitle">Visítanos en el corazón de Dolores Hidalgo</p>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'stretch', flexWrap: 'wrap', marginTop: '2.5rem' }}>
@@ -310,7 +328,7 @@ export const Home = () => {
                 Cómo llegar
               </a>
             </div>
-            <div style={{ flex: '2 1 400px', borderRadius: 'var(--border-radius-md)', overflow: 'hidden', minHeight: '380px' }}>
+            <div style={{ flex: '2 1 400px', overflow: 'hidden', minHeight: '380px' }}>
               <iframe
                 title="Ubicación Hotel Casa Dolores"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d465.1020714536951!2d-100.93419207720613!3d21.159696861784205!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x842b3f0039d1a813%3A0x1f0b300e0b0eb125!2sHotel%20Casa%20Dolores%20Hidalgo!5e0!3m2!1ses!2smx!4v1781106275961!5m2!1ses!2smx"
@@ -327,88 +345,185 @@ export const Home = () => {
       </section>
 
       {/* Experiencias */}
-      <section className="py-section" style={{ backgroundColor: 'var(--bg-linen)', overflow: 'hidden' }}>
+      <section style={{ backgroundColor: 'var(--secondary-hover)', overflow: 'hidden', padding: '5rem 0' }}>
         <div className="container">
+
+          {/* Encabezado */}
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block' }}>
+            <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block', marginBottom: '0.75rem' }}>
               Más allá de tu habitación
             </span>
-            <h2 className="section-title" style={{ marginTop: '0.5rem' }}>Vive Dolores Hidalgo</h2>
-            <p className="section-subtitle">
-              Cada rincón de este pueblo guarda una historia. Nosotros te abrimos las puertas para vivirla.
-            </p>
+            <h2 style={{
+              fontFamily: 'var(--font-serif)', color: '#FDF6EC',
+              fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700, margin: 0
+            }}>
+              Vive Dolores Hidalgo
+            </h2>
+            <div style={{ width: '50px', height: '2px', background: 'var(--gold)', margin: '1rem auto 0' }} />
           </div>
 
-          <div
-            className="animate-fade-in"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '100%',
-              padding: '1rem 0 4rem 0'
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                maxWidth: '920px',
-                width: '100%',
-                backgroundColor: 'var(--white)',
-                borderRadius: 'var(--border-radius-md)',
-                overflow: 'hidden',
-                boxShadow: 'var(--shadow-md)',
-                transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease',
-                cursor: 'pointer'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.03)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-              }}
-            >
-              <div style={{ flex: '1 1 400px', height: '300px', overflow: 'hidden' }}>
-                <img
-                  src="https://ntcd.mx/uploads/2017/01/24/db85f730ffcfe46681fa2db9ac4d8c5e.jpg"
-                  alt="Experiencias en Dolores Hidalgo"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              </div>
+          {/* Layout dos columnas */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '2rem',
+            alignItems: 'stretch',
+          }}>
 
+            {/* Columna izquierda — Video */}
+            <div style={{
+              flex: '1 1 420px',
+              position: 'relative',
+              borderRadius: '2px',
+              overflow: 'hidden',
+              minHeight: '480px',
+              border: '1px solid rgba(179,138,58,0.2)',
+            }}>
+              <video
+                src={videoEjemplo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  position: 'absolute', top: 0, left: 0,
+                  width: '100%', height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+              {/* Overlay sutil */}
               <div style={{
-                flex: '1 1 400px',
-                padding: '2.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                textAlign: 'left'
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(30,18,10,0.6) 0%, transparent 60%)',
+                pointerEvents: 'none'
+              }} />
+              {/* Badge sobre el video */}
+              <div style={{
+                position: 'absolute', bottom: '1.5rem', left: '1.5rem', zIndex: 2,
+                display: 'flex', alignItems: 'center', gap: '0.5rem'
               }}>
-                <h3 style={{ fontSize: '1.6rem', color: 'var(--primary)', marginBottom: '0.75rem', fontFamily: 'var(--font-serif)' }}>
-                  Prepara un viaje inolvidable
-                </h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                  Antes de reservar, te sugerimos explorar nuestra lista completa de experiencias locales guiadas, talleres artesanales de Talavera y catas tradicionales en la Cuna de la Independencia.
-                </p>
-                {/* CTA */}
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-                    ¿Quieres una experiencia personalizada para tu grupo?
-                  </p>
-                  <button onClick={() => navigate('/contacto')} className="btn btn-primary" style={{ padding: '0.9rem 2.5rem' }}>
-                    Hablemos de tu estancia ideal
-                  </button>
-                </div>
+                <span style={{
+                  display: 'inline-block', width: '8px', height: '8px',
+                  borderRadius: '50%', backgroundColor: '#ef4444',
+                  animation: 'pulse-dot 1.5s ease-in-out infinite'
+                }} />
               </div>
             </div>
+            <div style={{
+              flex: '1 1 360px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.25rem',
+              justifyContent: 'space-between',
+            }}>
+              {[
+                {
+                  icon: '',
+                  titulo: 'Talleres de Talavera',
+                  desc: 'Aprende de manos de artesanos locales el arte milenario de la cerámica de Talavera, Patrimonio Cultural Inmaterial de la Humanidad.',
+                  tag: 'Artesanía'
+                },
+                {
+                  icon: '',
+                  titulo: 'Gastronomía Tradicional',
+                  desc: 'Recorre los mercados y prueba los sabores auténticos de Guanajuato: enchiladas mineras, carnitas y dulces típicos de Dolores Hidalgo.',
+                  tag: 'Cultura'
+                },
+                {
+                  icon: '',
+                  titulo: 'Ruta de Independencia',
+                  desc: 'Sigue los pasos del Padre Hidalgo por sitios históricos únicos: la parroquia, la cárcel y el museo donde nació el grito de libertad.',
+                  tag: 'Historia'
+                }
+              ].map((exp, i) => (
+                <div
+                  key={i}
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(179,138,58,0.2)',
+                    borderRadius: '2px',
+                    padding: '1.5rem 1.75rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.6rem',
+                    transition: 'transform 0.3s ease, background 0.3s ease, border-color 0.3s ease',
+                    cursor: 'default',
+                    flex: 1,
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateX(6px)';
+                    e.currentTarget.style.background = 'rgba(179,138,58,0.1)';
+                    e.currentTarget.style.borderColor = 'var(--gold)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateX(0)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+                    e.currentTarget.style.borderColor = 'rgba(179,138,58,0.2)';
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <span style={{ fontSize: '1.6rem' }}>{exp.icon}</span>
+                    <span style={{
+                      fontSize: '0.65rem', fontWeight: 700, letterSpacing: '2px',
+                      textTransform: 'uppercase', color: 'var(--gold)',
+                      border: '1px solid rgba(179,138,58,0.4)',
+                      padding: '0.15rem 0.5rem', borderRadius: '1px'
+                    }}>{exp.tag}</span>
+                  </div>
+                  <h3 style={{
+                    fontFamily: 'var(--font-serif)', color: '#FDF6EC',
+                    fontSize: '1.15rem', fontWeight: 600, margin: 0
+                  }}>{exp.titulo}</h3>
+                  <p style={{ color: 'rgba(253,246,236,0.65)', fontSize: '0.875rem', lineHeight: '1.7', margin: 0 }}>
+                    {exp.desc}
+                  </p>
+                </div>
+              ))}
+
+              {/* CTA */}
+              <div style={{ textAlign: 'center', paddingTop: '0.5rem' }}>
+                <button
+                  onClick={() => navigate('/contacto')}
+                  style={{
+                    width: '100%',
+                    background: 'transparent',
+                    border: '1.5px solid var(--gold)',
+                    color: 'var(--gold)',
+                    padding: '0.85rem 2rem',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase',
+                    cursor: 'pointer',
+                    borderRadius: '1px',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'var(--gold)';
+                    e.currentTarget.style.color = 'var(--secondary-hover)';
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'var(--gold)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                  }}
+                >
+                  Hablemos de tu estancia ideal
+                </button>
+              </div>
+            </div>
+
           </div>
-
-
         </div>
+
+        {/* Animación del punto rojo */}
+        <style>{`
+          @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.4); }
+          }
+        `}</style>
       </section>
     </div>
   );
