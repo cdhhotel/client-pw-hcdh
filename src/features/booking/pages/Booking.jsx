@@ -70,28 +70,6 @@ export const Booking = () => {
     }
   };
 
-  const handleSendWhatsApp = () => {
-    const totalNeto = (bookingResult?.data?.total_pagar || totalPrice);
-
-    const message = `*Nueva Reservación - Hotel Casa Dolores*\n\n` +
-      `*Folio:* ${bookingResult?.code || 'Pendiente'}\n` +
-      `*Huésped:* ${formData.nombre} ${formData.apellidos}\n` +
-      `*Correo:* ${formData.email || 'No proporcionado'}\n` +
-      `*Teléfono:* ${formData.telefono}\n\n` +
-      `*Detalles de la Estancia:*\n` +
-      `- *Habitación:* ${selectedRoom?.nombre || 'Habitación'}\n` +
-      `- *Fecha de Entrada:* ${formData.checkIn}\n` +
-      `- *Fecha de Salida:* ${formData.checkOut}\n` +
-      `- *Huéspedes:* ${formData.guests} ${formData.guests === 1 ? 'persona' : 'personas'}\n` +
-      `- *Estancia:* ${nights} ${nights === 1 ? 'noche' : 'noches'}\n` +
-      `- *Peticiones Especiales:* ${formData.specialRequests || 'Ninguna'}\n\n` +
-      `*Total Estimado:* $${Number(totalNeto).toLocaleString('es-MX')} MXN\n` +
-      `*Estado del Pago:* Pendiente (Efectivo al check-in)`;
-
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/${hotelPhone}?text=${encodedMessage}`, '_blank');
-  };
-
   // 1. Cargar habitaciones disponibles desde el servidor
   useEffect(() => {
     const fetchRooms = async () => {
@@ -236,6 +214,28 @@ export const Booking = () => {
         data: res.data
       });
       setStep(4);
+
+      // Redirigir automáticamente a WhatsApp
+      const totalNeto = (res.data?.total_pagar || totalPrice);
+      const folio = res.data?.folio || 'Pendiente';
+
+      const message = `*Nueva Reservación - Hotel Casa Dolores*\n\n` +
+        `*Folio:* ${folio}\n` +
+        `*Huésped:* ${formData.nombre} ${formData.apellidos}\n` +
+        `*Correo:* ${formData.email || 'No proporcionado'}\n` +
+        `*Teléfono:* ${formData.telefono}\n\n` +
+        `*Detalles de la Estancia:*\n` +
+        `- *Habitación:* ${selectedRoom?.nombre || 'Habitación'}\n` +
+        `- *Fecha de Entrada:* ${formData.checkIn}\n` +
+        `- *Fecha de Salida:* ${formData.checkOut}\n` +
+        `- *Huéspedes:* ${formData.guests} ${formData.guests === 1 ? 'persona' : 'personas'}\n` +
+        `- *Estancia:* ${nights} ${nights === 1 ? 'noche' : 'noches'}\n` +
+        `- *Peticiones Especiales:* ${formData.specialRequests || 'Ninguna'}\n\n` +
+        `*Total Estimado:* $${Number(totalNeto).toLocaleString('es-MX')} MXN\n` +
+        `*Estado del Pago:* Pendiente (Transferencia bancaria)`;
+
+      const encodedMessage = encodeURIComponent(message);
+      window.open(`https://wa.me/${hotelPhone}?text=${encodedMessage}`, '_blank');
     } catch (err) {
       console.error('Error al registrar reservación en el servidor:', err);
       toast.error('Hubo un error al registrar tu reservación. Por favor, verifica los datos e intenta nuevamente.');
@@ -613,22 +613,6 @@ export const Booking = () => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap', marginTop: '2rem' }}>
-              <button
-                onClick={handleSendWhatsApp}
-                className="btn"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  cursor: 'pointer',
-                  backgroundColor: '#25D366',
-                  color: '#ffffff',
-                  border: 'none'
-                }}
-              >
-                <MessageCircle size={18} />
-                Enviar por WhatsApp
-              </button>
               <button
                 onClick={handleDownloadImage}
                 className="btn btn-secondary"

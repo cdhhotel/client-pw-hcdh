@@ -216,7 +216,7 @@ export const AdminRooms = () => {
                         <option value="ocupada">Ocupadas</option>
                     </select>
                 </div>
-                <button className="btn btn-outline p-3 w-full md:w-auto flex justify-center items-center" onClick={loadData} disabled={loading}>
+                <button className="btn btn-actua p-3 w-full md:w-auto flex justify-center items-center" onClick={loadData} disabled={loading}>
                     <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
                 </button>
             </div>
@@ -233,8 +233,8 @@ export const AdminRooms = () => {
                     <h3 className="text-xl font-serif text-[var(--primary)]">No se encontraron habitaciones</h3>
                 </div>
             ) : (
-                <div className="admin-table-container w-full overflow-x-auto">
-                    <table className="admin-table min-w-[800px] w-full">
+                <div className="admin-table-container">
+                    <table className="admin-table w-full">
                         <thead>
                             <tr>
                                 <th className="w-24">Foto</th>

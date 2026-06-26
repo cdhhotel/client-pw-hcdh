@@ -5,6 +5,7 @@
   /* Paleta de Colores  */
   --primary: #A0442A;           /* Títulos y Botones Primarios */
   --primary-hover: #B55239;     /* Hovers y Enlaces activos */
+  --btn-editd:#77281a;
   --secondary: #6B4A2F;         /* Texto principal y acentos oscuros */
   --secondary-hover: #523823;   /* Nogal Oscuro */
   --accent: #7A8061;            /* Detalles orgánicos y jardines */
@@ -19,6 +20,8 @@
   --text-muted: #584330;        /* texto secundario */
   --border: #C8B99B;            /* divisiones sutiles */
   --white: #FDFBF7;             /* Blanco */
+  --btn-edit:#79865c;
+  --btn-actua:#ac9d6d;
   
   /* Sombras */
   --shadow-sm: 0 2px 8px rgba(107, 74, 47, 0.08);
@@ -142,9 +145,24 @@ h3 {
 }
 
 .btn-outline:hover {
-  background-color: var(--secondary);
+  background-color: var(--btn-edit);
   color: var(--bg-linen);
+  border-color: var(--btn-edit);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outlines {
+  background-color: transparent;
   border-color: var(--secondary);
+  color: var(--secondary);
+  font-family: var(--font-sans);
+}
+
+.btn-outlines:hover {
+  background-color: var(--btn-editd);
+  color: var(--bg-linen);
+  border-color: var(--btn-editd);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -166,6 +184,16 @@ h3 {
 
 .btn-gold:hover {
   background-color: var(--gold-hover);
+  transform: translateY(-2px);
+}
+
+.btn-actua {
+  background-color: var(--btn-actua);
+  color: var(--bg-linen);
+}
+
+.btn-actua:hover {
+  background-color: var(--btn-actua);
   transform: translateY(-2px);
 }
 
@@ -316,10 +344,10 @@ h3 {
   background-color: var(--white);
   border-radius: var(--border-radius-md);
   border: 1px solid var(--border);
-  overflow: hidden;
   box-shadow: var(--shadow-sm);
-  overflow-x: auto;
   width: 100%;
+  /* En desktop: scroll horizontal si la tabla no cabe */
+  overflow-x: auto;
 }
 
 .admin-table {
@@ -359,13 +387,13 @@ h3 {
 }
 
 .badge-success {
-  background-color: rgba(122, 128, 97, 0.2);
-  color: #4E533C;
+  background-color: rgba(159, 219, 124, 0.671);
+  color: #376127;
 }
 
 .badge-warning {
-  background-color: rgba(179, 138, 58, 0.2);
-  color: #735620;
+  background-color: rgba(206, 164, 81, 0.2);
+  color: #664b19;
 }
 
 .badge-danger {
@@ -419,6 +447,126 @@ h3 {
 
 .justify-between {
   justify-content: space-between;
+}
+
+
+/* ---------------------------------------------------------- */
+/* ---------------- TABLA ADMIN ROOMS ----------------------- */
+/* ─── TABLA RESPONSIVA — mobile first (≤ 767px) ─── */
+@media (max-width: 767px) {
+
+  /* Contenedor: sin borde ni fondo, sin scroll */
+  .admin-table-container {
+    overflow-x: visible;
+    overflow: visible;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  /* Tabla, tbody, tr y td se vuelven block */
+  .admin-table,
+  .admin-table tbody,
+  .admin-table tr,
+  .admin-table td {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Encabezado oculto */
+  .admin-table thead {
+    display: none;
+  }
+
+  /* Cada fila = tarjeta */
+  .admin-table tr {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+
+  .admin-table tr:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* Cada celda: etiqueta a la izquierda, valor a la derecha */
+  .admin-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(200, 185, 155, 0.25);
+    font-size: 0.875rem;
+    gap: 0.5rem;
+    min-height: 36px;
+  }
+
+  .admin-table td:last-child {
+    border-bottom: none;
+  }
+
+  /* Etiqueta generada por data-label */
+  .admin-table td::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.68rem;
+    letter-spacing: 0.6px;
+    min-width: 90px;
+  }
+
+  /* Celda de imagen: centrada, sin etiqueta */
+  .admin-table td:first-child {
+    justify-content: center;
+    border-bottom: 1px solid rgba(200, 185, 155, 0.25);
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  .admin-table td:first-child::before {
+    display: none;
+  }
+
+  /* Celda de acciones: alineada a la derecha, sin etiqueta */
+  .admin-table td:last-child {
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  .admin-table td:last-child::before {
+    display: none;
+  }
+}
+
+/* ─── MEJORAS GENERALES ─── */
+/* Ajuste de padding en contenedores */
+.container {
+  padding: 0 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: 0 2.5rem;
+  }
+}
+
+/* Espaciado en móvil para el main */
+.main-content {
+  padding: 1rem 0;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: 2rem 0;
+  }
 }
 
 @media (max-width: 768px) {
