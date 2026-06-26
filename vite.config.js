@@ -9,27 +9,16 @@ export default defineConfig({
     tailwindcss()],
   server: {
     proxy: {
-      '/api': [{
-        target: 'http://localhost:3000',
-        changeOrigin: true,
-        secure: false,
-      }, {
+      '/api': {
         target: 'https://server-casa-dolores.onrender.com',
-        changeOrigin: true,
-        secure: false,
-      }
-      ],
-      '/uploads': [{
-        target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },
-      {
+      '/uploads': {
         target: 'https://server-casa-dolores.onrender.com',
         changeOrigin: true,
         secure: false,
-      }
-      ]
+      },
     },
   },
 })
