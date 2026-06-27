@@ -10,6 +10,7 @@ import { Home } from "../../features/public/pages/Home";
 import { Rooms } from "../../features/rooms/pages/Rooms";
 import { Booking } from "../../features/booking/pages/Booking";
 import { Login } from "../../features/auth/pages/Login";
+import { Contacto } from "../../features/public/pages/Contacto";
 
 // rutas para admin de hotel
 import { Dashboard } from "../../features/hotel-admin/pages/Dashboard";
@@ -35,6 +36,7 @@ export const AppRoutes = () => {
                 <Route path="rooms" element={<Rooms />} />
                 <Route path="booking" element={<Booking />} />
                 <Route path="login" element={<Login />} />
+                <Route path="contacto" element={<Contacto />} />
             </Route>
 
             {/* ADMIN HOTEL */}

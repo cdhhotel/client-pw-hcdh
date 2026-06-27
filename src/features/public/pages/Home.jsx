@@ -55,20 +55,9 @@ export const Home = () => {
     <div className="animate-fade-in">
       {/* Hero Section */}
       <section
+        className="hero-section"
         style={{
-          position: 'relative',
-          height: '80vh',
           backgroundImage: `linear-gradient(rgba(43, 37, 34, 0.4), rgba(43, 37, 34, 0.6)), url(${portadaInicio})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          color: '#fff',
-          textAlign: 'center',
-          padding: '0 1.5rem',
-          backdropFilter: 'blur(15px)',
         }}
       >
         <h1 style={{ color: '#fff', fontSize: '3.5rem', marginBottom: '1.5rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
@@ -80,26 +69,7 @@ export const Home = () => {
 
         <form
           onSubmit={handleQuickSearch}
-          className="glass-panel"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '1.5rem',
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '1.5rem 2rem',
-            borderRadius: 'var(--border-radius-md)',
-            width: '100%',
-            maxWidth: '900px',
-            alignItems: 'flex-end',
-            justifyContent: 'space-between',
-            position: 'absolute',
-            bottom: '-40px',
-            color: 'var(--text-main)',
-            backgroundColor: 'rgba(82, 56, 35, 0.92)',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px 0 rgba(82, 56, 35, 0.37)',
-          }}
+          className="glass-panel hero-form"
         >
           <>
             {/* Llegada */}
@@ -205,16 +175,10 @@ export const Home = () => {
           </div>
 
           <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '1.5rem',
             width: '100%',
-            maxWidth: '1200px',
-            margin: '0 auto',
-            overflowX: 'auto',
-            paddingBottom: '1.5rem'
+            overflow: 'hidden',
+            paddingBottom: '1.5rem',
+            position: 'relative'
           }}>
             {loadingRooms ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '3rem 0' }}>
@@ -226,7 +190,9 @@ export const Home = () => {
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '3rem 0', color: 'var(--text-muted)' }}>
                 No hay habitaciones disponibles en este momento.
               </div>
-            ) : featuredRooms.map((room) => {
+            ) : (
+              <div className="animate-marquee" style={{ gap: '1.5rem' }}>
+                {[...featuredRooms, ...featuredRooms].map((room, idx) => {
               const activeId = hoveredId || (featuredRooms[0] ? featuredRooms[0].id : null);
               const isFrameEmpty = activeId !== room.id;
               const imageSrc = getRoomImage(room);
@@ -234,7 +200,7 @@ export const Home = () => {
 
               return (
                 <div
-                  key={room.id}
+                  key={`${room.id}-${idx}`}
                   onMouseEnter={() => setHoveredId(room.id)}
                   className={`flex-shrink-0 relative flex flex-col justify-between transition-all duration-700 ease-in-out cursor-pointer overflow-hidden ${isFrameEmpty
                     ? 'w-[100px] md:w-[140px] bg-transparent border border-black/15'
@@ -284,6 +250,8 @@ export const Home = () => {
 
               );
             })}
+              </div>
+            )}
           </div>
         </div>
       </section>

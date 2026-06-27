@@ -4,6 +4,7 @@ import { MainLayout } from './layouts/MainLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { Home } from './features/public/pages/Home';
 import { Rooms } from './features/rooms/pages/Rooms';
+import { Contacto } from './features/public/pages/Contacto';
 import { Booking } from './features/booking/pages/Booking';
 import { Login } from './features/auth/pages/Login';
 import { Dashboard as AdminDashboard } from './features/system-admin/pages/Dashboard';
@@ -26,6 +27,7 @@ function App() {
             <Route path="booking" element={<Booking />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="contacto" element={<Contacto />} />
           </Route>
 
           {/* Rutas Administrativas Protegidas */}
