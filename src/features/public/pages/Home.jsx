@@ -58,6 +58,18 @@ export const Home = () => {
         className="hero-section"
         style={{
           backgroundImage: `linear-gradient(rgba(43, 37, 34, 0.4), rgba(43, 37, 34, 0.6)), url(${portadaInicio})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: '#fff',
+          textAlign: 'center',
+          padding: '0 1.5rem',
+          paddingTop: 'var(--navbar-height)',
+          marginTop: 'calc(-1 * var(--navbar-height))',
+          backdropFilter: 'blur(15px)',
         }}
       >
         <h1 style={{ color: '#fff', fontSize: '3.5rem', marginBottom: '1.5rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
@@ -193,63 +205,63 @@ export const Home = () => {
             ) : (
               <div className="animate-marquee" style={{ gap: '1.5rem' }}>
                 {[...featuredRooms, ...featuredRooms].map((room, idx) => {
-              const activeId = hoveredId || (featuredRooms[0] ? featuredRooms[0].id : null);
-              const isFrameEmpty = activeId !== room.id;
-              const imageSrc = getRoomImage(room);
-              const descripcion = room.descripcion_corta || room.descripcion_larga || 'Sin descripción disponible.';
+                  const activeId = hoveredId || (featuredRooms[0] ? featuredRooms[0].id : null);
+                  const isFrameEmpty = activeId !== room.id;
+                  const imageSrc = getRoomImage(room);
+                  const descripcion = room.descripcion_corta || room.descripcion_larga || 'Sin descripción disponible.';
 
-              return (
-                <div
-                  key={`${room.id}-${idx}`}
-                  onMouseEnter={() => setHoveredId(room.id)}
-                  className={`flex-shrink-0 relative flex flex-col justify-between transition-all duration-700 ease-in-out cursor-pointer overflow-hidden ${isFrameEmpty
-                    ? 'w-[100px] md:w-[140px] bg-transparent border border-black/15'
-                    : 'w-[280px] md:w-[680px] bg-[var(--white)] border-transparent'
-                    }`}
-                  style={{ height: '400px' }}
-                >
-                  {/* IMAGEN DE FONDO */}
-                  <div className="absolute inset-0 w-full h-full overflow-hidden">
-                    <img
-                      src={imageSrc}
-                      alt={room.nombre}
-                      className={`w-full h-full object-cover transition-all duration-700 ${isFrameEmpty ? 'scale-100 blur-[1px]' : 'scale-105 md:group-hover:scale-110'
+                  return (
+                    <div
+                      key={`${room.id}-${idx}`}
+                      onMouseEnter={() => setHoveredId(room.id)}
+                      className={`flex-shrink-0 relative flex flex-col justify-between transition-all duration-700 ease-in-out cursor-pointer overflow-hidden ${isFrameEmpty
+                        ? 'w-[100px] md:w-[140px] bg-transparent border border-black/15'
+                        : 'w-[280px] md:w-[680px] bg-[var(--white)] border-transparent'
                         }`}
-                      onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
-                    />
-                  </div>
-
-                  {/* VISTA DE FRAME VACÍO */}
-                  {isFrameEmpty && (
-                    <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-center items-center text-center border border-[var(--primary)] bg-[var(--bg-sand)]/70 backdrop-blur-[2px] transition-all duration-500">
-                      <h3 className="text-sm md:text-lg font-sans font-bold uppercase tracking-widest text-[var(--secondary-hover)] leading-relaxed transform md:-rotate-90 md:whitespace-nowrap transition-transform duration-500">
-                        {room.nombre}
-                      </h3>
-                    </div>
-                  )}
-                  {/* VISTA DE FRAME ACTIVO */}
-                  {!isFrameEmpty && (
-                    <div className="absolute inset-0 h-full w-full border-2 border-[var(--primary)] group dynamic-fade-in">
-                      <div className="absolute inset-0 bg-black/40 transition-opacity duration-500"></div>
-                      <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
-                        <h3
-                          className="text-xl md:text-3xl font-sans font-extrabold uppercase tracking-[0.2em] drop-shadow-lg mb-8"
-                          style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}
-                        >
-                          {room.nombre}
-                        </h3>
-                        <button
-                          onClick={() => navigate(`/rooms?room=${room.id}`)}
-                          className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
-                          Ver Más
-                        </button>
+                      style={{ height: '400px' }}
+                    >
+                      {/* IMAGEN DE FONDO */}
+                      <div className="absolute inset-0 w-full h-full overflow-hidden">
+                        <img
+                          src={imageSrc}
+                          alt={room.nombre}
+                          className={`w-full h-full object-cover transition-all duration-700 ${isFrameEmpty ? 'scale-100 blur-[1px]' : 'scale-105 md:group-hover:scale-110'
+                            }`}
+                          onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                        />
                       </div>
-                    </div>
-                  )}
-                </div>
 
-              );
-            })}
+                      {/* VISTA DE FRAME VACÍO */}
+                      {isFrameEmpty && (
+                        <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-center items-center text-center border border-[var(--primary)] bg-[var(--bg-sand)]/70 backdrop-blur-[2px] transition-all duration-500">
+                          <h3 className="text-sm md:text-lg font-sans font-bold uppercase tracking-widest text-[var(--secondary-hover)] leading-relaxed transform md:-rotate-90 md:whitespace-nowrap transition-transform duration-500">
+                            {room.nombre}
+                          </h3>
+                        </div>
+                      )}
+                      {/* VISTA DE FRAME ACTIVO */}
+                      {!isFrameEmpty && (
+                        <div className="absolute inset-0 h-full w-full border-2 border-[var(--primary)] group dynamic-fade-in">
+                          <div className="absolute inset-0 bg-black/40 transition-opacity duration-500"></div>
+                          <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+                            <h3
+                              className="text-xl md:text-3xl font-sans font-extrabold uppercase tracking-[0.2em] drop-shadow-lg mb-8"
+                              style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}
+                            >
+                              {room.nombre}
+                            </h3>
+                            <button
+                              onClick={() => navigate(`/rooms?room=${room.id}`)}
+                              className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
+                              Ver Más
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                  );
+                })}
               </div>
             )}
           </div>
@@ -258,14 +270,14 @@ export const Home = () => {
 
       {/* Ubicación */}
       <section style={{
-        backgroundColor: 'var(--bg-sand)',
+        backgroundColor: 'var(--secondary)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '5rem 0',
       }}>
         <div className="container" >
-          <h2 className="section-title">¿En dónde nos ubicamos?</h2>
-          <p className="section-subtitle">Visítanos en el corazón de Dolores Hidalgo</p>
+          <h2 className="section-title" style={{ color: '#FDF6EC' }}>¿En dónde nos ubicamos?</h2>
+          <p className="section-subtitle" style={{ color: 'var(--bg-sand)' }}>Visítanos en el corazón de Dolores Hidalgo</p>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'stretch', flexWrap: 'wrap', marginTop: '2.5rem' }}>
             <div className="glass-panel" style={{ flex: '1 1 260px', padding: '2.5rem', borderRadius: 'var(--border-radius-md)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
@@ -313,7 +325,7 @@ export const Home = () => {
       </section>
 
       {/* Experiencias */}
-      <section style={{ backgroundColor: 'var(--secondary-hover)', overflow: 'hidden', padding: '5rem 0' }}>
+      <section style={{ backgroundColor: 'var(--bg-sand)', overflow: 'hidden', padding: '5rem 0' }}>
         <div className="container">
 
           {/* Encabezado */}
@@ -321,8 +333,8 @@ export const Home = () => {
             <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block', marginBottom: '0.75rem' }}>
               Más allá de tu habitación
             </span>
-            <h2 style={{
-              fontFamily: 'var(--font-serif)', color: '#FDF6EC',
+            <h2 className="section-title" style={{
+              fontFamily: 'var(--font-serif)',
               fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700, margin: 0
             }}>
               Vive Dolores Hidalgo
@@ -346,6 +358,8 @@ export const Home = () => {
               overflow: 'hidden',
               minHeight: '480px',
               border: '1px solid rgba(179,138,58,0.2)',
+              // sombras
+              boxShadow: '0 16px 40px rgba(107, 74, 47, 0.18)',
             }}>
               <video
                 src={videoEjemplo}
@@ -408,7 +422,7 @@ export const Home = () => {
                   key={i}
                   style={{
                     backgroundColor: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(179,138,58,0.2)',
+                    border: '1px solid var(--primary)',
                     borderRadius: '2px',
                     padding: '1.5rem 1.75rem',
                     display: 'flex',
@@ -433,16 +447,16 @@ export const Home = () => {
                     <span style={{ fontSize: '1.6rem' }}>{exp.icon}</span>
                     <span style={{
                       fontSize: '0.65rem', fontWeight: 700, letterSpacing: '2px',
-                      textTransform: 'uppercase', color: 'var(--gold)',
-                      border: '1px solid rgba(179,138,58,0.4)',
+                      textTransform: 'uppercase', color: 'var(--primary)',
+                      border: '1px solid var(--primary)',
                       padding: '0.15rem 0.5rem', borderRadius: '1px'
                     }}>{exp.tag}</span>
                   </div>
                   <h3 style={{
-                    fontFamily: 'var(--font-serif)', color: '#FDF6EC',
+                    fontFamily: 'var(--font-serif)', color: '#6b3f02ff',
                     fontSize: '1.15rem', fontWeight: 600, margin: 0
                   }}>{exp.titulo}</h3>
-                  <p style={{ color: 'rgba(253,246,236,0.65)', fontSize: '0.875rem', lineHeight: '1.7', margin: 0 }}>
+                  <p style={{ color: 'rgba(41, 21, 9, 1)', fontSize: '0.875rem', lineHeight: '1.7', margin: 0 }}>
                     {exp.desc}
                   </p>
                 </div>
@@ -451,7 +465,7 @@ export const Home = () => {
               {/* CTA */}
               <div style={{ textAlign: 'center', paddingTop: '0.5rem' }}>
                 <button
-                  onClick={() => navigate('/contacto')}
+                  onClick={() => navigate('/itinerary')}
                   style={{
                     width: '100%',
                     background: 'transparent',

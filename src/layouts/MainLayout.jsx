@@ -28,9 +28,10 @@ export const MainLayout = () => {
       {/* Header (Controlamos el color del texto global de sus hijos aquí) */}
       <header
         className={`fixed top-0 left-0 right-0 z-[1000] flex items-center transition-all duration-500 ease-in-out px-8 ${isScrolled
-          ? 'bg-[var(--bg-linen)] text-[var(--text-main)] shadow-md border-b border-[var(--border)] h-20'
-          : 'bg-transparent text-[var(--white)] border-b border-transparent h-28'
+          ? 'bg-[var(--bg-linen)] text-[var(--text-main)] shadow-md border-b border-[var(--border)]'
+          : 'bg-transparent text-[var(--white)] border-b border-transparent'
           }`}
+        style={{ height: isScrolled ? 'var(--navbar-height-scrolled)' : 'var(--navbar-height)' }}
       >
         <div className="container mx-auto flex justify-between items-center w-full">
           {/* Logo y Nombre (Hereda el color automáticamente) */}
