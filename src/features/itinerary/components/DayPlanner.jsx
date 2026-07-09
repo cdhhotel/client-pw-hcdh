@@ -1,6 +1,6 @@
 import { Calendar, ChevronRight } from 'lucide-react';
 
-export const DayPlanner = ({ days, selectedDay, onSelectDay, onDaysChange }) => {
+export const DayPlanner = ({ days, selectedDay, onSelectDay, onDaysChange, plan = {} }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Selector de días */}
@@ -97,42 +97,62 @@ export const DayPlanner = ({ days, selectedDay, onSelectDay, onDaysChange }) => 
           Selecciona el día
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          {Array.from({ length: days }, (_, i) => i + 1).map(day => (
-            <button
-              key={day}
-              onClick={() => onSelectDay(day)}
-              style={{
-                width: '100%',
-                padding: '0.6rem 0.8rem',
-                background: selectedDay === day ? 'var(--primary)' : 'transparent',
-                color: selectedDay === day ? 'var(--bg-linen)' : 'var(--text-main)',
-                border: selectedDay === day ? 'none' : '1px solid transparent',
-                borderRadius: 'var(--border-radius-sm)',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.88rem',
-                fontWeight: selectedDay === day ? 600 : 400,
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'var(--transition)',
-              }}
-              onMouseEnter={(e) => {
-                if (selectedDay !== day) {
-                  e.currentTarget.style.background = 'var(--bg-sand)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedDay !== day) {
-                  e.currentTarget.style.background = 'transparent';
-                }
-              }}
-            >
-              <span>Día {day}</span>
-              <ChevronRight size={14} style={{ opacity: selectedDay === day ? 1 : 0.4 }} />
-            </button>
-          ))}
+          {Array.from({ length: days }, (_, i) => i + 1).map(day => {
+            const count = plan[day]?.length || 0;
+            return (
+              <button
+                key={day}
+                onClick={() => onSelectDay(day)}
+                style={{
+                  width: '100%',
+                  padding: '0.6rem 0.8rem',
+                  background: selectedDay === day ? 'var(--primary)' : 'transparent',
+                  color: selectedDay === day ? 'var(--bg-linen)' : 'var(--text-main)',
+                  border: selectedDay === day ? 'none' : '1px solid transparent',
+                  borderRadius: 'var(--border-radius-sm)',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: '0.88rem',
+                  fontWeight: selectedDay === day ? 600 : 400,
+                  textAlign: 'left',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'var(--transition)',
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedDay !== day) {
+                    e.currentTarget.style.background = 'var(--bg-sand)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedDay !== day) {
+                    e.currentTarget.style.background = 'transparent';
+                  }
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span>Día {day}</span>
+                  {count > 0 && (
+                    <span style={{
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      background: selectedDay === day ? 'var(--bg-linen)' : 'var(--primary)',
+                      color: selectedDay === day ? 'var(--primary)' : 'var(--bg-linen)',
+                      borderRadius: '10px',
+                      padding: '0.1rem 0.4rem',
+                      lineHeight: '1.2',
+                      minWidth: '16px',
+                      textAlign: 'center'
+                    }}>
+                      {count}
+                    </span>
+                  )}
+                </div>
+                <ChevronRight size={14} style={{ opacity: selectedDay === day ? 1 : 0.4 }} />
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -77,6 +77,9 @@ export const AdminLayout = () => {
         <NavLink to="/admin/users" style={navLinkStyle} onClick={closeSidebar}>
           <Shield size={18} /> Usuarios
         </NavLink>
+        <NavLink to="/admin/itinerary" style={navLinkStyle} onClick={closeSidebar}>
+          <Shield size={18} /> Actividades
+        </NavLink>
       </nav>
 
       {/* Pie del sidebar */}

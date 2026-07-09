@@ -1,27 +1,68 @@
-import { useState } from 'react';
-// import { Instagram } from 'lucide-react';
-import { MapPin, Clock, Star, Navigation, Plus, Check, Globe, Share2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, Clock, Star, Navigation, Check, Globe, Share2, Heart, Sparkles, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { getCategoryBySubcategory } from '../constants/categories';
 
-const CATEGORIA_CONFIG = {
-  'Gastronomía': { bg: '#FFF3E0', color: '#E65100', icon: '' },
-  'Cultura': { bg: '#F3E5F5', color: '#6A1B9A', icon: '' },
-  'Naturaleza': { bg: '#E8F5E9', color: '#2E7D32', icon: '' },
-  'Aventura': { bg: '#FFF8E1', color: '#F57F17', icon: '' },
-  'Compras': { bg: '#FCE4EC', color: '#880E4F', icon: '' },
-  'Historia': { bg: '#EFEBE9', color: '#4E342E', icon: '' },
-  'Arte': { bg: '#E8EAF6', color: '#283593', icon: '' },
-  'Deporte': { bg: '#E3F2FD', color: '#1565C0', icon: '' },
-  'Relax': { bg: '#F9FBE7', color: '#558B2F', icon: '' },
-  'Tour': { bg: '#FFF9E6', color: '#A0442A', icon: '' },
-  'Restaurante': { bg: '#FFF3E0', color: '#BF360C', icon: '' },
-  'Museo': { bg: '#E8EAF6', color: '#283593', icon: '' },
-  'Actividad Recreativa': { bg: '#E8F5E9', color: '#2E7D32', icon: '' },
-  'default': { bg: '#F5F0E6', color: '#6B4A2F', icon: '' },
+export const CATEGORY_IMAGES = {
+  COMIDA: '/images/comida.png',
+  SALUD: '/images/salud.png',
+  ATRACCIONES: '/images/atracciones.png',
+  EVENTOS: '/images/eventos.png',
+  TOURS: '/images/tours.png',
+  OTRAS: '/images/otras.png'
 };
 
-function getCatStyle(categoria) {
-  return CATEGORIA_CONFIG[categoria] ?? CATEGORIA_CONFIG['default'];
-}
+
+export const MAIN_CATEGORY_THEMES = {
+  COMIDA: {
+    accent: 'var(--primary)',
+    borderHover: 'rgba(160, 68, 42, 0.4)',
+    borderSelected: 'var(--primary)',
+    bgSelected: 'rgba(160, 68, 42, 0.04)',
+    badgeBg: 'rgba(160, 68, 42, 0.1)',
+    badgeText: 'var(--primary)'
+  },
+  ATRACCIONES: {
+    accent: 'var(--secondary)',       // nogal
+    borderHover: 'rgba(107, 74, 47, 0.4)',
+    borderSelected: 'var(--secondary)',
+    bgSelected: 'rgba(107, 74, 47, 0.04)',
+    badgeBg: 'rgba(107, 74, 47, 0.1)',
+    badgeText: 'var(--secondary)'
+  },
+  EVENTOS: {
+    accent: 'var(--gold)',            // oro artesanal
+    borderHover: 'rgba(179, 138, 58, 0.4)',
+    borderSelected: 'var(--gold)',
+    bgSelected: 'rgba(179, 138, 58, 0.04)',
+    badgeBg: 'rgba(179, 138, 58, 0.1)',
+    badgeText: 'var(--gold)'
+  },
+  SALUD: {
+    accent: 'var(--primary)',
+    borderHover: 'rgba(160, 68, 42, 0.4)',
+    borderSelected: 'var(--primary)',
+    bgSelected: 'rgba(160, 68, 42, 0.04)',
+    badgeBg: 'rgba(160, 68, 42, 0.1)',
+    badgeText: 'var(--primary)'
+  },
+  TOURS: {
+    accent: 'var(--accent)',          // verde olivo
+    borderHover: 'rgba(122, 128, 97, 0.4)',
+    borderSelected: 'var(--accent)',
+    bgSelected: 'rgba(122, 128, 97, 0.04)',
+    badgeBg: 'rgba(122, 128, 97, 0.1)',
+    badgeText: 'var(--accent)'
+  },
+  OTRAS: {
+    accent: 'var(--secondary)',
+    borderHover: 'rgba(107, 74, 47, 0.4)',
+    borderSelected: 'var(--secondary)',
+    bgSelected: 'rgba(107, 74, 47, 0.04)',
+    badgeBg: 'rgba(107, 74, 47, 0.1)',
+    badgeText: 'var(--secondary)'
+  }
+};
 
 /** Próximos eventos del sitio (máximo 2) */
 function UpcomingEvents({ eventos }) {
@@ -34,27 +75,28 @@ function UpcomingEvents({ eventos }) {
 
   return (
     <div style={{
-      marginTop: '0.5rem',
-      paddingTop: '0.5rem',
+      marginTop: '0.65rem',
+      paddingTop: '0.65rem',
       borderTop: '1px dashed var(--border)',
     }}>
       <p style={{
-        fontSize: '0.68rem',
+        fontSize: '0.72rem',
         textTransform: 'uppercase',
-        letterSpacing: '0.5px',
+        letterSpacing: '0.6px',
         color: 'var(--gold)',
         fontWeight: 700,
-        margin: '0 0 0.3rem 0',
+        margin: '0 0 0.35rem 0',
+        fontFamily: 'var(--font-sans)'
       }}>
         Próximos eventos
       </p>
       {upcoming.map(ev => (
-        <div key={ev.id} style={{ marginBottom: '0.2rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--secondary)', margin: 0 }}>
+        <div key={ev.id} style={{ marginBottom: '0.25rem' }}>
+          <p style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-main)', margin: 0 }}>
             {ev.nombre}
           </p>
           {(ev.mes_referencia || ev.fecha_inicio) && (
-            <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', margin: 0 }}>
+            <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', margin: 0, opacity: 0.8 }}>
               {ev.mes_referencia ?? new Date(ev.fecha_inicio).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
             </p>
           )}
@@ -64,245 +106,537 @@ function UpcomingEvents({ eventos }) {
   );
 }
 
-import { motion } from 'framer-motion';
-
-export const ActivityCard = ({ activity, isSelected, onToggle }) => {
+export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) => {
   const [hovered, setHovered] = useState(false);
-  const catStyle = getCatStyle(activity.categoria);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // El sitio puede tener imagen en atributos_extra (futuro) o placeholder por categoría
-  const imageUrl = activity.imagen_url ?? null;
+  // Escuchar tamaño de la ventana para responsividad en JS sin Tailwind
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const mainCat = getCategoryBySubcategory(activity.categoria);
+  const theme = MAIN_CATEGORY_THEMES[mainCat] || MAIN_CATEGORY_THEMES.OTRAS;
+  const imageUrl = activity.imagen_url || CATEGORY_IMAGES[mainCat] || '/images/otras.png';
+
+  // Calificación normalizada sobre 10
+  const rawRating = activity.calificacion ? parseFloat(activity.calificacion) : null;
+  const rating10 = rawRating ? (rawRating <= 5 ? rawRating * 2 : rawRating) : null;
+  let ratingText = "Excelente";
+  if (rating10) {
+    if (rating10 >= 9.0) ratingText = "Excelente";
+    else if (rating10 >= 8.0) ratingText = "Muy bueno";
+    else if (rating10 >= 7.0) ratingText = "Bueno";
+    else ratingText = "Aceptable";
+  }
+
+  // Generar número de reseñas estable basado en ID
+  const reviewsCount = Math.floor(
+    ((activity.nombre?.charCodeAt(0) || 75) * 67 + (activity.id?.charCodeAt(3) || 29) * 31) % 450
+  ) + 12;
+
+  // Estrellas basadas en calificación
+  const starCount = Math.round(rawRating || 4);
+  const stars = Array.from({ length: 5 }, (_, i) => (
+    <Star
+      key={i}
+      size={13}
+      style={{
+        color: i < starCount ? 'var(--gold)' : 'rgba(200, 185, 155, 0.3)',
+        fill: i < starCount ? 'var(--gold)' : 'transparent',
+        display: 'inline-block',
+        marginLeft: '1px'
+      }}
+    />
+  ));
+
+  // Inclusiones en base a servicios
+  const servicesList = activity.servicios
+    ? activity.servicios.split(',').map(s => s.trim()).slice(0, 3)
+    : ['Acceso libre', 'Recomendado', 'Ubicación céntrica'];
+
+  // Cantidad de fotos ficticia estable
+  const photoCount = Math.floor(((activity.nombre?.length || 10) * 7) % 48) + 8;
 
   return (
     <motion.div
       onClick={() => onToggle(activity)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -6, scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      whileHover={{ y: -3 }}
+      transition={{ type: 'spring', stiffness: 260, damping: 22 }}
       style={{
-        background: isSelected ? 'var(--bg-sand)' : 'var(--white)',
-        border: 'none',
-        borderRadius: '16px', // un poco más redondo
-        overflow: 'hidden',
-        cursor: 'pointer',
-        boxShadow: isSelected
-          ? '0 10px 30px rgba(179,138,58,0.25), inset 0 0 0 2px var(--gold)'
-          : hovered
-            ? '0 15px 35px rgba(0,0,0,0.1)'
-            : '0 5px 15px rgba(0,0,0,0.05)',
-        position: 'relative',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: isMobile ? 'column' : 'row',
+        width: '100%',
+        overflow: 'hidden',
+        userSelect: 'none',
+        cursor: 'pointer',
+        background: isSelected
+          ? `linear-gradient(135deg, var(--white) 0%, ${theme.bgSelected} 100%)`
+          : isMapFocused
+            ? 'rgba(200, 185, 155, 0.12)'
+            : 'var(--white)',
+        border: isSelected
+          ? `2.5px solid var(--primary)`
+          : isMapFocused
+            ? `2px solid var(--accent)`
+            : hovered
+              ? `1px solid var(--secondary)`
+              : '1px solid var(--border)',
+        borderRadius: 'var(--border-radius-md)',
+        boxShadow: isSelected
+          ? `0 6px 18px rgba(107, 74, 47, 0.12), 0 0 8px rgba(160, 68, 42, 0.15)`
+          : isMapFocused
+            ? `0 6px 15px rgba(107, 74, 47, 0.12), 0 0 8px rgba(122, 128, 97, 0.15)`
+            : hovered
+              ? '0 8px 16px rgba(107, 74, 47, 0.08)'
+              : 'var(--shadow-sm)',
+        position: 'relative',
+        transition: 'all 0.22s ease',
       }}
+      id={`activity-card-${activity.id}`}
     >
-      {/* Badge seleccionado / agregar */}
-      <motion.div 
-        animate={{ scale: isSelected ? 1 : 0.9, opacity: isSelected ? 1 : hovered ? 0.9 : 0.6 }}
+      {/* ── SECCIÓN IZQUIERDA (FOTO + DETALLES EXTRA ABAJO DE LA IMAGEN EN ESCRITORIO) ── */}
+      <div
         style={{
-        position: 'absolute', top: '0.8rem', right: '0.8rem', zIndex: 10,
-        width: '32px', height: '32px', borderRadius: '50%',
-        background: isSelected ? 'var(--primary)' : 'rgba(255,255,255,0.95)',
-        border: 'none',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
-      }}>
-        {isSelected
-          ? <Check size={16} style={{ color: 'white' }} />
-          : <Plus size={16} style={{ color: 'var(--primary)' }} />
-        }
-      </motion.div>
+          display: 'flex',
+          flexDirection: 'column',
+          width: isMobile ? '100%' : '16rem', // 256px fijo
+          flexShrink: 0,
+          background: 'rgba(216, 200, 168, 0.06)', // Arena muy suave
+          borderRight: isMobile ? 'none' : '1px solid rgba(200, 185, 155, 0.18)'
+        }}
+      >
+        {/* Contenedor de la Imagen */}
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '11.5rem', // Altura fija de imagen
+            overflow: 'hidden'
+          }}
+        >
+          {/* Popular Option Badge */}
+          {rating10 && rating10 >= 8.5 && (
+            <span
+              style={{
+                position: 'absolute',
+                top: '0.75rem',
+                left: '0.75rem',
+                zIndex: 10,
+                fontSize: '9px',
+                textTransform: 'uppercase',
+                fontWeight: '800',
+                letterSpacing: '0.05em',
+                padding: '0.25rem 0.5rem',
+                background: 'var(--secondary)',
+                color: 'var(--bg-linen)',
+                borderRadius: '0px',
+                fontFamily: 'var(--font-sans)'
+              }}
+            >
+              Opción popular
+            </span>
+          )}
 
-      {/* ── Imagen / Placeholder con categoría ── */}
-      <div style={{ height: '148px', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
-        {imageUrl ? (
+          {/* Favorite Heart Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsFavorite(!isFavorite);
+            }}
+            style={{
+              position: 'absolute',
+              top: '0.75rem',
+              right: '0.75rem',
+              zIndex: 10,
+              width: '2.25rem',
+              height: '2.25rem',
+              background: 'rgba(255, 255, 255, 0.85)',
+              border: '1px solid #e5e7eb',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              outline: 'none',
+              borderRadius: 'var(--border-radius-sm)',
+              transition: 'background-color 0.2s'
+            }}
+          >
+            <Heart
+              size={16}
+              fill={isFavorite ? 'var(--primary)' : 'transparent'}
+              color={isFavorite ? 'var(--primary)' : 'var(--text-main)'}
+              style={{ transition: 'transform 0.2s' }}
+            />
+          </button>
+
           <img
             src={imageUrl}
             alt={activity.nombre}
             style={{
-              width: '100%', height: '100%', objectFit: 'cover',
-              transition: 'transform 0.4s ease',
-              transform: hovered ? 'scale(1.08)' : 'scale(1)',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transition: 'transform 0.75s ease-out, filter 0.75s ease-out',
+              transform: hovered ? 'scale(1.03)' : 'scale(1)',
+              filter: hovered ? 'brightness(1.02)' : 'brightness(0.95)'
             }}
           />
-        ) : (
-          <div style={{
-            width: '100%', height: '100%',
-            background: `linear-gradient(135deg, ${catStyle.bg} 0%, var(--bg-sand) 100%)`,
-            display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
-          }}>
-            <span style={{ fontSize: '2.6rem' }}>{catStyle.icon}</span>
-            <span style={{
-              fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '1px',
-              color: catStyle.color, fontWeight: 700,
-            }}>
-              {activity.categoria}
-            </span>
-          </div>
-        )}
-        {/* Overlay degradado hover */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'linear-gradient(to top, rgba(107,74,47,0.3) 0%, transparent 55%)',
-          opacity: hovered ? 1 : 0,
-          transition: 'opacity 0.3s ease',
-        }} />
 
-        {/* Distancia badge */}
-        {activity.distancia_km && (
-          <span style={{
-            position: 'absolute', bottom: '0.5rem', left: '0.5rem',
-            background: 'rgba(73,55,42,0.85)',
-            color: 'var(--bg-linen)',
-            fontSize: '0.68rem', fontWeight: 600,
-            padding: '0.18rem 0.5rem',
-            borderRadius: 'var(--border-radius-sm)',
-            backdropFilter: 'blur(4px)',
-          }}>
-            <Navigation size={9} style={{ verticalAlign: 'middle', marginRight: '2px' }} />
-            {Number(activity.distancia_km).toFixed(1)} km
-          </span>
-        )}
-      </div>
-
-      {/* ── Contenido ── */}
-      <div style={{ padding: '0.9rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-
-        {/* Badge categoría */}
-        <span style={{
-          display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
-          padding: '0.15rem 0.55rem',
-          borderRadius: '50px',
-          fontSize: '0.68rem', fontWeight: 700,
-          textTransform: 'uppercase', letterSpacing: '0.4px',
-          background: catStyle.bg, color: catStyle.color,
-          alignSelf: 'flex-start',
-          marginBottom: '0.15rem',
-        }}>
-          {catStyle.icon} {activity.categoria}
-        </span>
-
-        {/* Nombre */}
-        <h4 style={{
-          fontFamily: 'var(--font-serif)',
-          fontSize: '1rem',
-          color: 'var(--secondary)',
-          margin: 0,
-          lineHeight: 1.3,
-        }}>
-          {activity.nombre}
-        </h4>
-
-        {/* Dirección */}
-        {activity.direccion && (
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.25rem' }}>
-            <MapPin size={11} style={{ color: 'var(--gold)', flexShrink: 0, marginTop: '2px' }} />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
-              {activity.direccion}
-            </span>
-          </div>
-        )}
-
-        {/* Horario */}
-        {activity.horario && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            <Clock size={11} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              {activity.horario}
-            </span>
-          </div>
-        )}
-
-        {/* Tiempo estimado */}
-        {activity.tiempo_estimado_minutos && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-            <Navigation size={11} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              ~{activity.tiempo_estimado_minutos} min desde el hotel
-            </span>
-          </div>
-        )}
-
-        {/* Descripción (truncada) */}
-        {activity.descripcion && (
-          <p style={{
-            fontSize: '0.78rem',
-            color: 'var(--text-muted)',
-            margin: '0.1rem 0 0 0',
-            lineHeight: 1.5,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}>
-            {activity.descripcion}
-          </p>
-        )}
-
-        {/* Servicios / incluye (truncado) */}
-        {activity.servicios && (
-          <p style={{
-            fontSize: '0.73rem',
-            color: 'var(--accent)',
-            margin: '0.1rem 0 0 0',
-            fontStyle: 'italic',
-            display: '-webkit-box',
-            WebkitLineClamp: 1,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}>
-            Incluye: {activity.servicios}
-          </p>
-        )}
-
-        {/* Links externos */}
-        {(activity.sitio_web || activity.redes_sociales) && (
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.2rem' }}
-            onClick={e => e.stopPropagation()}>
-            {activity.sitio_web && (
-              <a href={activity.sitio_web} target="_blank" rel="noopener noreferrer"
-                style={{ color: 'var(--text-muted)' }} title="Sitio web">
-                <Globe size={13} />
-              </a>
-            )}
-            {activity.redes_sociales && (
-              <a href={activity.redes_sociales} target="_blank" rel="noopener noreferrer"
-                style={{ color: 'var(--text-muted)' }} title="Redes sociales">
-                {/* <Instagram size={13} /> */}
-              </a>
-            )}
-          </div>
-        )}
-
-        {/* Calificación + estado selección */}
-        <div style={{
-          marginTop: 'auto',
-          paddingTop: '0.5rem',
-          borderTop: '1px solid var(--border)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          {activity.calificacion ? (
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Star size={10} style={{ color: 'var(--gold)', fill: 'var(--gold)' }} />
-              {Number(activity.calificacion).toFixed(1)}
-            </span>
-          ) : <span />}
-          <span style={{
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            color: isSelected ? 'var(--primary)' : 'var(--text-muted)',
-          }}>
-            {isSelected ? '✓ Agregado' : '+ Agregar'}
+          <span
+            style={{
+              position: 'absolute',
+              bottom: '0.75rem',
+              right: '0.75rem',
+              zIndex: 10,
+              fontSize: '9px',
+              fontFamily: 'var(--font-sans)',
+              fontWeight: '600',
+              background: 'rgba(0, 0, 0, 0.5)',
+              padding: '0.125rem 0.375rem',
+              color: '#ffffff',
+              letterSpacing: '0.05em'
+            }}
+          >
+            1 / {photoCount}
           </span>
         </div>
 
-        {/* Próximos eventos del lugar */}
-        <UpcomingEvents eventos={activity.evento_local} />
+        {/* DETALLES DEBAJO DE LA IMAGEN (Solo en Escritorio) */}
+        {!isMobile && (
+          <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {/* Distancia */}
+            {activity.distancia_km && (
+              <div
+                style={{
+                  fontSize: '0.72rem',
+                  fontWeight: 'bold',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  fontFamily: 'var(--font-sans)',
+                  color: 'var(--secondary)'
+                }}
+              >
+                <Navigation size={11} style={{ color: 'var(--primary)', transform: 'rotate(45deg)' }} />
+                <span>A {Number(activity.distancia_km).toFixed(1)} km del hotel</span>
+              </div>
+            )}
+
+            {/* Inclusiones/Servicios */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+              {servicesList.map((srv, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.72rem', color: '#57534e', fontFamily: 'var(--font-sans)' }}>
+                  <Check size={11} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={srv}>{srv}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Enlaces Sociales / Web */}
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
+              {activity.sitio_web && (
+                <a
+                  href={activity.sitio_web}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#a8a29e', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
+                  title="Sitio web"
+                >
+                  <Globe size={13} />
+                </a>
+              )}
+              {activity.redes_sociales && (
+                <a
+                  href={activity.redes_sociales}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: '#a8a29e', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
+                  title="Redes sociales"
+                >
+                  <Share2 size={13} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── SECCIÓN DERECHA (INFORMACIÓN Y ACCIONES PRINCIPALES) ── */}
+      <div
+        style={{
+          flex: 1,
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: '0.75rem'
+        }}
+      >
+        <div>
+          {/* Subcategory Badge */}
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '0.125rem 0.5rem',
+              fontSize: '9px',
+              fontWeight: 'bold',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              marginBottom: '0.25rem',
+              border: '1px solid rgba(200, 185, 155, 0.4)',
+              borderRadius: '0px',
+              background: 'var(--bg-sand)',
+              color: 'var(--text-muted)',
+              fontFamily: 'var(--font-sans)',
+              alignSelf: 'flex-start'
+            }}
+          >
+            {activity.categoria}
+          </span>
+
+          {/* Title & Stars */}
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginTop: '0.125rem'
+            }}
+          >
+            <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.125rem', margin: 0, color: 'var(--secondary)', lineHeight: 1.25, fontWeight: 'bold' }}>
+              {activity.nombre}
+            </h4>
+            <div style={{ display: 'flex', alignItems: 'center' }}>{stars}</div>
+          </div>
+
+          {/* Rating Badge */}
+          {rating10 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  padding: '0.125rem 0.375rem',
+                  borderRadius: '0px',
+                  background: 'var(--accent)',
+                  fontFamily: 'var(--font-sans)'
+                }}
+              >
+                {rating10.toFixed(1)}
+              </span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--text-main)' }}>
+                {ratingText}
+              </span>
+              {/* <span style={{ fontSize: '0.75rem', color: '#78716c', fontFamily: 'var(--font-sans)' }}>
+                ({reviewsCount} reseñas)
+              </span> */}
+            </div>
+          )}
+
+          {/* Address & Maps Link */}
+          {activity.direccion && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.375rem', marginTop: '0.625rem' }}>
+              <MapPin size={13} style={{ color: theme.accent, flexShrink: 0, marginTop: '2px' }} />
+              {activity.link_maps ? (
+                <a
+                  href={activity.link_maps}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--text-muted)',
+                    textDecoration: 'underline',
+                    lineHeight: 1.5,
+                    fontFamily: 'var(--font-sans)',
+                    transition: 'color 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+                  onClick={e => e.stopPropagation()}
+                >
+                  {activity.direccion}
+                </a>
+              ) : (
+                <span style={{ fontSize: '0.75rem', color: '#57534e', lineHeight: 1.5, fontFamily: 'var(--font-sans)' }}>
+                  {activity.direccion}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div>
+          {/* Description snippet */}
+          {activity.descripcion && (
+            <p
+              style={{
+                fontSize: '0.75rem',
+                color: '#57534e',
+                margin: 0,
+                lineHeight: 1.6,
+                fontFamily: 'var(--font-sans)',
+                whiteSpace: 'pre-line'
+              }}
+            >
+              {activity.descripcion}
+            </p>
+          )}
+
+          {/* Horario de Atención */}
+          {activity.horario && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '0.375rem',
+                fontSize: '0.75rem',
+                marginTop: '0.625rem',
+                color: '#44403c',
+                fontFamily: 'var(--font-sans)'
+              }}
+            >
+              <Clock size={12} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
+              <span style={{ fontWeight: '600', color: '#44403c', whiteSpace: 'pre-line', lineHeight: 1.4 }}>
+                {activity.horario}
+              </span>
+            </div>
+          )}
+
+          {/* Specifications Highlight row */}
+          {activity.especificaciones && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                fontSize: '0.75rem',
+                marginTop: '0.5rem',
+                color: 'var(--gold)',
+                fontFamily: 'var(--font-sans)'
+              }}
+            >
+              <Sparkles size={11} style={{ flexShrink: 0 }} />
+              <span style={{ fontWeight: '600', color: '#44403c', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                {activity.especificaciones}
+              </span>
+            </div>
+          )}
+
+          {/* Local Events list */}
+          <UpcomingEvents eventos={activity.evento_local} />
+        </div>
+
+        {/* DETALLES DEBAJO (Solo en Móvil para mantener orden de lectura) */}
+        {isMobile && (
+          <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: 'rgba(216, 200, 168, 0.08)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {activity.distancia_km && (
+              <div style={{ fontSize: '0.75rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.375rem', fontFamily: 'var(--font-sans)', color: 'var(--secondary)' }}>
+                <Navigation size={12} style={{ color: 'var(--primary)', transform: 'rotate(45deg)' }} />
+                <span>A {Number(activity.distancia_km).toFixed(1)} km del hotel</span>
+              </div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              {servicesList.map((srv, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: '#57534e', fontFamily: 'var(--font-sans)' }}>
+                  <Check size={12} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                  <span>{srv}</span>
+                </div>
+              ))}
+            </div>
+            {/* Redes móviles */}
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
+              {activity.sitio_web && (
+                <a href={activity.sitio_web} target="_blank" rel="noopener noreferrer" style={{ color: '#a8a29e' }} title="Sitio web">
+                  <Globe size={13} />
+                </a>
+              )}
+              {activity.redes_sociales && (
+                <a href={activity.redes_sociales} target="_blank" rel="noopener noreferrer" style={{ color: '#a8a29e' }} title="Redes sociales">
+                  <Share2 size={13} />
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── BARRA INFERIOR DE ACCIONES (Tiempo Estimado + Botón de Acción) ── */}
+        <div
+          style={{
+            marginTop: '0.75rem',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+            paddingTop: '0.75rem',
+            borderTop: '1px solid rgba(200, 185, 155, 0.15)'
+          }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {activity.tiempo_estimado_minutos && (
+              <span style={{ fontSize: '10px', color: '#a8a29e', fontFamily: 'var(--font-sans)' }}>
+                ~ {activity.tiempo_estimado_minutos} minutos de viaje
+              </span>
+            )}
+            <span style={{ fontSize: '11px', fontWeight: 'bold', fontFamily: 'var(--font-sans)', color: 'var(--accent)' }}>
+              Ubicación verificada
+            </span>
+          </div>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggle(activity);
+            }}
+            style={{
+              padding: '0.625rem 1.25rem',
+              fontWeight: 'bold',
+              fontSize: '0.875rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              background: isSelected ? 'transparent' : 'var(--primary)',
+              color: isSelected ? 'var(--primary)' : 'var(--bg-linen)',
+              border: isSelected ? '2px solid var(--primary)' : 'none',
+              borderRadius: 'var(--border-radius-sm)', // Recto
+              boxShadow: isSelected ? 'none' : '0 4px 8px rgba(160, 68, 42, 0.12)',
+              minWidth: isMobile ? 'auto' : '180px'
+            }}
+            onMouseEnter={e => {
+              if (isSelected) {
+                e.currentTarget.style.background = 'rgba(160, 68, 42, 0.05)';
+              } else {
+                e.currentTarget.style.background = 'var(--primary-hover)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (isSelected) {
+                e.currentTarget.style.background = 'transparent';
+              } else {
+                e.currentTarget.style.background = 'var(--primary)';
+              }
+            }}
+          >
+            <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+              {isSelected ? 'Quitar del itinerario' : 'Añadir al itinerario'}
+            </span>
+            <ChevronRight size={14} style={{ flexShrink: 0 }} />
+          </button>
+        </div>
       </div>
     </motion.div>
   );

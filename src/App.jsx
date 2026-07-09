@@ -14,6 +14,7 @@ import { Users } from './features/system-admin/pages/Users';
 import { AdminRooms } from './features/hotel-admin/pages/AdminRooms';
 import { AdminItinerary } from './features/hotel-admin/pages/AdminItinerary';
 import { Itinerary } from './features/itinerary/pages/Itinerary';
+import { CategoryPage } from './features/itinerary/pages/CategoryPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="rooms" element={<Rooms />} />
             <Route path="booking" element={<Booking />} />
             <Route path="itinerary" element={<Itinerary />} />
+            <Route path="itinerary/:categoryKey" element={<CategoryPage />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
           </Route>

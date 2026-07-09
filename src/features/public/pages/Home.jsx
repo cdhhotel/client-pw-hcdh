@@ -69,6 +69,8 @@ export const Home = () => {
           color: '#fff',
           textAlign: 'center',
           padding: '0 1.5rem',
+          paddingTop: 'var(--navbar-height)',
+          marginTop: 'calc(-1 * var(--navbar-height))',
           backdropFilter: 'blur(15px)',
         }}
       >
@@ -291,14 +293,14 @@ export const Home = () => {
 
       {/* Ubicación */}
       <section style={{
-        backgroundColor: 'var(--bg-sand)',
+        backgroundColor: 'var(--secondary)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '5rem 0',
       }}>
         <div className="container" >
-          <h2 className="section-title">¿En dónde nos ubicamos?</h2>
-          <p className="section-subtitle">Visítanos en el corazón de Dolores Hidalgo</p>
+          <h2 className="section-title" style={{ color: '#FDF6EC' }}>¿En dónde nos ubicamos?</h2>
+          <p className="section-subtitle" style={{ color: 'var(--bg-sand)' }}>Visítanos en el corazón de Dolores Hidalgo</p>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'stretch', flexWrap: 'wrap', marginTop: '2.5rem' }}>
             <div className="glass-panel" style={{ flex: '1 1 260px', padding: '2.5rem', borderRadius: 'var(--border-radius-md)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
@@ -346,7 +348,7 @@ export const Home = () => {
       </section>
 
       {/* Experiencias */}
-      <section style={{ backgroundColor: 'var(--secondary-hover)', overflow: 'hidden', padding: '5rem 0' }}>
+      <section style={{ backgroundColor: 'var(--bg-sand)', overflow: 'hidden', padding: '5rem 0' }}>
         <div className="container">
 
           {/* Encabezado */}
@@ -354,8 +356,8 @@ export const Home = () => {
             <span style={{ color: 'var(--gold)', fontWeight: 600, letterSpacing: '4px', textTransform: 'uppercase', fontSize: '0.8rem', display: 'block', marginBottom: '0.75rem' }}>
               Más allá de tu habitación
             </span>
-            <h2 style={{
-              fontFamily: 'var(--font-serif)', color: '#FDF6EC',
+            <h2 className="section-title" style={{
+              fontFamily: 'var(--font-serif)',
               fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700, margin: 0
             }}>
               Vive Dolores Hidalgo
@@ -379,6 +381,8 @@ export const Home = () => {
               overflow: 'hidden',
               minHeight: '480px',
               border: '1px solid rgba(179,138,58,0.2)',
+              // sombras
+              boxShadow: '0 16px 40px rgba(107, 74, 47, 0.18)',
             }}>
               <video
                 src={videoEjemplo}
@@ -441,7 +445,7 @@ export const Home = () => {
                   key={i}
                   style={{
                     backgroundColor: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(179,138,58,0.2)',
+                    border: '1px solid var(--primary)',
                     borderRadius: '2px',
                     padding: '1.5rem 1.75rem',
                     display: 'flex',
@@ -466,16 +470,16 @@ export const Home = () => {
                     <span style={{ fontSize: '1.6rem' }}>{exp.icon}</span>
                     <span style={{
                       fontSize: '0.65rem', fontWeight: 700, letterSpacing: '2px',
-                      textTransform: 'uppercase', color: 'var(--gold)',
-                      border: '1px solid rgba(179,138,58,0.4)',
+                      textTransform: 'uppercase', color: 'var(--primary)',
+                      border: '1px solid var(--primary)',
                       padding: '0.15rem 0.5rem', borderRadius: '1px'
                     }}>{exp.tag}</span>
                   </div>
                   <h3 style={{
-                    fontFamily: 'var(--font-serif)', color: '#FDF6EC',
+                    fontFamily: 'var(--font-serif)', color: '#6b3f02ff',
                     fontSize: '1.15rem', fontWeight: 600, margin: 0
                   }}>{exp.titulo}</h3>
-                  <p style={{ color: 'rgba(253,246,236,0.65)', fontSize: '0.875rem', lineHeight: '1.7', margin: 0 }}>
+                  <p style={{ color: 'rgba(41, 21, 9, 1)', fontSize: '0.875rem', lineHeight: '1.7', margin: 0 }}>
                     {exp.desc}
                   </p>
                 </div>
@@ -484,7 +488,7 @@ export const Home = () => {
               {/* CTA */}
               <div style={{ textAlign: 'center', paddingTop: '0.5rem' }}>
                 <button
-                  onClick={() => navigate('/contacto')}
+                  onClick={() => navigate('/itinerary')}
                   style={{
                     width: '100%',
                     background: 'transparent',

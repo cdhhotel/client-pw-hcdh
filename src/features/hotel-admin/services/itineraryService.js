@@ -1,56 +1,63 @@
 import { api } from '../../../services/api';
 
 export const itineraryService = {
-  /** Lista todas las actividades de itinerario */
+  /** Lista todas las actividades/sitios cercanos */
   getAll: async (filters = {}) => {
     const params = new URLSearchParams(filters).toString();
-    const endpoint = params ? `/itinerary/itinerary?${params}` : '/itinerary/itinerary';
+    const endpoint = params ? `/hotel/sitios-cercanos?${params}` : '/hotel/sitios-cercanos';
     const result = await api.get(endpoint);
-    return result.data || [];
+    // Extraemos `data` ya que el backend devuelve { success: true, data: [...] }
+    return result.data?.data || result.data || [];
   },
 
   /** Elimina una actividad */
   delete: async (id) => {
-    return await api.delete(`/itinerary/itinerary/${id}`);
+    return await api.delete(`/hotel/sitios-cercanos/${id}`);
   },
 
-  /** Crea o actualiza una actividad de itinerario */
+  /** Crea o actualiza una actividad / sitio cercano */
   save: async (formData, isEditMode, selectedId) => {
-    const submitData = new FormData();
-
-    // Campos de texto
-    const fields = [
-      'nombre', 'horario_inicio', 'horario_fin', 'disponibilidad',
-      'usuario_id', 'reservacion_id', 'sitio_cercano_id',
-      'descripcion', 'categoria', 'remove_image',
-    ];
-
-    fields.forEach((key) => {
-      const val = formData[key];
-      if (val !== undefined && val !== null && val !== '') {
-        submitData.append(key, val);
-      }
-    });
-
-    // Imagen (File object)
-    if (formData.imagenFile) {
-      submitData.append('imagen', formData.imagenFile);
-    }
+    // Ya no enviamos FormData, enviamos JSON normal
+    const payload = { ...formData };
+    // Limpiamos campos no necesarios
+    delete payload.imagenFile;
+    delete payload.remove_image;
 
     if (isEditMode) {
-      return await api.put(`/itinerary/itinerary/${selectedId}`, submitData);
+      return await api.put(`/hotel/sitios-cercanos/${selectedId}`, payload);
     } else {
-      return await api.post('/itinerary/itinerary-register', submitData);
+      return await api.post('/hotel/sitios-cercanos', payload);
     }
   },
 
-  /** Obtiene lista de sitios cercanos para el selector del formulario admin */
+  /** Obtiene lista de sitios cercanos (ahora hace lo mismo que getAll, pero lo dejamos por retrocompatibilidad temporal si se necesita en otro lado) */
   getSitiosCercanos: async () => {
     try {
       const result = await api.get('/hotel/sitios-cercanos');
-      return result.data || [];
+      return result.data?.data || result.data || [];
     } catch {
       return [];
+    }
+  },
+
+  /** Lista todos los eventos locales */
+  getEventos: async () => {
+    const result = await api.get('/hotel/eventos-locales');
+    return result.data?.data || result.data || [];
+  },
+
+  /** Elimina un evento local */
+  deleteEvento: async (id) => {
+    return await api.delete(`/hotel/eventos-locales/${id}`);
+  },
+
+  /** Crea o actualiza un evento local */
+  saveEvento: async (formData, isEditMode, selectedId) => {
+    const payload = { ...formData };
+    if (isEditMode) {
+      return await api.put(`/hotel/eventos-locales/${selectedId}`, payload);
+    } else {
+      return await api.post('/hotel/eventos-locales', payload);
     }
   },
 };

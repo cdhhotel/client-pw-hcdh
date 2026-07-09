@@ -160,7 +160,9 @@ export const Rooms = () => {
       {/* ── Cabecera Hero ── */}
       <div style={{
         backgroundImage: `linear-gradient(rgba(20, 12, 6, 0.55), rgba(20, 12, 6, 0.55)), url(${bgsecondary})`,
-        padding: '5rem 0 4rem',
+        paddingTop: 'calc(var(--navbar-height) + 5rem)',
+        paddingBottom: '4rem',
+        marginTop: 'calc(-1 * var(--navbar-height))',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}>
