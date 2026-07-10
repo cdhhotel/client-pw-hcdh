@@ -51,7 +51,67 @@
   }
 }
 
+* ─── HOME RESPONSIVE HERO ─── */
+.hero-section {
+  position: relative;
+  min-height: 80vh;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  padding: 6rem 1.5rem 3rem 1.5rem;
+  backdrop-filter: blur(15px);
+}
 
+.hero-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 1.5rem 2rem;
+  border-radius: var(--border-radius-md);
+  width: 100%;
+  max-width: 900px;
+  color: var(--text-main);
+  background-color: rgba(82, 56, 35, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px 0 rgba(82, 56, 35, 0.37);
+  position: relative;
+  margin-top: 3rem;
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    padding: 0 1.5rem;
+    height: 80vh;
+  }
+  .hero-form {
+    position: absolute;
+    bottom: -40px;
+    margin-top: 0;
+  }
+}
+
+/* ─── MARQUEE INFINITE SCROLL ─── */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-50% - 0.75rem)); } /* -50% del total (que es 2 veces el array) menos la mitad del gap */
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
 
 
 /* Reset & Estilos Base */
@@ -213,7 +273,7 @@ h3 {
 
 /* Contenedores */
 .glass-panel {
-  background: rgba(245, 240, 230, 0.85);
+  background: var(--bg-secondary);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(200, 185, 155, 0.4);
