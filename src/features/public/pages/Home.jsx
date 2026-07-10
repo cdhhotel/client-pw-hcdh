@@ -81,7 +81,7 @@ export const Home = () => {
 
         <form
           onSubmit={handleQuickSearch}
-          className="glass-panel hero-form"
+          className="glaass-panel hero-form"
         >
           <>
             {/* Llegada */}

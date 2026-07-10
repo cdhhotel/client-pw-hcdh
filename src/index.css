@@ -51,7 +51,7 @@
   }
 }
 
-* ─── HOME RESPONSIVE HERO ─── */
+
 .hero-section {
   position: relative;
   min-height: 80vh;
@@ -273,7 +273,16 @@ h3 {
 
 /* Contenedores */
 .glass-panel {
-  background: var(--bg-secondary);
+  background: var(--bg-sand);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(200, 185, 155, 0.4);
+  box-shadow: var(--shadow-md);
+}
+
+/* Contenedores */
+.glaass-panel {
+  background: var(--secondary);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(200, 185, 155, 0.4);
