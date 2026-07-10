@@ -279,7 +279,7 @@ export const Home = () => {
           <h2 className="section-title" style={{ color: '#FDF6EC' }}>¿En dónde nos ubicamos?</h2>
           <p className="section-subtitle" style={{ color: 'var(--bg-sand)' }}>Visítanos en el corazón de Dolores Hidalgo</p>
           <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'stretch', flexWrap: 'wrap', marginTop: '2.5rem' }}>
-            <div className="glass-panel" style={{ flex: '1 1 260px', padding: '2.5rem', borderRadius: 'var(--border-radius-md)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="glass-panel" style={{ backgroundColor: 'var(--bg-sand)', flex: '1 1 260px', padding: '2.5rem', borderRadius: 'var(--border-radius-md)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '50%', backgroundColor: 'rgba(193,92,61,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: 'var(--primary)' }}>
                   <MapPin size={22} />
