@@ -11,7 +11,7 @@ import portadaInicio from '../../../assets/background-home.jpeg';
 // Helper para obtener minutos transcurridos desde medianoche para ordenar cronológicamente
 const obtenerMinutosInicio = (lugar) => {
   if (!lugar) return 9999;
-  
+
   // 1. Si posee horarios_json estructurado, obtener la primera hora de apertura
   if (lugar.horarios_json && Array.isArray(lugar.horarios_json) && lugar.horarios_json.length > 0) {
     const primerHorario = lugar.horarios_json[0];
@@ -26,18 +26,18 @@ const obtenerMinutosInicio = (lugar) => {
       }
     }
   }
-  
+
   // 2. Fallback: Parsear la hora desde el campo texto "horario"
   const horarioStr = lugar.horario;
   if (!horarioStr) return 9999;
-  
+
   const formatoHoraMinuto = horarioStr.match(/\b(\d{1,2})[:.](\d{2})\b/);
   if (formatoHoraMinuto) {
     const horas = parseInt(formatoHoraMinuto[1], 10);
     const minutos = parseInt(formatoHoraMinuto[2], 10);
     return horas * 60 + minutos;
   }
-  
+
   const formatoAmPm = horarioStr.match(/\b(\d{1,2})\s*(am|pm|AM|PM)\b/i);
   if (formatoAmPm) {
     let horas = parseInt(formatoAmPm[1], 10);
@@ -46,7 +46,7 @@ const obtenerMinutosInicio = (lugar) => {
     if (!esPm && horas === 12) horas = 0;
     return horas * 60;
   }
-  
+
   return 9999;
 };
 
@@ -220,7 +220,6 @@ export const Itinerary = () => {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Mi Itinerario - Hotel Casa Dolores</title>
           <meta charset="utf-8" />
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
@@ -393,8 +392,8 @@ export const Itinerary = () => {
           <div class="talavera-border"></div>
           
           <div class="header">
-            <h1>Hotel Casa Dolores</h1>
-            <p>Mi Itinerario Personalizado</p>
+            <h1>Hotel Casa Dolores Hidalgo</h1>
+            <p>Mi Itinerario</p>
           </div>
 
           ${Array.from({ length: days }, (_, i) => i + 1).map(d => {
@@ -714,7 +713,7 @@ export const Itinerary = () => {
             onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
             onMouseLeave={e => e.currentTarget.style.filter = 'brightness(1)'}
           >
-            Exportar Itinerario (.txt)
+            Descargar Itinerario (.pdf)
           </button>
         </div>
 
