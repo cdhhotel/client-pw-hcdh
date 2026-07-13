@@ -77,6 +77,7 @@ const initialForm = {
   especificaciones: '',
   correo_contacto: '',
   imagen_url: '',
+  imagenFile: null,
   evento_local: [],
 
   // Campos para evento_local
@@ -129,8 +130,12 @@ export const AdminItinerary = () => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, files } = e.target;
+    if (type === 'file') {
+      setFormData(prev => ({ ...prev, [name]: files[0] || null }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleOpenCreate = () => {
@@ -157,6 +162,11 @@ export const AdminItinerary = () => {
         fecha_fin: item.fecha_fin ? item.fecha_fin.substring(0, 10) : '',
         mes_referencia: item.mes_referencia || '',
         sitio_cercano_id: item.sitio_cercano_id || '',
+        imagen_url: item.imagen_url || '',
+        imagenFile: null,
+        link_maps: item.link_maps || '',
+        latitud: item.latitud || '',
+        longitud: item.longitud || '',
       });
     } else {
       let parsedHorarioEntries = [{ dias: '', hora_apertura: '', hora_cierre: '' }];
@@ -189,6 +199,7 @@ export const AdminItinerary = () => {
         especificaciones: item.especificaciones || '',
         correo_contacto: item.correo_contacto || '',
         imagen_url: item.imagen_url || '',
+        imagenFile: null,
         evento_local: item.evento_local || [],
       });
     }
@@ -227,7 +238,12 @@ export const AdminItinerary = () => {
           fecha_fin: formData.fecha_fin || null,
           mes_referencia: formData.mes_referencia || null,
           descripcion: formData.descripcion || null,
-          sitio_cercano_id: formData.sitio_cercano_id || null
+          sitio_cercano_id: formData.sitio_cercano_id || null,
+          imagen_url: formData.imagen_url || null,
+          link_maps: formData.link_maps || null,
+          latitud: formData.latitud ? parseFloat(formData.latitud) : null,
+          longitud: formData.longitud ? parseFloat(formData.longitud) : null,
+          imagenFile: formData.imagenFile || null,
         };
         await itineraryService.saveEvento(payload, isEditMode, selectedId);
       } else {

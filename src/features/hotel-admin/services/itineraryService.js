@@ -17,16 +17,26 @@ export const itineraryService = {
 
   /** Crea o actualiza una actividad / sitio cercano */
   save: async (formData, isEditMode, selectedId) => {
-    // Ya no enviamos FormData, enviamos JSON normal
-    const payload = { ...formData };
-    // Limpiamos campos no necesarios
-    delete payload.imagenFile;
-    delete payload.remove_image;
+    const data = new FormData();
+    for (const key in formData) {
+      if (key === 'imagenFile' && formData[key]) {
+        data.append('imagenFile', formData[key]);
+      } else if (key !== 'imagenFile' && key !== 'remove_image') {
+        const val = formData[key];
+        if (val !== null && val !== undefined && val !== '') {
+          if (typeof val === 'object' && !(val instanceof File)) {
+            data.append(key, JSON.stringify(val));
+          } else {
+            data.append(key, val);
+          }
+        }
+      }
+    }
 
     if (isEditMode) {
-      return await api.put(`/hotel/sitios-cercanos/${selectedId}`, payload);
+      return await api.put(`/hotel/sitios-cercanos/${selectedId}`, data);
     } else {
-      return await api.post('/hotel/sitios-cercanos', payload);
+      return await api.post('/hotel/sitios-cercanos', data);
     }
   },
 
@@ -53,11 +63,26 @@ export const itineraryService = {
 
   /** Crea o actualiza un evento local */
   saveEvento: async (formData, isEditMode, selectedId) => {
-    const payload = { ...formData };
+    const data = new FormData();
+    for (const key in formData) {
+      if (key === 'imagenFile' && formData[key]) {
+        data.append('imagenFile', formData[key]);
+      } else if (key !== 'imagenFile' && key !== 'remove_image') {
+        const val = formData[key];
+        if (val !== null && val !== undefined && val !== '') {
+          if (typeof val === 'object' && !(val instanceof File)) {
+            data.append(key, JSON.stringify(val));
+          } else {
+            data.append(key, val);
+          }
+        }
+      }
+    }
+
     if (isEditMode) {
-      return await api.put(`/hotel/eventos-locales/${selectedId}`, payload);
+      return await api.put(`/hotel/eventos-locales/${selectedId}`, data);
     } else {
-      return await api.post('/hotel/eventos-locales', payload);
+      return await api.post('/hotel/eventos-locales', data);
     }
   },
 };

@@ -202,14 +202,14 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
       }}
       id={`activity-card-${activity.id}`}
     >
-      {/* ── SECCIÓN IZQUIERDA (FOTO + DETALLES EXTRA ABAJO DE LA IMAGEN EN ESCRITORIO) ── */}
+      {/* ── SECCIÓN IZQUIERDA ── */}
       <div
         style={{
           display: 'flex',
           flexDirection: 'column',
-          width: isMobile ? '100%' : '16rem', // 256px fijo
+          width: isMobile ? '100%' : '16rem',
           flexShrink: 0,
-          background: 'rgba(216, 200, 168, 0.06)', // Arena muy suave
+          background: 'rgba(216, 200, 168, 0.06)',
           borderRight: isMobile ? 'none' : '1px solid rgba(200, 185, 155, 0.18)'
         }}
       >
@@ -218,7 +218,7 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
           style={{
             position: 'relative',
             width: '100%',
-            height: '11.5rem', // Altura fija de imagen
+            height: '11.5rem',
             overflow: 'hidden'
           }}
         >
@@ -305,7 +305,7 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
               letterSpacing: '0.05em'
             }}
           >
-            1 / {photoCount}
+            {/* 1 / {photoCount} */}
           </span>
         </div>
 
@@ -341,28 +341,27 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
             </div>
 
             {/* Enlaces Sociales / Web */}
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
               {activity.sitio_web && (
                 <a
-                  href={activity.sitio_web}
+                  href={activity.sitio_web.startsWith('http') ? activity.sitio_web : `https://${activity.sitio_web}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: '#a8a29e', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
+                  style={{ color: '#a8a29e', transition: 'color 0.2s', display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.72rem', fontFamily: 'var(--font-sans)', textDecoration: 'none' }}
                   title="Sitio web"
                 >
-                  <Globe size={13} />
+                  <Globe size={13} style={{ flexShrink: 0 }} />
+                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{activity.sitio_web}</span>
                 </a>
               )}
               {activity.redes_sociales && (
-                <a
-                  href={activity.redes_sociales}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: '#a8a29e', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
+                <div
+                  style={{ color: '#a8a29e', display: 'flex', alignItems: 'flex-start', gap: '0.375rem', fontSize: '0.72rem', fontFamily: 'var(--font-sans)' }}
                   title="Redes sociales"
                 >
-                  <Share2 size={13} />
-                </a>
+                  <Share2 size={13} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span style={{ wordBreak: 'break-word' }}>{activity.redes_sociales}</span>
+                </div>
               )}
             </div>
           </div>
@@ -476,7 +475,7 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
           )}
         </div>
 
-        <div>
+        <div style={{ maxHeight: '11rem', overflowY: 'auto', paddingRight: '0.25rem', display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
           {/* Description snippet */}
           {activity.descripcion && (
             <p
@@ -501,7 +500,6 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
                 alignItems: 'flex-start',
                 gap: '0.375rem',
                 fontSize: '0.75rem',
-                marginTop: '0.625rem',
                 color: '#44403c',
                 fontFamily: 'var(--font-sans)'
               }}
@@ -518,16 +516,15 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 gap: '0.375rem',
                 fontSize: '0.75rem',
-                marginTop: '0.5rem',
                 color: 'var(--gold)',
                 fontFamily: 'var(--font-sans)'
               }}
             >
-              <Sparkles size={11} style={{ flexShrink: 0 }} />
-              <span style={{ fontWeight: '600', color: '#44403c', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+              <Sparkles size={11} style={{ flexShrink: 0, marginTop: '2px' }} />
+              <span style={{ fontWeight: '600', color: '#44403c', whiteSpace: 'pre-line', lineHeight: 1.4 }}>
                 {activity.especificaciones}
               </span>
             </div>
@@ -555,16 +552,18 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
               ))}
             </div>
             {/* Redes móviles */}
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
               {activity.sitio_web && (
-                <a href={activity.sitio_web} target="_blank" rel="noopener noreferrer" style={{ color: '#a8a29e' }} title="Sitio web">
-                  <Globe size={13} />
+                <a href={activity.sitio_web.startsWith('http') ? activity.sitio_web : `https://${activity.sitio_web}`} target="_blank" rel="noopener noreferrer" style={{ color: '#a8a29e', display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', textDecoration: 'none' }} title="Sitio web">
+                  <Globe size={13} style={{ flexShrink: 0 }} />
+                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{activity.sitio_web}</span>
                 </a>
               )}
               {activity.redes_sociales && (
-                <a href={activity.redes_sociales} target="_blank" rel="noopener noreferrer" style={{ color: '#a8a29e' }} title="Redes sociales">
-                  <Share2 size={13} />
-                </a>
+                <div style={{ color: '#a8a29e', display: 'flex', alignItems: 'flex-start', gap: '0.375rem', fontSize: '0.75rem' }} title="Redes sociales">
+                  <Share2 size={13} style={{ flexShrink: 0, marginTop: '2px' }} />
+                  <span style={{ wordBreak: 'break-word' }}>{activity.redes_sociales}</span>
+                </div>
               )}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './app/AuthContext';
+import { ScrollToTop } from './components/ScrollToTop';
 import { MainLayout } from './layouts/MainLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { Home } from './features/public/pages/Home';
@@ -21,6 +22,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* Rutas Públicas del Sitio Web */}
           <Route path="/" element={<MainLayout />}>

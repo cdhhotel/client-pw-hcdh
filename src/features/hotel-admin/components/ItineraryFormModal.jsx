@@ -217,8 +217,80 @@ export const ItineraryFormModal = ({
                       style={{ width: '100%' }}
                     />
                   </div>
+
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={labelStyle} htmlFor="imagen_url_evento">URL de Imagen (o deja en blanco para usar la local)</label>
+                    <input
+                      id="imagen_url_evento"
+                      name="imagen_url"
+                      type="text"
+                      placeholder="Ej. https://images.unsplash.com/... o /images/tours.png"
+                      value={formData.imagen_url || ''}
+                      onChange={onInputChange}
+                      className="form-control"
+                      style={{ width: '100%', marginBottom: '0.5rem' }}
+                    />
+                    <label style={{ ...labelStyle, marginTop: '0.5rem' }} htmlFor="imagenFile_evento">O Subir Imagen Local</label>
+                    <input
+                      id="imagenFile_evento"
+                      name="imagenFile"
+                      type="file"
+                      accept="image/*"
+                      onChange={onInputChange}
+                      className="form-control"
+                      style={{ width: '100%' }}
+                    />
+                    {formData.imagenFile && (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.25rem' }}>Archivo seleccionado: {formData.imagenFile.name}</p>
+                    )}
+                  </div>
+
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={labelStyle} htmlFor="link_maps_evento">Enlace a Google Maps</label>
+                    <input
+                      id="link_maps_evento"
+                      name="link_maps"
+                      type="text"
+                      placeholder="Ej. https://maps.app.goo.gl/..."
+                      value={formData.link_maps || ''}
+                      onChange={onInputChange}
+                      className="form-control"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={labelStyle} htmlFor="latitud_evento">Latitud</label>
+                    <input
+                      id="latitud_evento"
+                      name="latitud"
+                      type="number"
+                      step="0.00000001"
+                      placeholder="Ej. 21.1578"
+                      value={formData.latitud || ''}
+                      onChange={onInputChange}
+                      className="form-control"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={labelStyle} htmlFor="longitud_evento">Longitud</label>
+                    <input
+                      id="longitud_evento"
+                      name="longitud"
+                      type="number"
+                      step="0.00000001"
+                      placeholder="Ej. -100.9312"
+                      value={formData.longitud || ''}
+                      onChange={onInputChange}
+                      className="form-control"
+                      style={{ width: '100%' }}
+                    />
+                  </div>
                 </div>
               </div>
+
 
               <div>
                 <label style={labelStyle} htmlFor="descripcion">Descripción del Evento</label>
@@ -281,7 +353,7 @@ export const ItineraryFormModal = ({
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label style={labelStyle}>Horarios de Atención</label>
-                    
+
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {formData.horario_entries && formData.horario_entries.map((entry, index) => (
                         <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -389,7 +461,7 @@ export const ItineraryFormModal = ({
                   </div>
 
                   <div style={{ gridColumn: '1 / -1' }}>
-                    <label style={labelStyle} htmlFor="imagen_url">URL de Imagen</label>
+                    <label style={labelStyle} htmlFor="imagen_url">URL de Imagen (o deja en blanco para usar la local)</label>
                     <input
                       id="imagen_url"
                       name="imagen_url"
@@ -398,8 +470,21 @@ export const ItineraryFormModal = ({
                       value={formData.imagen_url || ''}
                       onChange={onInputChange}
                       className="form-control"
+                      style={{ width: '100%', marginBottom: '0.5rem' }}
+                    />
+                    <label style={{ ...labelStyle, marginTop: '0.5rem' }} htmlFor="imagenFile">O Subir Imagen Local</label>
+                    <input
+                      id="imagenFile"
+                      name="imagenFile"
+                      type="file"
+                      accept="image/*"
+                      onChange={onInputChange}
+                      className="form-control"
                       style={{ width: '100%' }}
                     />
+                    {formData.imagenFile && (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.25rem' }}>Archivo seleccionado: {formData.imagenFile.name}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -449,7 +534,7 @@ export const ItineraryFormModal = ({
                       style={{ width: '100%' }}
                     />
                   </div>
-                  
+
                   <div>
                     <label style={labelStyle} htmlFor="correo_contacto">Correo de Contacto</label>
                     <input
@@ -614,7 +699,7 @@ export const ItineraryFormModal = ({
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
                           <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--secondary)' }}>{ev.nombre}</span>
                           <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
-                            {ev.fecha_inicio ? new Date(ev.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'UTC' }) : ''} 
+                            {ev.fecha_inicio ? new Date(ev.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'UTC' }) : ''}
                             {ev.fecha_fin ? ` al ${new Date(ev.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'UTC' })}` : ''}
                             {ev.mes_referencia ? ` (${ev.mes_referencia})` : ''}
                           </span>

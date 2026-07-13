@@ -38,6 +38,16 @@ export const api = {
     }
 
     try {
+      console.log(`[API Request] ${config.method || 'GET'} ${endpoint}`);
+      console.log(`[API Request] isFormData?`, isFormData);
+      console.log(`[API Request] Headers:`, config.headers);
+      console.log(`[API Request] Body:`, config.body);
+      if (isFormData) {
+        for (let pair of config.body.entries()) {
+          console.log(pair[0]+ ', ' + pair[1]); 
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
       // Sesión expirada o token inválido
