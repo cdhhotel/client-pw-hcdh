@@ -412,29 +412,31 @@ export const CategoryPage = () => {
           }}
         >
           {!loading && !error && filteredLugares.length > 0 && (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                overflow: 'hidden',
-                border: isMobile ? 'none' : '1px solid var(--border)',
-                boxShadow: isMobile ? 'none' : 'var(--shadow-md)',
-                borderRadius: isMobile ? '0px' : 'var(--border-radius-md)', // Recto
-                background: 'var(--white)'
-              }}
-            >
-              <ActivityMap
-                activities={filteredLugares}
-                selectedActivityId={selectedMapActivity?.id}
-                onSelectActivity={(activity) => {
-                  setSelectedMapActivity(activity);
-                  // En escritorio, desplazar la lista para centrar la tarjeta
-                  const cardElement = document.getElementById(`activity-card-${activity.id}`);
-                  if (cardElement) {
-                    cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  }
+            <>
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  overflow: 'hidden',
+                  border: isMobile ? 'none' : '1px solid var(--border)',
+                  boxShadow: isMobile ? 'none' : 'var(--shadow-md)',
+                  borderRadius: isMobile ? '0px' : 'var(--border-radius-md)', // Recto
+                  background: 'var(--white)'
                 }}
-              />
+              >
+                <ActivityMap
+                  activities={filteredLugares}
+                  selectedActivityId={selectedMapActivity?.id}
+                  onSelectActivity={(activity) => {
+                    setSelectedMapActivity(activity);
+                    // En escritorio, desplazar la lista para centrar la tarjeta
+                    const cardElement = document.getElementById(`activity-card-${activity.id}`);
+                    if (cardElement) {
+                      cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                />
+              </div>
 
               {/* Mobile Overlay: Tarjeta Flotante cuando se selecciona un pin en mapa móvil */}
               {selectedMapActivity && mobileView === 'map' && (
@@ -442,19 +444,19 @@ export const CategoryPage = () => {
                   style={{
                     position: 'absolute',
                     bottom: '5.5rem',
-                    left: '1rem',
-                    right: '1rem',
-                    zIndex: 40,
+                    left: '0.75rem',
+                    right: '0.75rem',
+                    zIndex: 1000, // Alto para quedar sobre el mapa Leaflet
                     background: 'var(--white)',
-                    border: '1px solid var(--border)',
-                    boxShadow: 'var(--shadow-lg)',
-                    padding: '0.75rem',
-                    borderRadius: 'var(--border-radius-md)'
+                    border: '1.5px solid var(--border)',
+                    boxShadow: '0 8px 30px rgba(107, 74, 47, 0.2)',
+                    padding: '0.5rem',
+                    borderRadius: 'var(--border-radius-sm)'
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.5rem', borderBottom: '1px solid #e5e7eb', marginBottom: '0.5rem' }}>
-                    <span style={{ fontSize: '10px', uppercase: 'true', fontWeight: 'bold', letterSpacing: '0.05em', color: '#6b7280', fontFamily: 'var(--font-sans)' }}>Lugar seleccionado en mapa</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '0.25rem', marginBottom: '0.25rem', paddingLeft: '0.25rem' }}>
+                    <span style={{ fontSize: '9px', fontWeight: 'bold', letterSpacing: '0.05em', color: '#6b7280', fontFamily: 'var(--font-sans)', textTransform: 'uppercase' }}>Lugar seleccionado</span>
                     <button
                       onClick={() => setSelectedMapActivity(null)}
                       style={{
@@ -471,20 +473,21 @@ export const CategoryPage = () => {
                       onMouseEnter={e => e.currentTarget.style.color = '#374151'}
                       onMouseLeave={e => e.currentTarget.style.color = '#9ca3af'}
                     >
-                      <X size={14} />
+                      <X size={12} />
                     </button>
                   </div>
 
-                  {/* Tarjeta de actividad horizontal dentro del overlay móvil */}
+                  {/* Tarjeta de actividad horizontal compacta dentro del overlay móvil */}
                   <ActivityCard
                     activity={selectedMapActivity}
                     isSelected={isSelected(selectedMapActivity.id)}
                     onToggle={handleToggle}
                     isMapFocused={true}
+                    isCompact={true}
                   />
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>

@@ -106,7 +106,7 @@ function UpcomingEvents({ eventos }) {
   );
 }
 
-export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) => {
+export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isCompact }) => {
   const [hovered, setHovered] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -160,6 +160,114 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused }) =
 
   // Cantidad de fotos ficticia estable
   const photoCount = Math.floor(((activity.nombre?.length || 10) * 7) % 48) + 8;
+
+  if (isCompact) {
+    return (
+      <div
+        onClick={() => onToggle(activity)}
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          width: '100%',
+          gap: '0.75rem',
+          padding: '0.5rem',
+          background: isSelected
+            ? `linear-gradient(135deg, var(--white) 0%, ${theme.bgSelected} 100%)`
+            : 'var(--white)',
+          border: isSelected
+            ? `2px solid var(--primary)`
+            : '1px solid var(--border)',
+          borderRadius: 'var(--border-radius-sm)',
+          cursor: 'pointer',
+          alignItems: 'center',
+          userSelect: 'none',
+          boxShadow: 'var(--shadow-sm)',
+          transition: 'all 0.2s'
+        }}
+      >
+        {/* Imagen Pequeña */}
+        <div style={{ width: '64px', height: '64px', flexShrink: 0, overflow: 'hidden', borderRadius: '2px' }}>
+          <img
+            src={imageUrl}
+            alt={activity.nombre}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </div>
+
+        {/* Información */}
+        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+          <span style={{
+            fontSize: '8px',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            color: 'var(--text-muted)',
+            fontFamily: 'var(--font-sans)',
+            letterSpacing: '0.05em'
+          }}>
+            {activity.categoria}
+          </span>
+          <h4 style={{
+            fontFamily: 'var(--font-serif)',
+            fontSize: '0.85rem',
+            margin: 0,
+            color: 'var(--secondary)',
+            fontWeight: 'bold',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }} title={activity.nombre}>
+            {activity.nombre}
+          </h4>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            {rating10 && (
+              <span style={{
+                fontSize: '9px',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                padding: '0.05rem 0.25rem',
+                background: 'var(--accent)',
+                fontFamily: 'var(--font-sans)'
+              }}>
+                {rating10.toFixed(1)}
+              </span>
+            )}
+            {activity.distancia_km && (
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-sans)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                <Navigation size={9} style={{ color: 'var(--primary)', transform: 'rotate(45deg)' }} />
+                <span>{Number(activity.distancia_km).toFixed(1)} km</span>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Botón de Acción */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(activity);
+          }}
+          style={{
+            padding: '0.4rem 0.6rem',
+            fontWeight: 'bold',
+            fontSize: '0.7rem',
+            cursor: 'pointer',
+            background: isSelected ? 'transparent' : 'var(--primary)',
+            color: isSelected ? 'var(--primary)' : 'var(--bg-linen)',
+            border: isSelected ? '1.5px solid var(--primary)' : 'none',
+            borderRadius: 'var(--border-radius-sm)',
+            flexShrink: 0,
+            fontFamily: 'var(--font-sans)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.02em',
+            boxShadow: isSelected ? 'none' : '0 2px 4px rgba(160, 68, 42, 0.12)'
+          }}
+        >
+          {isSelected ? 'Quitar' : 'Añadir'}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <motion.div

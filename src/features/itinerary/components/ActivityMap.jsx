@@ -207,6 +207,13 @@ export const ActivityMap = ({ activities, selectedActivityId, onSelectActivity }
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef({});
+  const [isMobile, setIsMobile] = React.useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -225,7 +232,18 @@ export const ActivityMap = ({ activities, selectedActivityId, onSelectActivity }
 
     mapRef.current = map;
 
+    // ResizeObserver para recalcular tamaño de Leaflet dinámicamente al alternar de 'list' a 'map'
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(() => {
+        if (map) {
+          map.invalidateSize();
+        }
+      });
+    });
+    resizeObserver.observe(mapContainerRef.current);
+
     return () => {
+      resizeObserver.disconnect();
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -293,12 +311,14 @@ export const ActivityMap = ({ activities, selectedActivityId, onSelectActivity }
       zIndexOffset: 2000
     }).addTo(map);
 
-    fixedMarker.bindPopup(`
-      <div style="text-align: center; font-family: sans-serif;">
-        <strong style="color: #1A1A1A; font-size: 14px;">${FIXED_LOCATION.nombre}</strong>
-        <br/><span style="color: #666; font-size: 12px;">Ubicación actual</span>
-      </div>
-    `);
+    if (!isMobile) {
+      fixedMarker.bindPopup(`
+        <div style="text-align: center; font-family: sans-serif;">
+          <strong style="color: #1A1A1A; font-size: 14px;">${FIXED_LOCATION.nombre}</strong>
+          <br/><span style="color: #666; font-size: 12px;">Ubicación actual</span>
+        </div>
+      `);
+    }
 
     markersRef.current['fixed-location'] = fixedMarker;
     // -----------------------------
@@ -329,13 +349,15 @@ export const ActivityMap = ({ activities, selectedActivityId, onSelectActivity }
 
       const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-      marker.bindPopup(`
-        <div style="text-align: center; font-family: sans-serif;">
-          <strong style="color: ${CATEGORY_COLORS[category] || '#000'}; font-size: 14px;">
-            ${activity.nombre || 'Sitio'}
-          </strong>
-        </div>
-      `);
+      if (!isMobile) {
+        marker.bindPopup(`
+          <div style="text-align: center; font-family: sans-serif;">
+            <strong style="color: ${CATEGORY_COLORS[category] || '#000'}; font-size: 14px;">
+              ${activity.nombre || 'Sitio'}
+            </strong>
+          </div>
+        `);
+      }
 
       markersRef.current[activity.id] = marker;
 
@@ -347,7 +369,9 @@ export const ActivityMap = ({ activities, selectedActivityId, onSelectActivity }
 
       if (isActive) {
         marker.setZIndexOffset(1000);
-        marker.openPopup();
+        if (!isMobile) {
+          marker.openPopup();
+        }
       }
     });
 
@@ -365,7 +389,7 @@ export const ActivityMap = ({ activities, selectedActivityId, onSelectActivity }
         duration: 0.6
       });
     }
-  }, [activities, selectedActivityId]);
+  }, [activities, selectedActivityId, isMobile]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
