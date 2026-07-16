@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, RefreshCw, X, MapPin, Map } from 'lucide-react';
 import { api } from '../../../services/api';
 import { getCategoryBySubcategory, ITINERARY_CATEGORIES } from '../constants/categories';
+import { verificarDisponibilidad } from '../utils/availability';
 import { ActivityCard } from '../components/ActivityCard';
 import { ActivityMap } from '../components/ActivityMap';
 import portadaInicio from '../../../assets/background-home.jpeg';
@@ -19,6 +20,16 @@ export const CategoryPage = () => {
   // Estado del planificador local
   const [plan, setPlan] = useState({});
   const [selectedDay, setSelectedDay] = useState(1);
+  const [startDate, setStartDate] = useState(() => {
+    return localStorage.getItem('itinerary_start_date') || new Date().toISOString().substring(0, 10);
+  });
+
+  const selectedDayDate = useMemo(() => {
+    if (!startDate) return null;
+    const baseDate = new Date(startDate + 'T00:00:00');
+    baseDate.setDate(baseDate.getDate() + (selectedDay - 1));
+    return baseDate;
+  }, [startDate, selectedDay]);
 
   // Estados para el mapa y responsividad sin Tailwind
   const [selectedMapActivity, setSelectedMapActivity] = useState(null);
@@ -66,7 +77,9 @@ export const CategoryPage = () => {
             redes_sociales: ev.sitio_cercano?.redes_sociales || null,
             servicios: ev.sitio_cercano?.servicios || null,
             especificaciones: ev.sitio_cercano?.especificaciones || null,
-            isEventoLocal: true
+            isEventoLocal: true,
+            fecha_inicio: ev.fecha_inicio,
+            fecha_fin: ev.fecha_fin
           }));
           setLugares(mappedEvents);
         } else {
@@ -391,6 +404,7 @@ export const CategoryPage = () => {
                             setSelectedMapActivity(act);
                           }}
                           isMapFocused={selectedMapActivity?.id === lugar.id}
+                          selectedDayDate={selectedDayDate}
                         />
                       ))
                     )}

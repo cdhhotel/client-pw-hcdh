@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
-import { MapPin, Clock, Star, Navigation, Check, Globe, Share2, Heart, Sparkles, ChevronRight } from 'lucide-react';
+import { MapPin, Clock, Star, Navigation, Check, Globe, Share2, Heart, Sparkles, ChevronRight, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getCategoryBySubcategory } from '../constants/categories';
+import { verificarDisponibilidad } from '../utils/availability';
 
 export const CATEGORY_IMAGES = {
-  COMIDA: '/images/comida.png',
-  SALUD: '/images/salud.png',
+  COMIDA: '/images/comida.jpeg',
+  SALUD: '/images/salud.jpg',
   ATRACCIONES: '/images/atracciones.png',
-  EVENTOS: '/images/eventos.png',
-  TOURS: '/images/tours.png',
+  EVENTOS: '/images/dh-animate.jpeg',
+  TOURS: '/images/turismo.jpg',
   OTRAS: '/images/otras.png'
 };
 
@@ -106,10 +107,11 @@ function UpcomingEvents({ eventos }) {
   );
 }
 
-export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isCompact }) => {
+export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isCompact, selectedDayDate }) => {
   const [hovered, setHovered] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const check = verificarDisponibilidad(activity, selectedDayDate);
 
   // Escuchar tamaño de la ventana para responsividad en JS sin Tailwind
   useEffect(() => {
@@ -155,8 +157,8 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
 
   // Inclusiones en base a servicios
   const servicesList = activity.servicios
-    ? activity.servicios.split(',').map(s => s.trim()).slice(0, 3)
-    : ['Acceso libre', 'Recomendado', 'Ubicación céntrica'];
+    ? activity.servicios.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3)
+    : [];
 
   // Cantidad de fotos ficticia estable
   const photoCount = Math.floor(((activity.nombre?.length || 10) * 7) % 48) + 8;
@@ -191,6 +193,10 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
             src={imageUrl}
             alt={activity.nombre}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = CATEGORY_IMAGES[mainCat] || '/images/otras.png';
+            }}
           />
         </div>
 
@@ -218,7 +224,7 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
           }} title={activity.nombre}>
             {activity.nombre}
           </h4>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             {rating10 && (
               <span style={{
@@ -239,6 +245,11 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
               </span>
             )}
           </div>
+          {!check.disponible && (
+            <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#dc2626', background: 'rgba(239, 68, 68, 0.08)', padding: '0.05rem 0.25rem', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'inline-flex', alignItems: 'center', gap: '2px', width: 'fit-content', marginTop: '0.15rem' }}>
+              ⚠️ {check.motivo || 'No disponible'}
+            </span>
+          )}
         </div>
 
         {/* Botón de Acción */}
@@ -396,6 +407,10 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
               transform: hovered ? 'scale(1.03)' : 'scale(1)',
               filter: hovered ? 'brightness(1.02)' : 'brightness(0.95)'
             }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = CATEGORY_IMAGES[mainCat] || '/images/otras.png';
+            }}
           />
 
           <span
@@ -439,14 +454,16 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
             )}
 
             {/* Inclusiones/Servicios */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-              {servicesList.map((srv, idx) => (
-                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.72rem', color: '#57534e', fontFamily: 'var(--font-sans)' }}>
-                  <Check size={11} style={{ color: 'var(--accent)', flexShrink: 0 }} />
-                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={srv}>{srv}</span>
-                </div>
-              ))}
-            </div>
+            {servicesList.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                {servicesList.map((srv, idx) => (
+                  <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.72rem', color: '#57534e', fontFamily: 'var(--font-sans)' }}>
+                    <Check size={11} style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                    <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={srv}>{srv}</span>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Enlaces Sociales / Web */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.25rem' }} onClick={e => e.stopPropagation()}>
@@ -579,6 +596,26 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
                   {activity.direccion}
                 </span>
               )}
+            </div>
+          )}
+          {!check.disponible && (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              background: 'rgba(220, 38, 38, 0.04)',
+              border: '1px solid rgba(220, 38, 38, 0.18)',
+              color: '#dc2626',
+              fontSize: '11px',
+              padding: '0.25rem 0.6rem',
+              fontWeight: 'bold',
+              fontFamily: 'var(--font-sans)',
+              borderRadius: '2px',
+              marginTop: '0.5rem',
+              width: 'fit-content'
+            }}>
+              <AlertTriangle size={12} />
+              <span>Aviso: El sitio no está disponible este día ({check.motivo || 'Cerrado'})</span>
             </div>
           )}
         </div>

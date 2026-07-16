@@ -1,8 +1,12 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 
 export const WhatsAppButton = () => {
   const TELEFONO = "4181775155";
   const MENSAJE = "¡Hola! Me gustaría obtener más información sobre el hotel.";
+
+  const location = useLocation();
+  const isItinerary = location.pathname === '/itinerary';
 
   const handleWhatsAppClick = () => {
     const url = `https://wa.me/${TELEFONO}?text=${encodeURIComponent(MENSAJE)}`;
@@ -10,7 +14,12 @@ export const WhatsAppButton = () => {
   };
 
   return (
-    <div className="!fixed !bottom-6 !right-6 !z-[9999] !flex !flex-col !items-end !pointer-events-auto !select-none">
+    <div 
+      className="whatsapp-float-container !fixed !right-6 !z-[9999] !flex !flex-col !items-end !pointer-events-auto !select-none"
+      style={{
+        bottom: isItinerary ? 'var(--wa-bottom-itinerary, 5rem)' : '1.5rem'
+      }}
+    >
       <div className="!relative group !flex !flex-col !items-end">
         <div
           className="!mb-4 !flex !items-center !rounded-2xl !p-4 !shadow-2xl !border opacity-0 !pointer-events-none !transition-all !duration-300 !transform !translate-y-2 group-hover:opacity-100 group-hover:!translate-y-0 !absolute !bottom-full !right-0 !w-72 !h-auto !box-border"
