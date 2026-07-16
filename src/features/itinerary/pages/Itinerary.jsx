@@ -528,12 +528,17 @@ export const Itinerary = () => {
           </div>
 
           <script>
-            window.onload = function() {
+            function startPrint() {
               window.print();
               setTimeout(function() {
                 window.close();
               }, 500);
-            };
+            }
+            if (document.fonts) {
+              document.fonts.ready.then(startPrint).catch(startPrint);
+            } else {
+              window.onload = startPrint;
+            }
           </script>
         </body>
       </html>
@@ -541,6 +546,10 @@ export const Itinerary = () => {
 
     printWindow.document.write(htmlContent);
     printWindow.document.close();
+
+    // Limpiar todas las actividades del itinerario tras iniciar la descarga/impresión
+    setPlan({});
+    localStorage.removeItem('itinerary_plan');
   };
 
   return (
