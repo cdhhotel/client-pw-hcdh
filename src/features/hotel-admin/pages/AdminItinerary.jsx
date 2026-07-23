@@ -132,7 +132,20 @@ export const AdminItinerary = () => {
   const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     if (type === 'file') {
-      setFormData(prev => ({ ...prev, [name]: files[0] || null }));
+      const file = files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFormData(prev => ({
+            ...prev,
+            imagenFile: file,
+            imagen_url: reader.result,
+          }));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFormData(prev => ({ ...prev, imagenFile: null }));
+      }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }

@@ -3,6 +3,7 @@ import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import { Menu, X, Hotel, User, LogOut, Shield } from 'lucide-react';
 import { useAuth } from '../app/AuthContext';
 import { WhatsAppButton } from '../components/WhatsAppButton';
+import { InterestContactsModal } from '../components/InterestContactsModal';
 
 export const MainLayout = () => {
   const { user, logout, isAuthenticated, isAdmin } = useAuth();
@@ -34,10 +35,28 @@ export const MainLayout = () => {
         style={{ height: isScrolled ? 'var(--navbar-height-scrolled)' : 'var(--navbar-height)' }}
       >
         <div className="container mx-auto flex justify-between items-center w-full">
-          {/* Logo y Nombre (Hereda el color automáticamente) */}
-          <Link to="/" className="flex items-center gap-2">
-            <Hotel size={32} className="animate-fade-in text-[var(--primary)]" />
-            <span style={{ fontFamily: 'var(--font-serif)' }} className="text-2xl font-bold tracking-wide">
+          {/* Logo y Nombre */}
+          <Link to="/" className="flex items-center gap-3 group">
+            {/* <img
+              src="/logo_mono.png"
+              alt="Logo Hotel Casa Dolores"
+              className="h-10 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 bg-white/90 p-1 rounded-md shadow-sm"
+            /> */}
+            <img
+              src="/logo_mono.png"
+              alt="Logo Hotel Casa Dolores"
+              style={{
+                height: '54px',
+                maxWidth: '140px',
+                width: 'auto',
+                objectFit: 'contain',
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                padding: '4px 6px',
+                borderRadius: '6px',
+                boxShadow: 'var(--shadow-sm)'
+              }}
+            />
+            <span style={{ fontFamily: 'var(--font-serif)' }} className="text-xl md:text-2xl font-bold tracking-wide">
               Casa Dolores Hidalgo
             </span>
           </Link>
@@ -195,8 +214,9 @@ export const MainLayout = () => {
         </div>
       </footer>
 
-      {/* Botón flotante WhatsApp */}
+      {/* Botones flotantes (WhatsApp y Servicios y Emergencia) */}
       <WhatsAppButton />
+      <InterestContactsModal />
     </div>
   );
 };

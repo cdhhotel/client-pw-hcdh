@@ -3,9 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath, Loader2 } from 'lucide-react';
 import { api } from '../../../services/api';
 import portadaInicio from '../../../assets/background-home.jpeg';
+import logoHorizontal from '../../../assets/logohorizontal.jpeg';
 import bgsecondary from '../../../assets/bg-secondary.png';
 import videoEjemplo from '../../../assets/videoejemplo.mp4';
 
+const HERO_SLIDES = [
+  {
+    image: portadaInicio,
+    showText: true,
+  },
+  {
+    image: logoHorizontal,
+    showText: false,
+  },
+];
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80';
 
@@ -23,6 +34,14 @@ export const Home = () => {
   const [hoveredId, setHoveredId] = useState(null);
   const [featuredRooms, setFeaturedRooms] = useState([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  useEffect(() => {
+    const slideTimer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 6000);
+    return () => clearInterval(slideTimer);
+  }, []);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -57,31 +76,102 @@ export const Home = () => {
       <section
         className="hero-section"
         style={{
-          backgroundImage: `linear-gradient(rgba(43, 37, 34, 0.4), rgba(43, 37, 34, 0.6)), url(${portadaInicio})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          color: '#fff',
-          textAlign: 'center',
-          padding: '0 1.5rem',
+          minHeight: '75vh',
           paddingTop: 'var(--navbar-height)',
           marginTop: 'calc(-1 * var(--navbar-height))',
-          backdropFilter: 'blur(15px)',
         }}
       >
-        <h1 style={{ color: '#fff', fontSize: '3.5rem', marginBottom: '1.5rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-          Un Refugio de Serenidad e Historia
-        </h1>
-        <p style={{ fontSize: '1.3rem', maxWidth: '700px', marginBottom: '3rem', fontFamily: 'var(--font-sans)', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
-          Descubre el encanto colonial y el lujo artesanal en el corazón de Dolores Hidalgo, Cuna de la Independencia Nacional.
-        </p>
+        {/* Contenedor Recortado para el Carousel de Fondo */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
+          {HERO_SLIDES.map((slide, index) => (
+            <div
+              key={index}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `linear-gradient(rgba(41, 21, 11, 0.66), rgba(100, 40, 12, 0.69)), url(${slide.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                opacity: index === currentSlide ? 1 : 0,
+                transform: index === currentSlide ? 'scale(1.05)' : 'scale(1)',
+                transition: 'opacity 1.5s ease-in-out, transform 6s ease-out',
+                pointerEvents: 'none',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Indicadores / Dots del Carousel */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '1.25rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            gap: '0.5rem',
+            zIndex: 2,
+          }}
+        >
+          {HERO_SLIDES.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => setCurrentSlide(index)}
+              aria-label={`Ir al slide ${index + 1}`}
+              style={{
+                width: index === currentSlide ? '28px' : '8px',
+                height: '8px',
+                borderRadius: '4px',
+                backgroundColor: index === currentSlide ? '#ffffff' : 'rgba(255, 255, 255, 0.45)',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.4s ease',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Texto del Hero (se desvanece suavemente sin mover el formulario) */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            opacity: HERO_SLIDES[currentSlide].showText ? 1 : 0,
+            transition: 'opacity 0.8s ease-in-out',
+            pointerEvents: HERO_SLIDES[currentSlide].showText ? 'auto' : 'none',
+            paddingBottom: '2rem',
+          }}
+        >
+          <h1 style={{ color: '#fff', fontSize: '3.5rem', marginBottom: '1.5rem', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+            Un Refugio de Serenidad e Historia
+          </h1>
+          <p style={{ fontSize: '1.3rem', maxWidth: '700px', marginBottom: '3rem', fontFamily: 'var(--font-sans)', textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}>
+            Descubre el encanto colonial y el lujo artesanal en el corazón de Dolores Hidalgo, Cuna de la Independencia Nacional.
+          </p>
+        </div>
 
         <form
           onSubmit={handleQuickSearch}
           className="glaass-panel hero-form"
+          style={{
+            position: 'absolute',
+            bottom: '-40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 10,
+            width: 'calc(100% - 3rem)',
+            maxWidth: '900px',
+            margin: 0,
+          }}
         >
           <>
             {/* Llegada */}
@@ -147,7 +237,7 @@ export const Home = () => {
         </form>
       </section>
 
-      <div style={{ height: '80px' }}></div>
+      <div style={{ height: '50px' }}></div>
       {/* Bienvenida */}
       <section
         style={{
@@ -401,20 +491,20 @@ export const Home = () => {
               {[
                 {
                   icon: '',
-                  titulo: 'Talleres de Talavera',
-                  desc: 'Aprende de manos de artesanos locales el arte milenario de la cerámica de Talavera, Patrimonio Cultural Inmaterial de la Humanidad.',
+                  titulo: 'Taller Artesanal',
+                  desc: 'Conoce el proceso artesanal de la cerámica mayólica, también conocida como estilo Talavera. Más que observar, vive la experiencia de sentir la textura del barro y conectar con un oficio ancestral que ha dado vida a este arte durante generaciones.',
                   tag: 'Artesanía'
                 },
                 {
                   icon: '',
                   titulo: 'Gastronomía Tradicional',
-                  desc: 'Recorre los mercados y prueba los sabores auténticos de Guanajuato: enchiladas mineras, carnitas y dulces típicos de Dolores Hidalgo.',
+                  desc: 'Recorre los mercados y restaurantes de Dolores Hidalgo, y disfruta de la auténtica sazón de la cocina mexicana, sus dulces típicos y las famosas nieves artesanales exóticas.',
                   tag: 'Cultura'
                 },
                 {
                   icon: '',
                   titulo: 'Ruta de Independencia',
-                  desc: 'Sigue los pasos del Padre Hidalgo por sitios históricos únicos: la parroquia, la cárcel y el museo donde nació el grito de libertad.',
+                  desc: 'Sumérgete en la historia de México y descubre el legado del Padre Hidalgo. Recorre la parroquia, los monumentos, los museos y el lugar donde comenzó la lucha por la libertad.',
                   tag: 'Historia'
                 }
               ].map((exp, i) => (
@@ -481,13 +571,13 @@ export const Home = () => {
                     transition: 'all 0.3s ease'
                   }}
                   onMouseEnter={e => {
-                    e.currentTarget.style.background = 'var(--gold)';
+                    e.currentTarget.style.background = 'var(--primary)';
                     e.currentTarget.style.color = 'var(--secondary-hover)';
                     e.currentTarget.style.transform = 'translateY(-2px)';
                   }}
                   onMouseLeave={e => {
                     e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = 'var(--gold)';
+                    e.currentTarget.style.color = 'var(--primary)';
                     e.currentTarget.style.transform = 'translateY(0)';
                   }}
                 >

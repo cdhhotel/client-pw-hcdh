@@ -40,8 +40,21 @@ export const AdminLayout = () => {
     <>
       {/* Logo */}
       <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link to="/" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-main)', textDecoration: 'none' }}>
-          <Shield size={22} style={{ color: 'var(--primary)', flexShrink: 0 }} />
+        <Link to="/" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-main)', textDecoration: 'none' }}>
+          <img
+            src="/logo_mono.png"
+            alt="Logo Hotel Casa Dolores"
+            style={{
+              height: '54px',
+              maxWidth: '140px',
+              width: 'auto',
+              objectFit: 'contain',
+              backgroundColor: 'rgba(255, 255, 255, 0)',
+              padding: '4px 6px',
+              borderRadius: '6px',
+              boxShadow: 'var(--shadow-sm)'
+            }}
+          />
           <div>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.05rem', fontWeight: 'bold', lineHeight: 1.2 }}>Casa Dolores</div>
             <div style={{ fontSize: '0.68rem', textTransform: 'uppercase', color: 'var(--primary)', letterSpacing: '1px', fontWeight: 600 }}>Panel de Control</div>

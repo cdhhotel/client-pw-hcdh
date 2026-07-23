@@ -8,6 +8,15 @@ import { ActivityCard } from '../components/ActivityCard';
 import { ActivityMap } from '../components/ActivityMap';
 import portadaInicio from '../../../assets/background-home.jpeg';
 
+const CATEGORY_DISPLAY_NAMES = {
+  COMIDA: 'Gastronomía',
+  ATRACCIONES: 'Atracciones',
+  EVENTOS: 'Eventos',
+  SALUD: 'Salud y Bienestar',
+  TOURS: 'Tours',
+  OTRAS: 'Otros Servicios'
+};
+
 export const CategoryPage = () => {
   const { categoryKey } = useParams();
   const navigate = useNavigate();
@@ -52,22 +61,22 @@ export const CategoryPage = () => {
         if (categoryKey === 'EVENTOS') {
           const res = await api.get('/hotel/eventos-locales');
           const allEvents = res.data?.data || res.data || [];
-          
+
           // Mapear eventos locales para que emulen el formato de un sitio_cercano y funcionen en el listado/mapa sin alterar otros componentes
           const mappedEvents = allEvents.map(ev => ({
             id: ev.id,
             nombre: ev.nombre,
             descripcion: ev.descripcion,
             categoria: 'Eventos',
-            direccion: ev.sitio_cercano?.nombre 
-              ? `${ev.sitio_cercano.nombre} - ${ev.sitio_cercano.direccion || ''}` 
+            direccion: ev.sitio_cercano?.nombre
+              ? `${ev.sitio_cercano.nombre} - ${ev.sitio_cercano.direccion || ''}`
               : 'Dolores Hidalgo, Gto.',
-            horario: ev.fecha_inicio 
+            horario: ev.fecha_inicio
               ? `${new Date(ev.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'UTC' })}${ev.fecha_fin ? ` al ${new Date(ev.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'UTC' })}` : ''}`
               : ev.mes_referencia || 'Temporada',
             latitud: ev.sitio_cercano?.latitud ? Number(ev.sitio_cercano.latitud) : 21.1578,
             longitud: ev.sitio_cercano?.longitud ? Number(ev.sitio_cercano.longitud) : -100.9312,
-            imagen_url: ev.sitio_cercano?.imagen_url || null,
+            imagen_url: ev.imagen_url || null,
             distancia_km: ev.sitio_cercano?.distancia_km || null,
             tiempo_estimado_minutos: ev.sitio_cercano?.tiempo_estimado_minutos || null,
             sitio_web: ev.sitio_cercano?.sitio_web || null,
@@ -85,10 +94,10 @@ export const CategoryPage = () => {
         } else {
           const res = await api.get('/hotel/sitios-cercanos');
           const allPlaces = res.data?.data || res.data || [];
-          
+
           // Filtrar por la categoría actual
           const subcategories = ITINERARY_CATEGORIES[categoryKey] || [];
-          const filtered = allPlaces.filter(place => 
+          const filtered = allPlaces.filter(place =>
             subcategories.includes(place.categoria)
           );
           setLugares(filtered);
@@ -177,11 +186,11 @@ export const CategoryPage = () => {
   };
 
   return (
-    <div 
-      style={{ 
-        background: 'var(--bg-linen)', 
-        height: '100vh', 
-        position: 'relative', 
+    <div
+      style={{
+        background: 'var(--bg-linen)',
+        height: '100vh',
+        position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -191,7 +200,7 @@ export const CategoryPage = () => {
       }}
     >
       {/* Banner oscuro para dar contraste al Navbar transparente superior */}
-      <div 
+      <div
         style={{
           height: 'var(--navbar-height)',
           width: '100%',
@@ -255,10 +264,10 @@ export const CategoryPage = () => {
                 fontWeight: 'bold'
               }}
             >
-              {categoryKey?.toLowerCase()}
+              {CATEGORY_DISPLAY_NAMES[catKey] || categoryKey}
             </h1>
             <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', marginBottom: 0, fontFamily: 'var(--font-sans)', letterSpacing: '0.02em', color: 'var(--text-muted)' }}>
-              Agregando actividades para el <strong>Día {selectedDay}</strong>
+              Añade actividades para el <strong>Día {selectedDay}</strong>
             </p>
           </div>
 

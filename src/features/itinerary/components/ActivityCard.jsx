@@ -5,11 +5,11 @@ import { getCategoryBySubcategory } from '../constants/categories';
 import { verificarDisponibilidad } from '../utils/availability';
 
 export const CATEGORY_IMAGES = {
-  COMIDA: '/images/comida.jpeg',
+  COMIDA: '/images/comida.jpg',
   SALUD: '/images/salud.jpg',
   ATRACCIONES: '/images/atracciones.png',
   EVENTOS: '/images/dh-animate.jpeg',
-  TOURS: '/images/turismo.jpg',
+  TOURS: '/images/turismo.png',
   OTRAS: '/images/otras.png'
 };
 
@@ -24,15 +24,14 @@ export const MAIN_CATEGORY_THEMES = {
     badgeText: 'var(--primary)'
   },
   ATRACCIONES: {
-    accent: 'var(--secondary)',       // nogal
-    borderHover: 'rgba(107, 74, 47, 0.4)',
+    accent: 'var(--secondary)',
     borderSelected: 'var(--secondary)',
     bgSelected: 'rgba(107, 74, 47, 0.04)',
     badgeBg: 'rgba(107, 74, 47, 0.1)',
     badgeText: 'var(--secondary)'
   },
   EVENTOS: {
-    accent: 'var(--gold)',            // oro artesanal
+    accent: 'var(--gold)',
     borderHover: 'rgba(179, 138, 58, 0.4)',
     borderSelected: 'var(--gold)',
     bgSelected: 'rgba(179, 138, 58, 0.04)',

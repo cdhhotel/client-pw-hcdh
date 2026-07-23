@@ -34,9 +34,9 @@ const debounce = (func, wait, immediate) => {
 const SLIDES = [
   {
     key: 'COMIDA',
-    name: 'Comida',
-    color: '#8A5A47', // Terracotta primary
-    image: '/images/comida.jpeg',
+    name: 'Gastronomía',
+    color: '#8A5A47',
+    image: '/images/comida.jpg',
     description: 'SABORES TRADICIONALES Y CAFÉS, BARES/CANTINAS Y MERCADOS',
     // location: 'CUNA DE LA INDEPENDENCIA'
   },
@@ -51,15 +51,15 @@ const SLIDES = [
   {
     key: 'EVENTOS',
     name: 'Eventos',
-    color: '#9A7836', // Warm gold
-    image: '/images/grito.jpg',
+    color: '#9A7836',
+    image: '/images/eventos.png',
     description: 'FESTIVALES DE ARTE Y ACTIVIDADES CULTURALES',
     // location: 'TRADICIÓN EN MOVIMIENTO'
   },
   {
     key: 'SALUD',
     name: 'Salud',
-    color: '#7E4848', // Burgundy/Red
+    color: '#7E4848',
     image: '/images/salud.jpg',
     description: 'FARMACIAS 24 HORAS, CLÍNICAS/HOSPITALES Y SERVICIOS MÉDICOS',
     // location: 'ATENCIÓN Y BIENESTAR'
@@ -67,18 +67,18 @@ const SLIDES = [
   {
     key: 'TOURS',
     name: 'Tours',
-    color: '#a5644aff', // Blue-ish
-    image: '/images/turismo.jpg',
+    color: '#a5644aff',
+    image: '/images/turismo.png',
     description: 'RECORRIDOS GUIADOS Y EXPERIENCIAS TURÍSTICAS',
     // location: 'DESCUBRE LA HISTORIA'
   },
   {
     key: 'OTRAS',
-    name: 'Otras',
-    color: '#e6d68eff', // Slate gray
+    name: 'Otros Servicios',
+    color: '#e6d68eff',
     image: '/images/otras.png',
     description: 'PENSIONES, TRANSPORTE Y OTROS SERVICIOS',
-    // location: 'SERVICIOS ADICIONALES'
+    // location: 'OTROS SERVICIOS'
   }
 ];
 
@@ -512,7 +512,7 @@ export const CategorySelector = ({ onOpenCategory, onSlideChange }) => {
             <span></span>
             <span></span>
           </button> */}
-          {/* <span className="slider__label">EXPLORAR BITÁCORA — CASA DOLORES</span> */}
+          {/* <span className="slider__label">EXPLORAR ITINERARIO — CASA DOLORES</span> */}
         </div>
 
         <div className="slider__body">

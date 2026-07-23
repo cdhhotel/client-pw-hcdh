@@ -243,6 +243,19 @@ export const ItineraryFormModal = ({
                     {formData.imagenFile && (
                       <p style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.25rem' }}>Archivo seleccionado: {formData.imagenFile.name}</p>
                     )}
+                    {formData.imagen_url && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <img
+                          src={formData.imagen_url}
+                          alt="Vista previa evento"
+                          style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {formData.imagen_url.startsWith('data:image/') ? 'Imagen cargada localmente (Base64 listo para persistir)' : 'Vista previa de la imagen'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ gridColumn: '1 / -1' }}>
@@ -484,6 +497,19 @@ export const ItineraryFormModal = ({
                     />
                     {formData.imagenFile && (
                       <p style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.25rem' }}>Archivo seleccionado: {formData.imagenFile.name}</p>
+                    )}
+                    {formData.imagen_url && (
+                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <img
+                          src={formData.imagen_url}
+                          alt="Vista previa sitio"
+                          style={{ width: '56px', height: '56px', objectFit: 'cover', borderRadius: '4px', border: '1px solid var(--border)' }}
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                          {formData.imagen_url.startsWith('data:image/') ? 'Imagen cargada localmente (Base64 listo para persistir)' : 'Vista previa de la imagen'}
+                        </span>
+                      </div>
                     )}
                   </div>
                 </div>

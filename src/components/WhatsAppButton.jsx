@@ -14,10 +14,10 @@ export const WhatsAppButton = () => {
   };
 
   return (
-    <div 
-      className="whatsapp-float-container !fixed !right-6 !z-[9999] !flex !flex-col !items-end !pointer-events-auto !select-none"
+    <div
+      className="whatsapp-float-container !fixed !right-5 md:!right-6 !z-[9999] !flex !flex-col !items-end !pointer-events-auto !select-none"
       style={{
-        bottom: isItinerary ? 'var(--wa-bottom-itinerary, 5rem)' : '1.5rem'
+        bottom: '5.5rem'
       }}
     >
       <div className="!relative group !flex !flex-col !items-end">
@@ -45,13 +45,13 @@ export const WhatsAppButton = () => {
               className="!text-sm !font-bold !font-sans !leading-tight !mb-1 !block !p-0 !m-0"
               style={{ color: '#FFFFFF' }}
             >
-              ¿Tienes dudas?
+              Atención personalizada
             </b>
             <span
               className="!text-xs !font-sans !leading-snug !block !p-0 !m-0"
               style={{ color: 'rgba(255, 255, 255, 0.8)' }}
             >
-              Chatea con nosotros, estamos en línea.
+              Nuestro equipo está disponible para ayudarte.
             </span>
           </div>
         </div>

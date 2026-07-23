@@ -7,8 +7,7 @@ export const ITINERARY_CATEGORIES = {
   ],
   SALUD: [
     'Farmacias',
-    'Clinicas/Hospitales',
-    'Numero de Urgencias'
+    'Clinicas/Hospitales'
   ],
   ATRACCIONES: [
     'Museos',

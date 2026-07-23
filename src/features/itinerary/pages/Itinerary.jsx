@@ -64,7 +64,6 @@ export const Itinerary = () => {
   const [activeCategoryKey, setActiveCategoryKey] = useState('COMIDA');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [sortByTime, setSortByTime] = useState(false);
-  const [isContactsModalOpen, setIsContactsModalOpen] = useState(false);
   const [startDate, setStartDate] = useState(() => {
     return localStorage.getItem('itinerary_start_date') || new Date().toISOString().substring(0, 10);
   });
@@ -136,7 +135,7 @@ export const Itinerary = () => {
           horario: ev.fecha_inicio
             ? `${new Date(ev.fecha_inicio).toLocaleDateString('es-MX', { timeZone: 'UTC' })}${ev.fecha_fin ? ` al ${new Date(ev.fecha_fin).toLocaleDateString('es-MX', { timeZone: 'UTC' })}` : ''}`
             : ev.mes_referencia || 'Temporada',
-          imagen_url: ev.sitio_cercano?.imagen_url || null,
+          imagen_url: ev.imagen_url || null,
           distancia_km: ev.sitio_cercano?.distancia_km || null,
           tiempo_estimado_minutos: ev.sitio_cercano?.tiempo_estimado_minutos || null,
           sitio_web: ev.sitio_cercano?.sitio_web || null,
@@ -457,13 +456,13 @@ export const Itinerary = () => {
 
           <div class="itinerary-grid">
             ${Array.from({ length: days }, (_, i) => i + 1).map(d => {
-              const ids = plan[d] || [];
-              let dayActivities = ids.map(id => lugares.find(x => x.id === id)).filter(Boolean);
-              if (sortByTime) {
-                dayActivities = [...dayActivities].sort((a, b) => obtenerMinutosInicio(a) - obtenerMinutosInicio(b));
-              }
+      const ids = plan[d] || [];
+      let dayActivities = ids.map(id => lugares.find(x => x.id === id)).filter(Boolean);
+      if (sortByTime) {
+        dayActivities = [...dayActivities].sort((a, b) => obtenerMinutosInicio(a) - obtenerMinutosInicio(b));
+      }
 
-              return `
+      return `
                 <div class="day-section">
                   <div class="day-title">
                     <div class="day-number">${d}</div>
@@ -475,14 +474,14 @@ export const Itinerary = () => {
                   ` : `
                     <div>
                       ${dayActivities.map(l => {
-                        const formattedHorario = l.horario ? l.horario.replace(/\n/g, '<br/>') : '';
-                        const dateOfCurrentDay = obtenerFechaDia(d);
-                        const check = verificarDisponibilidad(l, dateOfCurrentDay);
-                        const availabilityWarning = !check.disponible 
-                          ? `<div class="warning-badge">⚠️ Aviso: ${check.motivo || 'No disponible hoy'}</div>` 
-                          : '';
+        const formattedHorario = l.horario ? l.horario.replace(/\n/g, '<br/>') : '';
+        const dateOfCurrentDay = obtenerFechaDia(d);
+        const check = verificarDisponibilidad(l, dateOfCurrentDay);
+        const availabilityWarning = !check.disponible
+          ? `<div class="warning-badge">⚠️ Aviso: ${check.motivo || 'No disponible hoy'}</div>`
+          : '';
 
-                        return `
+        return `
                           <div class="activity-card ${!check.disponible ? 'unavailable' : ''}">
                             <div class="activity-details">
                               <div class="activity-header">
@@ -514,12 +513,12 @@ export const Itinerary = () => {
                             </div>
                           </div>
                         `;
-                      }).join('')}
+      }).join('')}
                     </div>
                   `}
                 </div>
               `;
-            }).join('')}
+    }).join('')}
           </div>
 
           <div class="footer">
@@ -831,7 +830,7 @@ export const Itinerary = () => {
           </button>
         </div>
 
-        {/* COLUMNA DERECHA: BITÁCORA / LÍNEA DE TIEMPO (Ancho Flexible) */}
+        {/* ITINERARIO*/}
         <div style={{ flex: 1 }}>
           <div
             style={{
@@ -843,11 +842,11 @@ export const Itinerary = () => {
               minHeight: '400px'
             }}
           >
-            {/* Header de la Bitácora */}
+            {/* Header de la Itinerario */}
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid rgba(200, 185, 155, 0.25)', paddingBottom: '1.25rem' }}>
               <div>
                 <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.625rem', color: 'var(--secondary)', margin: 0, fontWeight: 'bold' }}>
-                  Mi Bitácora — {formatearFechaDiaLarga(selectedDay)}
+                  Mi Itinerario — {formatearFechaDiaLarga(selectedDay)}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem', marginBottom: 0, fontFamily: 'var(--font-sans)' }}>
                   {dayPlan.length === 0
@@ -945,7 +944,7 @@ export const Itinerary = () => {
                         )}
                       </div>
 
-                      {/* Tarjeta de actividad de la Bitácora (Estructura Premium sin Tailwind) */}
+                      {/* Tarjeta de actividad*/}
                       <div
                         style={{
                           flex: 1,
@@ -962,10 +961,10 @@ export const Itinerary = () => {
                       >
                         {/* Imagen miniatura */}
                         <div style={{ width: isMobile ? '100%' : '5.5rem', height: '5.5rem', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', flexShrink: 0 }}>
-                          <img 
-                            src={imageUrl} 
-                            alt={lugar.nombre} 
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                          <img
+                            src={imageUrl}
+                            alt={lugar.nombre}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             onError={(e) => {
                               e.target.onerror = null;
                               e.target.src = CATEGORY_IMAGES[mainCat] || '/images/otras.png';
@@ -1068,203 +1067,7 @@ export const Itinerary = () => {
 
       </div>
 
-      {/* Botón flotante de contactos de interés */}
-      <button
-        onClick={() => setIsContactsModalOpen(true)}
-        style={{
-          position: 'fixed',
-          bottom: isMobile ? '1.5rem' : '2rem',
-          right: isMobile ? '1.5rem' : '2rem',
-          backgroundColor: 'var(--primary)',
-          color: 'var(--bg-linen)',
-          border: 'none',
-          borderRadius: '50px',
-          padding: isMobile ? '0.6rem 1rem' : '0.75rem 1.25rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          boxShadow: '0 4px 15px rgba(160, 68, 42, 0.4)',
-          cursor: 'pointer',
-          zIndex: 900,
-          fontWeight: 'bold',
-          fontFamily: 'var(--font-sans)',
-          fontSize: isMobile ? '0.75rem' : '0.85rem',
-          transition: 'transform 0.2s, background-color 0.2s, box-shadow 0.2s',
-        }}
-        onMouseEnter={e => {
-          e.currentTarget.style.transform = 'scale(1.05)';
-          e.currentTarget.style.backgroundColor = 'var(--primary-hover)';
-          e.currentTarget.style.boxShadow = '0 6px 20px rgba(160, 68, 42, 0.5)';
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.backgroundColor = 'var(--primary)';
-          e.currentTarget.style.boxShadow = '0 4px 15px rgba(160, 68, 42, 0.4)';
-        }}
-      >
-        <Phone size={16} />
-        <span>Contactos de Interés</span>
-      </button>
 
-      {/* Modal de contactos de interés */}
-      {isContactsModalOpen && (
-        <div
-          onClick={() => setIsContactsModalOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(28, 21, 16, 0.65)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'var(--bg-linen)',
-              border: '1px solid var(--border)',
-              borderRadius: 'var(--border-radius-md)',
-              boxShadow: 'var(--shadow-lg)',
-              width: '100%',
-              maxWidth: '520px',
-              display: 'flex',
-              flexDirection: 'column',
-              animation: 'fadeIn 0.2s ease',
-              maxHeight: '90vh',
-            }}
-          >
-            {/* Header */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '1.25rem 1.5rem',
-                borderBottom: '1px solid var(--border)',
-                background: 'var(--bg-sand)',
-                borderTopLeftRadius: 'var(--border-radius-md)',
-                borderTopRightRadius: 'var(--border-radius-md)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Phone size={20} style={{ color: 'var(--primary)' }} />
-                <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--primary)', margin: 0, fontFamily: 'var(--font-serif)' }}>
-                  Contactos de Interés y Emergencias
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsContactsModalOpen(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--text-muted)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  padding: '0.25rem',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div style={{ padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              {/* Sección 1: Emergencias */}
-              <div>
-                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--secondary)', borderBottom: '1px solid var(--border)', paddingBottom: '0.35rem', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <ShieldAlert size={16} style={{ color: 'var(--primary)' }} /> Líneas de Emergencia y Apoyo
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--white)', padding: '0.75rem 1rem', border: '1px solid var(--border)', borderRadius: 'var(--border-radius-sm)' }}>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-main)' }}>TECUIDO (Denuncia Segura)</strong>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Línea de acompañamiento y denuncia</span>
-                    </div>
-                    <a href="tel:8008328436" style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none', background: 'rgba(160, 68, 42, 0.08)', padding: '0.35rem 0.75rem', borderRadius: '4px', transition: 'background-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.15)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.08)'}>
-                      800 832 8436
-                    </a>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--white)', padding: '0.75rem 1rem', border: '1px solid var(--border)', borderRadius: 'var(--border-radius-sm)' }}>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-main)' }}>Denuncia Anónima</strong>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Atención rápida y reservada</span>
-                    </div>
-                    <a href="tel:89" style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none', background: 'rgba(160, 68, 42, 0.08)', padding: '0.35rem 0.75rem', borderRadius: '4px', transition: 'background-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.15)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.08)'}>
-                      89
-                    </a>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(220, 38, 38, 0.03)', padding: '0.75rem 1rem', border: '1px solid rgba(220, 38, 38, 0.15)', borderRadius: 'var(--border-radius-sm)' }}>
-                    <div>
-                      <strong style={{ display: 'block', fontSize: '0.85rem', color: '#b91c1c' }}>Número de Emergencias</strong>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Cualquier caso urgente / Policía / Ambulancia</span>
-                    </div>
-                    <a href="tel:911" style={{ fontSize: '1rem', fontWeight: 'bold', color: '#b91c1c', textDecoration: 'none', background: 'rgba(220, 38, 38, 0.08)', padding: '0.35rem 0.75rem', borderRadius: '4px', transition: 'background-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(220, 38, 38, 0.15)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(220, 38, 38, 0.08)'}>
-                      911
-                    </a>
-                  </div>
-                </div>
-              </div>
-
-              {/* Sección 2: Transporte */}
-              <div>
-                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--secondary)', borderBottom: '1px solid var(--border)', paddingBottom: '0.35rem', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Car size={16} style={{ color: 'var(--primary)' }} /> Servicios de Transporte Local
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {/* DH Group */}
-                  <div style={{ background: 'var(--white)', padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--border-radius-sm)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <strong style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>DH Group</strong>
-                        <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--accent)', fontWeight: 'bold', textTransform: 'uppercase', marginTop: '0.1rem' }}>Servicio 24 horas</span>
-                      </div>
-                      <a href="tel:4182460149" style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none', background: 'rgba(160, 68, 42, 0.08)', padding: '0.35rem 0.75rem', borderRadius: '4px', transition: 'background-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.15)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.08)'}>
-                        418 246 0149
-                      </a>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4' }}>
-                      Servicio de transporte personalizado, brindando el mejor servicio día a día. Servicio automotor, viajes y transporte.
-                    </p>
-                  </div>
-
-                  {/* Tu Destino DH */}
-                  <div style={{ background: 'var(--white)', padding: '1rem', border: '1px solid var(--border)', borderRadius: 'var(--border-radius-sm)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
-                        <strong style={{ fontSize: '0.9rem', color: 'var(--secondary)' }}>Tu Destino DH</strong>
-                        <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem', lineHeight: '1.3' }}>
-                          <span style={{ fontWeight: 'bold', color: 'var(--secondary)' }}>Horarios:</span><br />
-                          • Lun a Jue: 6:00 AM - 11:30 PM<br />
-                          • Vie a Sáb: 6:00 AM - 11:55 PM<br />
-                          • Dom: 7:00 AM - 11:30 PM
-                        </span>
-                      </div>
-                      <a href="tel:4181778489" style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--primary)', textDecoration: 'none', background: 'rgba(160, 68, 42, 0.08)', padding: '0.35rem 0.75rem', borderRadius: '4px', transition: 'background-color 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.15)'} onMouseLeave={e => e.currentTarget.style.backgroundColor = 'rgba(160, 68, 42, 0.08)'}>
-                        418 177 8489
-                      </a>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)', lineHeight: '1.4', marginTop: '0.25rem' }}>
-                      Servicio de transporte local, foráneo y a comunidades. Entrega de servicio y/o recolección de productos o servicios. Agenda o programación de servicios anticipados.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Estilos CSS embebidos */}
       <style>{`
