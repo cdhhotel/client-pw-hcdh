@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
     Calendar, Users, Search, RefreshCw, XCircle,
     CheckCircle, Loader2, Eye, AlertTriangle, ShieldAlert, Check, Trash2
@@ -424,20 +425,40 @@ export const Reservations = () => {
                 )}
 
                 {/* Modal de Detalles Completos */}
-                {selectedRes && (
+                {selectedRes && createPortal(
                     <div style={{
-                        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                        backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        padding: '1.5rem', backdropFilter: 'blur(4px)'
-                    }}>
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.65)',
+                        zIndex: 99999,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '1rem',
+                        backdropFilter: 'blur(6px)',
+                        WebkitBackdropFilter: 'blur(6px)',
+                    }}
+                    onClick={() => setSelectedRes(null)}
+                    >
                         <div className="glass-panel animate-fade-in" style={{
-                            width: '100%', maxWidth: '650px', maxHeight: '90vh', overflowY: 'auto',
-                            padding: '2.5rem', borderRadius: 'var(--border-radius-md)', border: '1px solid var(--border-color)'
-                        }}>
+                            width: '100%',
+                            maxWidth: '650px',
+                            maxHeight: '90vh',
+                            overflowY: 'auto',
+                            padding: '1.75rem 1.25rem',
+                            borderRadius: 'var(--border-radius-md)',
+                            border: '1px solid var(--border-color)',
+                            boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
+                            position: 'relative'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        >
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'var(--primary)', margin: 0 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                <h3 style={{ fontSize: '1.15rem', fontWeight: 'bold', color: 'var(--primary)', margin: 0 }}>
                                     Detalle de Reservación: {selectedRes.folio}
                                 </h3>
                                 <span className={`badge ${getStatusBadgeClass(selectedRes.estado)}`} style={{ textTransform: 'capitalize' }}>
@@ -449,7 +470,7 @@ export const Reservations = () => {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
 
                                 {/* Fechas y Habitación */}
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', backgroundColor: 'var(--bg-linen)', padding: '1rem', borderRadius: 'var(--border-radius-sm)' }}>
+                                <div className="grid grid-2" style={{ gap: '1rem', backgroundColor: 'var(--bg-linen)', padding: '1rem', borderRadius: 'var(--border-radius-sm)' }}>
                                     <div>
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Entrada</span>
                                         <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{formatDate(selectedRes.fecha_entrada)}</div>
@@ -458,7 +479,7 @@ export const Reservations = () => {
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Salida</span>
                                         <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{formatDate(selectedRes.fecha_salida)}</div>
                                     </div>
-                                    <div style={{ gridColumn: 'span 2', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.5rem' }}>
+                                    <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '0.5rem' }}>
                                         <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Habitación Seleccionada</span>
                                         <div style={{ fontWeight: 'bold', fontSize: '0.95rem' }}>{selectedRes.habitacion?.nombre} (Hab. #{selectedRes.habitacion?.numero})</div>
                                         <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Camas: {selectedRes.habitacion?.numero_camas} - Capacidad: {selectedRes.habitacion?.capacidad_maxima} personas</div>
@@ -470,7 +491,7 @@ export const Reservations = () => {
                                     <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border-color)', paddingBottom: '4px', marginBottom: '0.75rem' }}>
                                         Información del Huésped
                                     </h4>
-                                    {selectedRes.huesped_reservacion?.map((hr, idx) => {
+                                    {selectedRes.huesped_reservacion?.map((hr) => {
                                         const h = hr.huesped;
                                         return (
                                             <div key={hr.id} style={{ marginBottom: '0.5rem', paddingLeft: '0.5rem', borderLeft: hr.es_principal ? '3px solid var(--secondary)' : '3px solid var(--border-color)' }}>
@@ -525,7 +546,7 @@ export const Reservations = () => {
                                         Historial de Pagos
                                     </h4>
                                     {selectedRes.pago && selectedRes.pago.length > 0 ? (
-                                        selectedRes.pago.map(p => (
+                                        selectedRes.pago.map((p) => (
                                             <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', padding: '0.5rem', borderBottom: '1px solid rgba(0,0,0,0.03)' }}>
                                                 <div>
                                                     <strong style={{ textTransform: 'uppercase' }}>{p.metodo_pago}</strong>
@@ -545,7 +566,7 @@ export const Reservations = () => {
                             </div>
 
                             {/* Botones de Acción / Cerrar */}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
                                 {selectedRes.estado !== 'cancelada' && selectedRes.estado !== 'finalizada' && (
                                     <button
                                         onClick={() => handleCancelReservation(selectedRes.id)}
@@ -556,7 +577,8 @@ export const Reservations = () => {
                                             border: '1px solid rgba(220,38,38,0.2)',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '4px'
+                                            gap: '4px',
+                                            fontSize: '0.82rem'
                                         }}
                                         disabled={cancellingId === selectedRes.id}
                                     >
@@ -572,7 +594,8 @@ export const Reservations = () => {
                                         border: '1px solid rgba(220, 38, 38, 0.3)',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '4px'
+                                        gap: '4px',
+                                        fontSize: '0.82rem'
                                     }}
                                     disabled={deletingId === selectedRes.id}
                                 >
@@ -586,13 +609,15 @@ export const Reservations = () => {
                                 <button
                                     onClick={() => setSelectedRes(null)}
                                     className="btn btn-primary"
+                                    style={{ fontSize: '0.85rem' }}
                                 >
                                     Cerrar
                                 </button>
                             </div>
 
                         </div>
-                    </div>
+                    </div>,
+                    document.body
                 )}
 
 
