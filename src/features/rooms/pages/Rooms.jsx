@@ -108,7 +108,18 @@ export const Rooms = () => {
   // Reinicia el índice de galería al cambiar habitación
   useEffect(() => { setGalleryIndex(0); }, [selectedRoom]);
 
-  const handleBooking = (roomId) => navigate(`/booking?room=${roomId}`);
+  const handleBooking = (roomId) => {
+    const query = new URLSearchParams();
+    query.append('room', roomId);
+    const cIn = searchParams.get('checkIn');
+    const cOut = searchParams.get('checkOut');
+    const g = searchParams.get('guests');
+    if (cIn) query.append('checkIn', cIn);
+    if (cOut) query.append('checkOut', cOut);
+    if (g) query.append('guests', g);
+    navigate(`/booking?${query.toString()}`);
+  };
+
 
   const handleSelectRoom = (room) => {
     setSelectedRoom(room);

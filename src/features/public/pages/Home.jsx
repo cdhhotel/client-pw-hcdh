@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath, Loader2 } from 'lucide-react';
+import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath, Loader2, X, Search } from 'lucide-react';
 import { api } from '../../../services/api';
 import portadaInicio from '../../../assets/background-home.jpeg';
 import logoHorizontal from '../../../assets/logohorizontal.jpeg';
@@ -35,6 +35,8 @@ export const Home = () => {
   const [featuredRooms, setFeaturedRooms] = useState([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showMobileModal, setShowMobileModal] = useState(false);
+
 
   useEffect(() => {
     const slideTimer = setInterval(() => {
@@ -65,9 +67,20 @@ export const Home = () => {
     fetchRooms();
   }, []);
 
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const tomorrowISO = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
+  const [searchCheckIn, setSearchCheckIn] = useState(todayISO);
+  const [searchCheckOut, setSearchCheckOut] = useState(tomorrowISO);
+  const [searchGuests, setSearchGuests] = useState('1');
+
   const handleQuickSearch = (e) => {
     e.preventDefault();
-    navigate('/booking');
+    const params = new URLSearchParams();
+    if (searchCheckIn) params.append('checkIn', searchCheckIn);
+    if (searchCheckOut) params.append('checkOut', searchCheckOut);
+    if (searchGuests) params.append('guests', searchGuests);
+    navigate(`/booking?${params.toString()}`);
   };
 
   return (
@@ -159,19 +172,11 @@ export const Home = () => {
           </p>
         </div>
 
+
+
         <form
           onSubmit={handleQuickSearch}
-          className="glaass-panel hero-form"
-          style={{
-            position: 'absolute',
-            bottom: '-40px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 10,
-            width: 'calc(100% - 3rem)',
-            maxWidth: '900px',
-            margin: 0,
-          }}
+          className="glaass-panel hero-form hero-search-container"
         >
           <>
             {/* Llegada */}
@@ -188,7 +193,15 @@ export const Home = () => {
                 <Calendar size={14} />
                 <span>Llegada</span>
               </label>
-              <input type="date" className="form-control" style={{ width: '100%' }} required />
+              <input
+                type="date"
+                value={searchCheckIn}
+                onChange={(e) => setSearchCheckIn(e.target.value)}
+                min={todayISO}
+                className="form-control"
+                style={{ width: '100%' }}
+                required
+              />
             </div>
 
             {/* Salida */}
@@ -205,7 +218,15 @@ export const Home = () => {
                 <Calendar size={14} />
                 <span>Salida</span>
               </label>
-              <input type="date" className="form-control" style={{ width: '100%' }} required />
+              <input
+                type="date"
+                value={searchCheckOut}
+                onChange={(e) => setSearchCheckOut(e.target.value)}
+                min={searchCheckIn || todayISO}
+                className="form-control"
+                style={{ width: '100%' }}
+                required
+              />
             </div>
 
             {/* Huéspedes */}
@@ -222,20 +243,138 @@ export const Home = () => {
                 <Users size={14} />
                 <span>Huéspedes</span>
               </label>
-              <select className="form-control" style={{ width: '100%' }}>
-                <option value="1">1 Huésped</option>
-                <option value="2">2 Huéspedes</option>
-                <option value="3">3 Huéspedes</option>
-                <option value="4">4+ Huéspedes</option>
+              <select
+                value={searchGuests}
+                onChange={(e) => setSearchGuests(e.target.value)}
+                className="form-control"
+                style={{ width: '100%' }}
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                  <option key={n} value={n}>
+                    {n} {n === 1 ? 'Huésped' : 'Huéspedes'}
+                  </option>
+                ))}
               </select>
             </div>
-            <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px' }}>
-              Buscar Tarifa
+            <button type="submit" className="btn btn-primary" style={{ padding: '0.8rem 2rem', height: '46px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <img src="/ico-reservar.png" alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+              <span>Buscar Tarifa</span>
             </button>
           </>
-
         </form>
+
+        {/* Botón Flotante para Móviles (abre el modal) */}
+        <button
+          type="button"
+          onClick={() => setShowMobileModal(true)}
+          className="hero-mobile-trigger"
+          aria-label="Buscar tarifa de hospedaje"
+        >
+          <img src="/ico-reservar.png" alt="" style={{ width: '22px', height: '22px', objectFit: 'contain' }} />
+          <span>Buscar Tarifa</span>
+        </button>
+
+        {/* Modal de Búsqueda para Móviles */}
+        {showMobileModal && (
+          <div
+            style={{
+              position: 'fixed',
+              inset: 0,
+              backgroundColor: 'rgba(0,0,0,0.65)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '1.25rem',
+            }}
+            onClick={() => setShowMobileModal(false)}
+          >
+            <div
+              style={{
+                backgroundColor: 'var(--secondary)',
+                borderRadius: 'var(--border-radius-md)',
+                padding: '2rem 1.5rem',
+                width: '100%',
+                maxWidth: '420px',
+                boxShadow: '0 12px 36px rgba(0,0,0,0.5)',
+                color: '#fff',
+                position: 'relative',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '0.75rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#fff', fontWeight: 600 }}>Buscar Tarifa & Fechas</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowMobileModal(false)}
+                  style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px' }}
+                >
+                  <X size={22} />
+                </button>
+              </div>
+
+              <form onSubmit={(e) => { handleQuickSearch(e); setShowMobileModal(false); }} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--white)', marginBottom: '0.35rem' }}>
+                    <Calendar size={14} /> <span>Llegada</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={searchCheckIn}
+                    onChange={(e) => setSearchCheckIn(e.target.value)}
+                    min={todayISO}
+                    className="form-control"
+                    style={{ width: '100%' }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--white)', marginBottom: '0.35rem' }}>
+                    <Calendar size={14} /> <span>Salida</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={searchCheckOut}
+                    onChange={(e) => setSearchCheckOut(e.target.value)}
+                    min={searchCheckIn || todayISO}
+                    className="form-control"
+                    style={{ width: '100%' }}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 'bold', textTransform: 'uppercase', color: 'var(--white)', marginBottom: '0.35rem' }}>
+                    <Users size={14} /> <span>Huéspedes</span>
+                  </label>
+                  <select
+                    value={searchGuests}
+                    onChange={(e) => setSearchGuests(e.target.value)}
+                    className="form-control"
+                    style={{ width: '100%' }}
+                  >
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                      <option key={n} value={n}>
+                        {n} {n === 1 ? 'Huésped' : 'Huéspedes'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.85rem 2rem', width: '100%', marginTop: '0.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                  <img src="/ico-reservar.png" alt="" style={{ width: '20px', height: '20px', objectFit: 'contain' }} />
+                  <span>Buscar Tarifa</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+
       </section>
+
 
       <div style={{ height: '50px' }}></div>
       {/* Bienvenida */}

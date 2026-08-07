@@ -17,7 +17,13 @@ export const reservationsService = {
 
   confirm(id) {
     return api.post(`/reservations/${id}/confirmar`);
+  },
 
+  /**
+   * Elimina una reservación por ID
+   */
+  delete(id) {
+    return api.delete(`/reservations/${id}`);
   }
-
 }
+

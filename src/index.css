@@ -278,6 +278,8 @@ h3 {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(200, 185, 155, 0.4);
   box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* Contenedores */
@@ -287,26 +289,42 @@ h3 {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(200, 185, 155, 0.4);
   box-shadow: var(--shadow-md);
+  box-sizing: border-box;
+  min-width: 0;
 }
+
+@media screen and (max-width: 640px) {
+  .glass-panel, .glaass-panel {
+    padding: 1.25rem !important;
+  }
+}
+
 
 
 /* Grid del Hotel */
 .grid {
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .grid-2 {
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .grid-3 {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
 }
 
 .grid-4 {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+@media screen and (max-width: 640px) {
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* Formulario  */
@@ -315,6 +333,10 @@ h3 {
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .form-group label {
@@ -326,6 +348,10 @@ h3 {
 }
 
 .form-control {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   padding: 0.8rem 1rem;
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--border);
@@ -333,6 +359,20 @@ h3 {
   color: var(--text-main);
   transition: var(--transition);
   font-size: 0.95rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+select.form-control {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  appearance: auto;
+}
+
+select.form-control option {
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
 }
 
 .form-control:focus {
@@ -340,6 +380,7 @@ h3 {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(160, 68, 42, 0.15);
 }
+
 
 /* Tarjeta de Habitación */
 .room-card {
@@ -954,3 +995,52 @@ h3 {
 #grain {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+
+/* Responsive Hero Quick Search Form */
+.hero-search-container {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  width: calc(100% - 3rem);
+  max-width: 900px;
+  margin: 0;
+}
+
+.hero-mobile-trigger {
+  display: none !important;
+}
+
+@media screen and (max-width: 768px) {
+  .hero-search-container {
+    display: none !important; /* Esconder el formulario invasivo en móvil */
+  }
+
+  .hero-mobile-trigger {
+
+    display: flex !important;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 999;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    background-color: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    font-size: 0.88rem;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+
+  .hero-mobile-trigger:active {
+    transform: scale(0.95);
+  }
+}
+
+

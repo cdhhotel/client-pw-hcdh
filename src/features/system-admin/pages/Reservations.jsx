@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     Calendar, Users, Search, RefreshCw, XCircle,
-    CheckCircle, Loader2, Eye, AlertTriangle, ShieldAlert, Check
+    CheckCircle, Loader2, Eye, AlertTriangle, ShieldAlert, Check, Trash2
 } from 'lucide-react';
 import { reservationsService } from '../services/reservations.service';
 import toast, { Toaster } from 'react-hot-toast';
@@ -12,6 +12,7 @@ export const Reservations = () => {
     const [loading, setLoading] = useState(true);
     const [cancellingId, setCancellingId] = useState(null);
     const [confirmingId, setConfirmingId] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('todos');
@@ -116,6 +117,32 @@ export const Reservations = () => {
             toast.error(err.message || 'No se pudo confirmar la reservación.', { id: toastId });
         } finally {
             setConfirmingId(null);
+        }
+    };
+
+    // Handler para eliminar reservación
+    const handleDeleteReservation = async (id) => {
+        if (!window.confirm('¿Estás seguro de que deseas ELIMINAR esta reservación? Esta acción la removerá del sistema.')) {
+            return;
+        }
+
+        setDeletingId(id);
+        const toastId = toast.loading('Eliminando reservación...');
+        try {
+            const res = await reservationsService.delete(id);
+            if (res.success || res) {
+                toast.success(res.message || 'Reservación eliminada correctamente.', { id: toastId });
+                // Recargar la lista
+                fetchReservations();
+                if (selectedRes && selectedRes.id === id) {
+                    setSelectedRes(null);
+                }
+            }
+        } catch (err) {
+            console.error('Error al eliminar:', err);
+            toast.error(err.message || 'No se pudo eliminar la reservación.', { id: toastId });
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -354,6 +381,29 @@ export const Reservations = () => {
                                                                     Cancelar
                                                                 </button>
                                                             )}
+                                                            <button
+                                                                onClick={() => handleDeleteReservation(res.id)}
+                                                                className="btn"
+                                                                style={{
+                                                                    padding: '0.4rem 0.6rem',
+                                                                    fontSize: '0.8rem',
+                                                                    backgroundColor: 'rgba(220, 38, 38, 0.15)',
+                                                                    color: '#991b1b',
+                                                                    border: '1px solid rgba(220, 38, 38, 0.3)',
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '4px'
+                                                                }}
+                                                                disabled={deletingId === res.id}
+                                                                title="Eliminar reservación"
+                                                            >
+                                                                {deletingId === res.id ? (
+                                                                    <Loader2 size={14} className="animate-spin" />
+                                                                ) : (
+                                                                    <Trash2 size={14} />
+                                                                )}
+                                                                Eliminar
+                                                            </button>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -456,10 +506,6 @@ export const Reservations = () => {
                                             <span style={{ color: 'var(--text-muted)' }}>Precio por noches</span>
                                             <span>${Number(selectedRes.precio_total_noches).toLocaleString('es-MX')} MXN</span>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ color: 'var(--text-muted)' }}>Impuestos (16% IVA)</span>
-                                            <span>${Number(selectedRes.impuestos).toLocaleString('es-MX')} MXN</span>
-                                        </div>
                                         {Number(selectedRes.descuento_aplicado) > 0 && (
                                             <div style={{ display: 'flex', justifyContent: 'space-between', color: 'green' }}>
                                                 <span>Descuento Aplicado</span>
@@ -496,10 +542,9 @@ export const Reservations = () => {
                                         </div>
                                     )}
                                 </div>
-
                             </div>
 
-                            {/* Botón Cerrar */}
+                            {/* Botones de Acción / Cerrar */}
                             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '2rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
                                 {selectedRes.estado !== 'cancelada' && selectedRes.estado !== 'finalizada' && (
                                     <button
@@ -519,6 +564,26 @@ export const Reservations = () => {
                                     </button>
                                 )}
                                 <button
+                                    onClick={() => handleDeleteReservation(selectedRes.id)}
+                                    className="btn"
+                                    style={{
+                                        backgroundColor: 'rgba(220, 38, 38, 0.15)',
+                                        color: '#991b1b',
+                                        border: '1px solid rgba(220, 38, 38, 0.3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}
+                                    disabled={deletingId === selectedRes.id}
+                                >
+                                    {deletingId === selectedRes.id ? (
+                                        <Loader2 size={14} className="animate-spin" />
+                                    ) : (
+                                        <Trash2 size={14} />
+                                    )}
+                                    Eliminar Reservación
+                                </button>
+                                <button
                                     onClick={() => setSelectedRes(null)}
                                     className="btn btn-primary"
                                 >
@@ -529,6 +594,7 @@ export const Reservations = () => {
                         </div>
                     </div>
                 )}
+
 
             </div>
             <style>{`

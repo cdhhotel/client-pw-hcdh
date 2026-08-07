@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Calendar, Users, Briefcase, Mail, Phone, User, CheckCircle2, AlertCircle, Loader2, Download, MessageCircle } from 'lucide-react';
+import { Calendar, Users, Briefcase, Mail, Phone, User, CheckCircle2, AlertCircle, Loader2, Download, MessageCircle, Plus, Trash2 } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../app/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
@@ -20,19 +20,26 @@ export const Booking = () => {
   };
 
   const presetRoom = searchParams.get('room');
+  const presetCheckIn = searchParams.get('checkIn') || '';
+  const presetCheckOut = searchParams.get('checkOut') || '';
+  const presetGuests = parseInt(searchParams.get('guests')) || 1;
 
   // Estados de carga y catálogos
   const [rooms, setRooms] = useState([]);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [hotelPhone, setHotelPhone] = useState('524182396176'); // Teléfono por defecto
 
+  // Lista de habitaciones seleccionadas [{ roomId, guests }]
+  const [selectedRooms, setSelectedRooms] = useState([
+    { roomId: presetRoom || '', guests: presetGuests }
+  ]);
+
   // Estados del Formulario
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    roomId: presetRoom || '',
-    checkIn: '',
-    checkOut: '',
-    guests: 1,
+    checkIn: presetCheckIn,
+    checkOut: presetCheckOut,
+    guests: presetGuests,
     nombre: '',
     apellidos: '',
     email: '',
@@ -41,10 +48,19 @@ export const Booking = () => {
   });
 
   const [nights, setNights] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(false);
   const [bookingResult, setBookingResult] = useState(null);
   const receiptRef = useRef(null);
+
+  // Actualizar formData si cambian los parámetros URL
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      checkIn: presetCheckIn || prev.checkIn,
+      checkOut: presetCheckOut || prev.checkOut,
+      guests: presetGuests || prev.guests,
+    }));
+  }, [presetCheckIn, presetCheckOut, presetGuests]);
 
   const handleDownloadImage = async () => {
     if (!receiptRef.current) return;
@@ -53,9 +69,7 @@ export const Booking = () => {
     try {
       const dataUrl = await toPng(receiptRef.current, {
         backgroundColor: '#ffffff',
-        style: {
-          transform: 'scale(1)',
-        },
+        style: { transform: 'scale(1)' },
         cacheBust: true,
       });
 
@@ -70,12 +84,16 @@ export const Booking = () => {
     }
   };
 
-  // 1. Cargar habitaciones disponibles desde el servidor
+  // 1. Cargar habitaciones disponibles desde el servidor (filtrando ocupadas por fecha)
   useEffect(() => {
     const fetchRooms = async () => {
       try {
         setLoadingRooms(true);
-        const response = await api.get('/room/rooms');
+        let endpoint = '/room/rooms';
+        if (formData.checkIn && formData.checkOut) {
+          endpoint += `?checkIn=${formData.checkIn}&checkOut=${formData.checkOut}`;
+        }
+        const response = await api.get(endpoint);
         const data = response?.data ?? response;
         const disponibles = Array.isArray(data)
           ? data.filter((r) => r.estatus === 'disponible')
@@ -83,11 +101,26 @@ export const Booking = () => {
         setRooms(disponibles);
 
         if (disponibles.length > 0) {
-          const hasPreset = disponibles.some(r => r.id === presetRoom);
-          setFormData(prev => ({
-            ...prev,
-            roomId: hasPreset ? presetRoom : disponibles[0].id
-          }));
+          // Asegurar que las habitaciones seleccionadas existan en las disponibles
+          setSelectedRooms((prev) => {
+            const updated = prev.map((sel) => {
+              const stillExists = disponibles.some((r) => String(r.id) === String(sel.roomId));
+              return stillExists ? sel : { ...sel, roomId: disponibles[0].id };
+            });
+            // Remover posibles duplicados automáticos
+            const seen = new Set();
+            return updated.map((sel, idx) => {
+              if (seen.has(sel.roomId)) {
+                const nextAvail = disponibles.find((r) => !seen.has(r.id)) || disponibles[0];
+                seen.add(nextAvail.id);
+                return { ...sel, roomId: nextAvail.id };
+              }
+              seen.add(sel.roomId);
+              return sel;
+            });
+          });
+        } else {
+          toast.error('No hay habitaciones disponibles en las fechas seleccionadas.');
         }
       } catch (err) {
         console.error('Error al cargar habitaciones del backend:', err);
@@ -96,7 +129,7 @@ export const Booking = () => {
       }
     };
     fetchRooms();
-  }, [presetRoom]);
+  }, [formData.checkIn, formData.checkOut, presetRoom, presetGuests]);
 
   // Cargar teléfono oficial del hotel para el botón de WhatsApp
   useEffect(() => {
@@ -107,7 +140,6 @@ export const Booking = () => {
         if (hotels.length > 0) {
           const rawPhone = hotels[0].telefono?.replace(/\D/g, '');
           if (rawPhone) {
-            // Si tiene 10 dígitos, asumimos código de México (52)
             const formattedPhone = rawPhone.length === 10 ? `52${rawPhone}` : rawPhone;
             setHotelPhone(formattedPhone);
           }
@@ -122,7 +154,7 @@ export const Booking = () => {
   // 2. Rellenar automáticamente los datos del usuario si ha iniciado sesión
   useEffect(() => {
     if (user) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         nombre: prev.nombre || user.nombre || user.name?.split(' ')[0] || '',
         apellidos: prev.apellidos || user.apellidos || user.name?.split(' ').slice(1).join(' ') || '',
@@ -132,14 +164,18 @@ export const Booking = () => {
     }
   }, [user]);
 
-  const selectedRoom = rooms.find(r => r.id === formData.roomId);
+  // 3. Cálculos de huéspedes asignados y precios
+  const totalAssignedGuests = selectedRooms.reduce((sum, item) => sum + (Number(item.guests) || 0), 0);
 
-  // 3. Calcular subtotal, IVA y total estimado de la cotización
-  const pricePerNight = Number(selectedRoom?.precio_base_noche) || 0;
-  const subtotal = nights * pricePerNight;
-  const iva = subtotal * 0.16;
+  const totalBasePricePerNight = selectedRooms.reduce((sum, item) => {
+    const roomObj = rooms.find((r) => String(r.id) === String(item.roomId));
+    return sum + (Number(roomObj?.precio_base_noche) || 0);
+  }, 0);
 
-  // Calcular noches y precio total (totalPrice es subtotal + IVA)
+  const subtotal = nights * totalBasePricePerNight;
+  const totalPrice = subtotal;
+
+  // Calcular noches
   useEffect(() => {
     if (formData.checkIn && formData.checkOut) {
       const start = new Date(formData.checkIn);
@@ -149,18 +185,39 @@ export const Booking = () => {
 
       if (calculatedNights > 0) {
         setNights(calculatedNights);
-        const calculatedSubtotal = calculatedNights * pricePerNight;
-        const calculatedTotal = calculatedSubtotal * 1.16;
-        setTotalPrice(calculatedTotal);
       } else {
         setNights(0);
-        setTotalPrice(0);
       }
     } else {
       setNights(0);
-      setTotalPrice(0);
     }
-  }, [formData.checkIn, formData.checkOut, formData.roomId, selectedRoom, pricePerNight]);
+  }, [formData.checkIn, formData.checkOut]);
+
+  // Funciones para manejar selección múltiple de habitaciones
+  const handleAddRoomSelection = () => {
+    if (rooms.length === 0) return;
+    const notPicked = rooms.find((r) => !selectedRooms.some((sr) => String(sr.roomId) === String(r.id)));
+    if (!notPicked) {
+      toast.error('Ya has seleccionado todas las habitaciones disponibles.');
+      return;
+    }
+    const remainingGuests = Math.max(1, Number(formData.guests) - totalAssignedGuests);
+    const assignedForNew = Math.min(remainingGuests, Number(notPicked.capacidad_maxima) || 2);
+    setSelectedRooms((prev) => [...prev, { roomId: notPicked.id, guests: assignedForNew }]);
+  };
+
+  const handleRemoveRoomSelection = (index) => {
+    if (selectedRooms.length <= 1) return;
+    setSelectedRooms((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRoomChange = (index, field, value) => {
+    setSelectedRooms((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -177,6 +234,28 @@ export const Booking = () => {
         toast.error('La fecha de salida debe ser posterior a la fecha de llegada.');
         return;
       }
+      if (rooms.length === 0) {
+        toast.error('No hay habitaciones disponibles en las fechas seleccionadas.');
+        return;
+      }
+      if (totalAssignedGuests !== Number(formData.guests)) {
+        toast.error(`La suma de huéspedes asignados a las habitaciones (${totalAssignedGuests}) debe ser igual al total seleccionado (${formData.guests}).`);
+        return;
+      }
+      // Verificar duplicados de habitación
+      const roomIds = selectedRooms.map(s => s.roomId);
+      if (new Set(roomIds).size !== roomIds.length) {
+        toast.error('No puedes seleccionar la misma habitación más de una vez. Elige habitaciones distintas.');
+        return;
+      }
+      for (let i = 0; i < selectedRooms.length; i++) {
+        const sel = selectedRooms[i];
+        const rObj = rooms.find((r) => String(r.id) === String(sel.roomId));
+        if (rObj && Number(sel.guests) > Number(rObj.capacidad_maxima)) {
+          toast.error(`La Habitación #${i + 1} (${rObj.nombre}) solo admite un máximo de ${rObj.capacidad_maxima} huéspedes.`);
+          return;
+        }
+      }
     }
     setStep((prev) => prev + 1);
   };
@@ -189,56 +268,75 @@ export const Booking = () => {
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
-      habitacion_id: formData.roomId,
-      usuario_id: user?.id || null,
-      fecha_entrada: formData.checkIn,
-      fecha_salida: formData.checkOut,
-      cantidad_huespedes: parseInt(formData.guests),
-      comentarios: formData.specialRequests || null,
-      huesped_principal: {
-        nombre: formData.nombre,
-        apellidos: formData.apellidos,
-        email: formData.email || null,
-        telefono: formData.telefono,
-      }
-    };
+    const responses = [];
+    const createdFolios = [];
+    let accumulatedTotal = 0;
 
     try {
-      // Envío de la reservación al backend real
-      const res = await api.post('/reservations', payload);
+      // Registrar reservaciones de forma secuencial
+      for (let i = 0; i < selectedRooms.length; i++) {
+        const roomSel = selectedRooms[i];
+        const payload = {
+          habitacion_id: roomSel.roomId,
+          usuario_id: user?.id || null,
+          fecha_entrada: formData.checkIn,
+          fecha_salida: formData.checkOut,
+          cantidad_huespedes: parseInt(roomSel.guests),
+          comentarios: formData.specialRequests || null,
+          huesped_principal: {
+            nombre: formData.nombre,
+            apellidos: formData.apellidos,
+            email: formData.email || null,
+            telefono: formData.telefono,
+          }
+        };
+
+        const res = await api.post('/reservations', payload);
+        responses.push(res);
+        createdFolios.push(res.data?.folio || res.folio);
+        accumulatedTotal += Number(res.data?.total_pagar || 0);
+      }
+
+      const foliosStr = createdFolios.join(', ');
+      const totalFinal = accumulatedTotal || totalPrice;
+
       setBookingResult({
         success: true,
-        message: res.message || '¡Tu reservación ha sido registrada exitosamente!',
-        code: res.data?.folio,
-        data: res.data
+        message: selectedRooms.length > 1
+          ? `¡Tus ${selectedRooms.length} reservaciones han sido registradas exitosamente!`
+          : (responses[0]?.message || '¡Tu reservación ha sido registrada exitosamente!'),
+        code: foliosStr,
+        data: responses[0]?.data,
+        totalFinal
       });
       setStep(4);
 
       // Redirigir automáticamente a WhatsApp
-      const totalNeto = (res.data?.total_pagar || totalPrice);
-      const folio = res.data?.folio || 'Pendiente';
+      const roomListDetails = selectedRooms.map((item, idx) => {
+        const rObj = rooms.find((r) => String(r.id) === String(item.roomId));
+        return `  - Habitación ${idx + 1}: ${rObj?.nombre || 'Suite'} (${item.guests} huéspedes)`;
+      }).join('\n');
 
-      const message = `*Nueva Reservación - Hotel Casa Dolores*\n\n` +
-        `*Folio:* ${folio}\n` +
+      const message = `*Nueva Reservación (${selectedRooms.length} ${selectedRooms.length === 1 ? 'Habitación' : 'Habitaciones'}) - Hotel Casa Dolores*\n\n` +
+        `*Folio(s):* ${foliosStr}\n` +
         `*Huésped:* ${formData.nombre} ${formData.apellidos}\n` +
         `*Correo:* ${formData.email || 'No proporcionado'}\n` +
         `*Teléfono:* ${formData.telefono}\n\n` +
         `*Detalles de la Estancia:*\n` +
-        `- *Habitación:* ${selectedRoom?.nombre || 'Habitación'}\n` +
+        `${roomListDetails}\n` +
         `- *Fecha de Entrada:* ${formData.checkIn}\n` +
         `- *Fecha de Salida:* ${formData.checkOut}\n` +
-        `- *Huéspedes:* ${formData.guests} ${formData.guests === 1 ? 'persona' : 'personas'}\n` +
+        `- *Total Huéspedes:* ${formData.guests} personas\n` +
         `- *Estancia:* ${nights} ${nights === 1 ? 'noche' : 'noches'}\n` +
         `- *Peticiones Especiales:* ${formData.specialRequests || 'Ninguna'}\n\n` +
-        `*Total Estimado:* $${Number(totalNeto).toLocaleString('es-MX')} MXN\n` +
-        `*Estado del Pago:* Pendiente (Transferencia bancaria)`;
+        `*Total Confirmado:* $${Number(totalFinal).toLocaleString('es-MX')} MXN\n` +
+        `*Estado del Pago:* Pendiente (Efectivo / Transferencia al check-in)`;
 
       const encodedMessage = encodeURIComponent(message);
       window.open(`https://wa.me/${hotelPhone}?text=${encodedMessage}`, '_blank');
     } catch (err) {
       console.error('Error al registrar reservación en el servidor:', err);
-      toast.error('Hubo un error al registrar tu reservación. Por favor, verifica los datos e intenta nuevamente.');
+      toast.error(err.message || 'Hubo un error al registrar tu reservación. Por favor, verifica la disponibilidad.');
     } finally {
       setLoading(false);
     }
@@ -248,14 +346,15 @@ export const Booking = () => {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '1.25rem' }}>
         <Loader2 size={48} style={{ color: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Cargando información del hotel…</p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}>Cargando disponibilidad de habitaciones…</p>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <><div><Toaster /></div>
+    <>
+      <div><Toaster /></div>
       <div className="container py-section animate-fade-in" style={{ maxWidth: '1000px' }}>
         <h1 className="section-title">Reserva tu Estancia</h1>
         <p className="section-subtitle">Completa el formulario en unos pasos sencillos</p>
@@ -265,7 +364,7 @@ export const Booking = () => {
           <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginBottom: '3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: step >= 1 ? 1 : 0.4 }}>
               <span style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: step >= 1 ? 'var(--primary)' : 'var(--border)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 'bold' }}>1</span>
-              <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Fechas & Suite</span>
+              <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Fechas & Habitaciones</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: step >= 2 ? 1 : 0.4 }}>
               <span style={{ width: '28px', height: '28px', borderRadius: '50%', backgroundColor: step >= 2 ? 'var(--primary)' : 'var(--border)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 'bold' }}>2</span>
@@ -278,31 +377,20 @@ export const Booking = () => {
           </div>
         )}
 
-        {/* Contenedor Principal (Formulario + Detalles de Cotización) */}
+        {/* Contenedor Principal */}
         {step < 4 ? (
           <div className="grid grid-2" style={{ gap: '2.5rem', alignItems: 'start' }}>
 
             {/* Columna Izquierda: Formulario */}
             <div className="glass-panel animate-fade-in" style={{ padding: '2.5rem', borderRadius: 'var(--border-radius-md)' }}>
 
-              {/* Paso 1: Fechas y Suite */}
+              {/* Paso 1: Fechas y Habitaciones */}
               {step === 1 && (
                 <form onSubmit={handleNextStep}>
-                  <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Selecciona Fechas & Suite</h2>
+                  <h2 style={{ fontSize: '1.5rem', marginBottom: '1.5rem' }}>Selecciona Fechas & Habitaciones</h2>
 
-                  <div className="form-group">
-                    <label>Habitación / Suite</label>
-                    <select name="roomId" value={formData.roomId} onChange={handleChange} className="form-control" required>
-                      {rooms.map((r) => (
-                        <option key={r.id} value={r.id}>
-                          {r.nombre} (${Number(r.precio_base_noche).toLocaleString()} MXN / noche)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="grid grid-2" style={{ gap: '1rem', margin: '1rem 0' }}>
-                    <div className="form-group">
+                  <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.25rem' }}>
+                    <div className="form-group" style={{ margin: 0 }}>
                       <label>Fecha de Entrada</label>
                       <input
                         type="date"
@@ -313,7 +401,7 @@ export const Booking = () => {
                         min={new Date().toISOString().split('T')[0]}
                         required />
                     </div>
-                    <div className="form-group">
+                    <div className="form-group" style={{ margin: 0 }}>
                       <label>Fecha de Salida</label>
                       <input
                         type="date"
@@ -326,18 +414,120 @@ export const Booking = () => {
                     </div>
                   </div>
 
-                  <div className="form-group">
-                    <label>Número de Huéspedes</label>
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label>Total de Huéspedes a Hospedar</label>
                     <select name="guests" value={formData.guests} onChange={handleChange} className="form-control">
-                      {[...Array(selectedRoom?.capacidad_maxima || 2).keys()].map((n) => (
-                        <option key={n + 1} value={n + 1}>
-                          {n + 1} {n + 1 === 1 ? 'Huésped' : 'Huéspedes'}
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+                        <option key={n} value={n}>
+                          {n} {n === 1 ? 'Huésped' : 'Huéspedes'}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1.5rem' }}>
+                  {/* Asignación de Habitaciones */}
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                      <h3 style={{ fontSize: '1.05rem', margin: 0, fontWeight: 600, color: 'var(--secondary)' }}>
+                        Habitaciones Solicitadas ({selectedRooms.length})
+                      </h3>
+                      <span style={{
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        padding: '0.25rem 0.6rem',
+                        borderRadius: '4px',
+                        backgroundColor: totalAssignedGuests === Number(formData.guests) ? 'rgba(34, 197, 94, 0.12)' : 'rgba(234, 179, 8, 0.15)',
+                        color: totalAssignedGuests === Number(formData.guests) ? '#15803d' : '#854d0e',
+                        border: `1px solid ${totalAssignedGuests === Number(formData.guests) ? '#bbf7d0' : '#fef08a'}`
+                      }}>
+                        Asignados: {totalAssignedGuests} de {formData.guests} huéspedes
+                      </span>
+                    </div>
+
+                    {selectedRooms.map((roomSel, index) => {
+                      const currentRoom = rooms.find((r) => String(r.id) === String(roomSel.roomId));
+                      const roomMaxCap = currentRoom?.capacidad_maxima || 4;
+                      const otherPickedRoomIds = selectedRooms.filter((_, i) => i !== index).map((sr) => String(sr.roomId));
+
+                      return (
+                        <div key={index} style={{
+                          backgroundColor: 'var(--bg-linen)',
+                          border: '1px solid var(--border)',
+                          borderRadius: 'var(--border-radius-sm)',
+                          padding: '1rem 0.85rem',
+                          marginBottom: '1rem',
+                          boxSizing: 'border-box',
+                          minWidth: 0,
+                          width: '100%',
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                            <span style={{ fontWeight: 'bold', fontSize: '0.88rem', color: 'var(--primary)' }}>
+                              Habitación #{index + 1}
+                            </span>
+                            {selectedRooms.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveRoomSelection(index)}
+                                style={{ background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                              >
+                                <Trash2 size={13} /> Quitar
+                              </button>
+                            )}
+                          </div>
+
+                          <div className="grid grid-2" style={{ gap: '1rem', minWidth: 0, width: '100%' }}>
+                            <div className="form-group" style={{ margin: 0, minWidth: 0, width: '100%' }}>
+                              <label style={{ fontSize: '0.78rem' }}>Suite / Habitación</label>
+                              <select
+                                value={roomSel.roomId}
+                                onChange={(e) => handleRoomChange(index, 'roomId', e.target.value)}
+                                className="form-control"
+                                style={{ width: '100%', maxWidth: '100%', minWidth: 0 }}
+                                required
+                              >
+                                {rooms.map((r) => {
+                                  const isSelectedInOther = otherPickedRoomIds.includes(String(r.id));
+                                  return (
+                                    <option key={r.id} value={r.id} disabled={isSelectedInOther}>
+                                      {r.nombre} (Cap: {r.capacidad_maxima} pers. — ${Number(r.precio_base_noche).toLocaleString('es-MX')} MXN){isSelectedInOther ? ' — (Ya elegida)' : ''}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                            </div>
+
+                            <div className="form-group" style={{ margin: 0, minWidth: 0, width: '100%' }}>
+                              <label style={{ fontSize: '0.78rem' }}>Huéspedes en esta Habitación</label>
+                              <select
+                                value={roomSel.guests}
+                                onChange={(e) => handleRoomChange(index, 'guests', parseInt(e.target.value))}
+                                className="form-control"
+                                style={{ width: '100%', maxWidth: '100%', minWidth: 0 }}
+                              >
+                                {[...Array(roomMaxCap).keys()].map((n) => (
+                                  <option key={n + 1} value={n + 1}>
+                                    {n + 1} {n + 1 === 1 ? 'Huésped' : 'Huéspedes'}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                      );
+                    })}
+
+                    <button
+                      type="button"
+                      onClick={handleAddRoomSelection}
+                      className="btn btn-outline"
+                      style={{ width: '100%', borderStyle: 'dashed', marginTop: '0.25rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      <Plus size={15} /> Añadir otra habitación
+                    </button>
+                  </div>
+
+                  <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1.75rem' }}>
                     Continuar
                   </button>
                 </form>
@@ -432,9 +622,21 @@ export const Booking = () => {
                     <div><strong>Titular:</strong> {formData.nombre} {formData.apellidos}</div>
                     <div><strong>Correo:</strong> {formData.email}</div>
                     <div><strong>Teléfono:</strong> {formData.telefono}</div>
-                    <div><strong>Suite:</strong> {selectedRoom?.nombre}</div>
                     <div><strong>Fechas:</strong> Del {formData.checkIn} al {formData.checkOut}</div>
-                    <div><strong>Huéspedes:</strong> {formData.guests}</div>
+                    <div><strong>Total Huéspedes:</strong> {formData.guests} personas ({selectedRooms.length} {selectedRooms.length === 1 ? 'habitación' : 'habitaciones'})</div>
+                    <div>
+                      <strong>Habitaciones:</strong>
+                      <ul style={{ margin: '0.35rem 0 0 1.25rem', padding: 0, fontSize: '0.9rem' }}>
+                        {selectedRooms.map((sr, idx) => {
+                          const rObj = rooms.find((r) => String(r.id) === String(sr.roomId));
+                          return (
+                            <li key={idx}>
+                              {rObj?.nombre || 'Habitación'} — {sr.guests} huéspedes (${Number(rObj?.precio_base_noche).toLocaleString()} MXN/noche)
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
                     {formData.specialRequests && <div><strong>Notas:</strong> {formData.specialRequests}</div>}
                   </div>
 
@@ -453,18 +655,23 @@ export const Booking = () => {
             {/* Columna Derecha: Detalle de Cotización */}
             <div className="glass-panel" style={{ padding: '2rem', borderRadius: 'var(--border-radius-md)', position: 'sticky', top: '100px' }}>
               <h3 style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
-                Resumen de la Cotización
+                Resumen de Cotización
               </h3>
 
-              {selectedRoom && (
-                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <img src={getRoomImage(selectedRoom)} alt={selectedRoom.nombre} style={{ width: '80px', height: '60px', objectFit: 'cover', borderRadius: 'var(--border-radius-sm)' }} />
-                  <div>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 'bold' }}>{selectedRoom.nombre}</h4>
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>${pricePerNight.toLocaleString()} MXN / noche</span>
+              {selectedRooms.map((sr, idx) => {
+                const roomObj = rooms.find((r) => String(r.id) === String(sr.roomId));
+                if (!roomObj) return null;
+                return (
+                  <div key={idx} style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', borderBottom: '1px dashed var(--border)', paddingBottom: '0.75rem' }}>
+                    <img src={getRoomImage(roomObj)} alt={roomObj.nombre} style={{ width: '65px', height: '50px', objectFit: 'cover', borderRadius: 'var(--border-radius-sm)' }} />
+                    <div style={{ fontSize: '0.85rem' }}>
+                      <h4 style={{ fontSize: '0.9rem', fontWeight: 'bold', margin: 0 }}>{roomObj.nombre}</h4>
+                      <div style={{ color: 'var(--text-muted)' }}>{sr.guests} {sr.guests === 1 ? 'persona' : 'personas'}</div>
+                      <div style={{ color: 'var(--primary)', fontWeight: 600 }}>${Number(roomObj.precio_base_noche).toLocaleString()} MXN / noche</div>
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })}
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', fontSize: '0.95rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -472,16 +679,12 @@ export const Booking = () => {
                   <span style={{ fontWeight: 'bold' }}>{nights} {nights === 1 ? 'Noche' : 'Noches'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Huéspedes</span>
+                  <span>Total Huéspedes</span>
                   <span>{formData.guests} {formData.guests === 1 ? 'Persona' : 'Personas'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
-                  <span>Subtotal</span>
-                  <span>${subtotal.toLocaleString()} MXN</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>IVA (16%)</span>
-                  <span>${iva.toLocaleString()} MXN</span>
+                  <span>Subtotal por noche</span>
+                  <span>${totalBasePricePerNight.toLocaleString()} MXN</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: '1rem', fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--primary)' }}>
                   <span>Total Estimado</span>
@@ -497,7 +700,7 @@ export const Booking = () => {
             <CheckCircle2 size={64} style={{ color: 'var(--secondary)', marginBottom: '1.5rem', marginLeft: 'auto', marginRight: 'auto' }} />
             <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{bookingResult?.message}</h2>
             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>
-              Hemos enviado un correo de confirmación con los detalles del check-in a <span style={{ fontWeight: 'bold' }}>{formData.email}</span>. ¡Gracias por elegir Hotel Casa Dolores!
+              Hemos registrado la reservación a nombre de <span style={{ fontWeight: 'bold' }}>{formData.email || formData.nombre}</span>. ¡Gracias por elegir Hotel Casa Dolores!
             </p>
 
             {/* Tarjeta del Recibo para Descargar */}
@@ -526,15 +729,15 @@ export const Booking = () => {
                 </p>
               </div>
 
-              {/* Folio y Estado de Reservación */}
+              {/* Folio y Estado */}
               <div style={{ backgroundColor: '#fdfaf7', borderLeft: '4px solid #B38A3A', padding: '1rem', borderRadius: '0 4px 4px 0', marginBottom: '1.5rem' }}>
-                <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#8a7e72', fontWeight: 700, letterSpacing: '1px' }}>Folio de Reservación</span>
-                <div style={{ fontSize: '1.5rem', color: '#A0442A', fontFamily: 'Courier New, Courier, monospace', fontWeight: 'bold', letterSpacing: '1px' }}>
+                <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#8a7e72', fontWeight: 700, letterSpacing: '1px' }}>Folio(s) de Reservación</span>
+                <div style={{ fontSize: '1.3rem', color: '#A0442A', fontFamily: 'Courier New, Courier, monospace', fontWeight: 'bold', letterSpacing: '1px' }}>
                   {bookingResult?.code || 'CDH-982341'}
                 </div>
               </div>
 
-              {/* Detalles de la Estancia */}
+              {/* Detalles */}
               <h4 style={{ fontSize: '0.85rem', borderBottom: '1px solid #eee8e0', paddingBottom: '6px', marginBottom: '1rem', color: '#3d3730', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
                 Detalles de la Estancia
               </h4>
@@ -551,12 +754,19 @@ export const Booking = () => {
                   <span style={{ fontSize: '0.75rem', color: '#8a7e72' }}>Check-out: 12:00 hrs</span>
                 </div>
                 <div style={{ gridColumn: 'span 2', borderTop: '1px solid #fdfaf7', paddingTop: '0.5rem' }}>
-                  <span style={{ fontSize: '0.7rem', color: '#8a7e72', textTransform: 'uppercase', fontWeight: 700 }}>Habitación</span>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#3d3730' }}>{selectedRoom?.nombre}</div>
+                  <span style={{ fontSize: '0.7rem', color: '#8a7e72', textTransform: 'uppercase', fontWeight: 700 }}>Habitaciones Reservadas</span>
+                  {selectedRooms.map((sr, idx) => {
+                    const rObj = rooms.find((r) => String(r.id) === String(sr.roomId));
+                    return (
+                      <div key={idx} style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#3d3730', marginTop: '2px' }}>
+                        • {rObj?.nombre || 'Suite'} ({sr.guests} huéspedes)
+                      </div>
+                    );
+                  })}
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.7rem', color: '#8a7e72', textTransform: 'uppercase', fontWeight: 700 }}>Huéspedes</span>
-                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#3d3730' }}>{formData.guests} {formData.guests === 1 ? 'Persona' : 'Personas'}</div>
+                  <span style={{ fontSize: '0.7rem', color: '#8a7e72', textTransform: 'uppercase', fontWeight: 700 }}>Total Huéspedes</span>
+                  <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#3d3730' }}>{formData.guests} personas</div>
                 </div>
                 <div>
                   <span style={{ fontSize: '0.7rem', color: '#8a7e72', textTransform: 'uppercase', fontWeight: 700 }}>Noches</span>
@@ -573,23 +783,15 @@ export const Booking = () => {
                 </div>
               )}
 
-              {/* Información Financiera y de Pago */}
+              {/* Pago */}
               <h4 style={{ fontSize: '0.85rem', borderBottom: '1px solid #eee8e0', paddingBottom: '6px', marginBottom: '1rem', color: '#3d3730', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
                 Resumen del Pago
               </h4>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span style={{ color: '#5a524a' }}>Subtotal</span>
-                  <span style={{ fontWeight: 'bold' }}>${subtotal.toLocaleString()} MXN</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
-                  <span style={{ color: '#5a524a' }}>Impuestos (16% IVA)</span>
-                  <span style={{ fontWeight: 'bold' }}>${iva.toLocaleString()} MXN</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                   <span style={{ color: '#5a524a' }}>Método de Pago</span>
-                  <span style={{ fontWeight: 'bold' }}>Efectivo (al check-in)</span>
+                  <span style={{ fontWeight: 'bold' }}>Efectivo / Transferencia (al check-in)</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
                   <span style={{ color: '#5a524a' }}>Estado del Pago</span>
@@ -597,14 +799,14 @@ export const Booking = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderTop: '1px solid #eee8e0', paddingTop: '0.75rem', fontSize: '1.1rem', fontWeight: 'bold', color: '#A0442A' }}>
                   <span>Total Confirmado</span>
-                  <span>${(bookingResult?.data?.total_pagar || totalPrice).toLocaleString()} MXN</span>
+                  <span>${(bookingResult?.totalFinal || totalPrice).toLocaleString()} MXN</span>
                 </div>
               </div>
 
               {/* Pie de Recibo */}
               <div style={{ textAlign: 'center', borderTop: '1px solid #eee8e0', paddingTop: '1.25rem', marginTop: '1.5rem' }}>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: '#8a7e72', lineHeight: '1.5' }}>
-                  Calle Principal #10, Centro Histórico, Dolores Hidalgo, Gto.
+                  Av. San Luis Potosí 22, Centro Histórico, Dolores Hidalgo, Gto.
                 </p>
                 <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', color: '#b5a89b' }}>
                   &copy; {new Date().getFullYear()} Hotel Casa Dolores. Todos los derechos reservados.
@@ -631,6 +833,9 @@ export const Booking = () => {
             </div>
           </div>
         )}
-      </div></>
+      </div>
+    </>
   );
 };
+
+export default Booking;
