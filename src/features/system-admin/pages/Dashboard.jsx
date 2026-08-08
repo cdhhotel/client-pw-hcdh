@@ -523,9 +523,11 @@ export const Dashboard = () => {
 
                   return (
                     <tr key={res.id || res.folio}>
-                      <td style={{ fontFamily: 'var(--mono)', fontWeight: 'bold' }}>{getFolio(res)}</td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                      <td data-label="Folio" style={{ fontFamily: 'var(--mono)', fontWeight: 'bold' }}>
+                        <div style={{ textAlign: 'right' }}>{getFolio(res)}</div>
+                      </td>
+                      <td data-label="Huésped">
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
                           <span style={{ fontWeight: 600 }}>{getGuestName(res)}</span>
                           {frequentGuest && (
                             <span style={{
@@ -538,43 +540,51 @@ export const Dashboard = () => {
                           )}
                         </div>
                       </td>
-                      <td>{getRoomName(res)}</td>
-                      <td style={{ fontSize: '0.85rem' }}>
-                        {checkInFormatted} al {checkOutFormatted}
+                      <td data-label="Habitación">
+                        <div style={{ textAlign: 'right' }}>{getRoomName(res)}</div>
                       </td>
-                      <td>
-                        {isConfirmed && (
-                          <span className="badge badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <CheckCircle size={10} /> Confirmada
-                          </span>
-                        )}
-                        {isPending && (
-                          <span className="badge badge-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <Clock size={10} /> Pendiente
-                          </span>
-                        )}
-                        {isCanceled && (
-                          <span className="badge badge-danger" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <AlertTriangle size={10} /> Cancelada
-                          </span>
-                        )}
-                        {!isConfirmed && !isPending && !isCanceled && (
-                          <span className="badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', backgroundColor: 'var(--border)' }}>
-                            {res.estado || 'N/A'}
-                          </span>
-                        )}
+                      <td data-label="Fechas" style={{ fontSize: '0.85rem' }}>
+                        <div style={{ textAlign: 'right' }}>{checkInFormatted} al {checkOutFormatted}</div>
                       </td>
-                      <td style={{ fontWeight: 600 }}>${totalPagar.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</td>
-                      <td style={{ fontWeight: 600 }}>
-                        {saldo > 0 ? (
-                          <span style={{ color: '#b45309' }}>
-                            ${saldo.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
-                          </span>
-                        ) : (
-                          <span style={{ color: 'green', fontSize: '0.85rem' }}>
-                            $0.00 MXN (Pagado)
-                          </span>
-                        )}
+                      <td data-label="Estado">
+                        <div style={{ textAlign: 'right' }}>
+                          {isConfirmed && (
+                            <span className="badge badge-success" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <CheckCircle size={10} /> Confirmada
+                            </span>
+                          )}
+                          {isPending && (
+                            <span className="badge badge-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <Clock size={10} /> Pendiente
+                            </span>
+                          )}
+                          {isCanceled && (
+                            <span className="badge badge-danger" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <AlertTriangle size={10} /> Cancelada
+                            </span>
+                          )}
+                          {!isConfirmed && !isPending && !isCanceled && (
+                            <span className="badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', backgroundColor: 'var(--border)' }}>
+                              {res.estado || 'N/A'}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td data-label="Total" style={{ fontWeight: 600 }}>
+                        <div style={{ textAlign: 'right' }}>${totalPagar.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</div>
+                      </td>
+                      <td data-label="Saldo" style={{ fontWeight: 600 }}>
+                        <div style={{ textAlign: 'right' }}>
+                          {saldo > 0 ? (
+                            <span style={{ color: '#b45309' }}>
+                              ${saldo.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
+                            </span>
+                          ) : (
+                            <span style={{ color: 'green', fontSize: '0.85rem' }}>
+                              $0.00 MXN (Pagado)
+                            </span>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );

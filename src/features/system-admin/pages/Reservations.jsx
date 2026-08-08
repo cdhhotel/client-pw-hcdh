@@ -283,17 +283,19 @@ export const Reservations = () => {
 
                                             return (
                                                 <tr key={res.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}>
-                                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                                        <div style={{ fontFamily: 'Courier New, monospace', fontWeight: 'bold', color: 'var(--primary)' }}>
-                                                            {res.folio}
+                                                    <td data-label="Folio" style={{ padding: '1.25rem 1.5rem' }}>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <div style={{ fontFamily: 'Courier New, monospace', fontWeight: 'bold', color: 'var(--primary)' }}>
+                                                                {res.folio}
+                                                            </div>
+                                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                                                Creada: {formatDate(res.created_at)}
+                                                            </span>
                                                         </div>
-                                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                                            Creada: {formatDate(res.created_at)}
-                                                        </span>
                                                     </td>
-                                                    <td style={{ padding: '1.25rem 1.5rem' }}>
+                                                    <td data-label="Huésped" style={{ padding: '1.25rem 1.5rem' }}>
                                                         {principal ? (
-                                                            <div>
+                                                            <div style={{ textAlign: 'right' }}>
                                                                 <div style={{ fontWeight: 600 }}>{principal.nombre} {principal.apellidos}</div>
                                                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{principal.email}</div>
                                                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{principal.telefono}</div>
@@ -302,34 +304,38 @@ export const Reservations = () => {
                                                             <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>Sin huésped principal</span>
                                                         )}
                                                     </td>
-                                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                                        <div style={{ fontWeight: 500 }}>{res.habitacion?.nombre || '—'}</div>
-                                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                                            Hab. #{res.habitacion?.numero || '—'}
-                                                        </span>
-                                                    </td>
-                                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                                        <div style={{ fontSize: '0.85rem' }}>
-                                                            <strong>In:</strong> {formatDate(res.fecha_entrada)}
-                                                        </div>
-                                                        <div style={{ fontSize: '0.85rem', marginTop: '2px' }}>
-                                                            <strong>Out:</strong> {formatDate(res.fecha_salida)}
+                                                    <td data-label="Habitación" style={{ padding: '1.25rem 1.5rem' }}>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <div style={{ fontWeight: 500 }}>{res.habitacion?.nombre || '—'}</div>
+                                                            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                                                Hab. #{res.habitacion?.numero || '—'}
+                                                            </span>
                                                         </div>
                                                     </td>
-                                                    <td style={{ padding: '1.25rem 1.5rem', fontWeight: 600, color: 'var(--secondary)' }}>
-                                                        ${Number(res.total_pagar).toLocaleString('es-MX')} MXN
+                                                    <td data-label="Estancia" style={{ padding: '1.25rem 1.5rem' }}>
+                                                        <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
+                                                            <div><strong>In:</strong> {formatDate(res.fecha_entrada)}</div>
+                                                            <div style={{ marginTop: '2px' }}><strong>Out:</strong> {formatDate(res.fecha_salida)}</div>
+                                                        </div>
                                                     </td>
-                                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                                        <span className={`badge ${getStatusBadgeClass(res.estado)}`} style={{ textTransform: 'capitalize' }}>
-                                                            {res.estado}
-                                                        </span>
+                                                    <td data-label="Total" style={{ padding: '1.25rem 1.5rem', fontWeight: 600, color: 'var(--secondary)' }}>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            ${Number(res.total_pagar).toLocaleString('es-MX')} MXN
+                                                        </div>
                                                     </td>
-                                                    <td style={{ padding: '1.25rem 1.5rem', textAlign: 'center' }}>
-                                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
+                                                    <td data-label="Estado" style={{ padding: '1.25rem 1.5rem' }}>
+                                                        <div style={{ textAlign: 'right' }}>
+                                                            <span className={`badge ${getStatusBadgeClass(res.estado)}`} style={{ textTransform: 'capitalize' }}>
+                                                                {res.estado}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="Acciones" style={{ padding: '1.25rem 1.5rem', textAlign: 'center' }}>
+                                                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
                                                             <button
                                                                 onClick={() => setSelectedRes(res)}
                                                                 className="btn btn-outline"
-                                                                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                                                                style={{ padding: '0.4rem 0.65rem', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
                                                                 title="Ver detalles completos"
                                                             >
                                                                 <Eye size={14} /> Detalles
@@ -339,14 +345,15 @@ export const Reservations = () => {
                                                                     onClick={() => handleConfirmReservation(res.id)}
                                                                     className="btn"
                                                                     style={{
-                                                                        padding: '0.4rem 0.6rem',
+                                                                        padding: '0.4rem 0.65rem',
                                                                         fontSize: '0.8rem',
                                                                         backgroundColor: 'rgba(47, 220, 38, 0.08)',
                                                                         color: '#06AB00',
                                                                         border: '1px solid rgba(5, 158, 0, 0.2)',
                                                                         display: 'flex',
                                                                         alignItems: 'center',
-                                                                        gap: '4px'
+                                                                        gap: '4px',
+                                                                        whiteSpace: 'nowrap'
                                                                     }}
                                                                     disabled={confirmingId === res.id}
                                                                 >
@@ -363,14 +370,15 @@ export const Reservations = () => {
                                                                     onClick={() => handleCancelReservation(res.id)}
                                                                     className="btn"
                                                                     style={{
-                                                                        padding: '0.4rem 0.6rem',
+                                                                        padding: '0.4rem 0.65rem',
                                                                         fontSize: '0.8rem',
                                                                         backgroundColor: 'rgba(220,38,38,0.08)',
                                                                         color: '#dc2626',
                                                                         border: '1px solid rgba(220,38,38,0.2)',
                                                                         display: 'flex',
                                                                         alignItems: 'center',
-                                                                        gap: '4px'
+                                                                        gap: '4px',
+                                                                        whiteSpace: 'nowrap'
                                                                     }}
                                                                     disabled={cancellingId === res.id}
                                                                 >
@@ -386,14 +394,15 @@ export const Reservations = () => {
                                                                 onClick={() => handleDeleteReservation(res.id)}
                                                                 className="btn"
                                                                 style={{
-                                                                    padding: '0.4rem 0.6rem',
+                                                                    padding: '0.4rem 0.65rem',
                                                                     fontSize: '0.8rem',
                                                                     backgroundColor: 'rgba(220, 38, 38, 0.15)',
                                                                     color: '#991b1b',
                                                                     border: '1px solid rgba(220, 38, 38, 0.3)',
                                                                     display: 'flex',
                                                                     alignItems: 'center',
-                                                                    gap: '4px'
+                                                                    gap: '4px',
+                                                                    whiteSpace: 'nowrap'
                                                                 }}
                                                                 disabled={deletingId === res.id}
                                                                 title="Eliminar reservación"

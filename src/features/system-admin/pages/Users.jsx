@@ -73,39 +73,41 @@ export const Users = () => {
                                 <tbody>
                                     {users.map((user) => (
                                         <tr key={user.id}>
-                                            <td>
-                                                <div className="font-medium text-secondary">
+                                            <td data-label="Usuario">
+                                                <div className="font-medium text-secondary text-right">
                                                     {user.nombre} {user.apellidos}
                                                 </div>
-                                                <div className="text-xs text-muted mt-1">
+                                                <div className="text-xs text-muted mt-1 text-right">
                                                     ID: {user.id}
                                                 </div>
                                             </td>
-                                            <td>
-                                                <div>{user.email}</div>
-                                                <div className="text-sm text-muted mt-1">
+                                            <td data-label="Contacto">
+                                                <div className="text-right">{user.email}</div>
+                                                <div className="text-sm text-muted mt-1 text-right">
                                                     {user.telefono}
                                                 </div>
                                             </td>
-                                            <td className="text-muted">
+                                            <td data-label="Rol" className="text-muted text-right">
                                                 {user.rol?.nombre ?? '—'}
                                             </td>
-                                            <td>
-                                                <div>{user.ultima_conexion ? new Date(user.ultima_conexion).toLocaleDateString() : '—'}</div>
-                                                <div className="text-xs text-muted mt-1">
+                                            <td data-label="Última conexión">
+                                                <div className="text-right">{user.ultima_conexion ? new Date(user.ultima_conexion).toLocaleDateString() : '—'}</div>
+                                                <div className="text-xs text-muted mt-1 text-right">
                                                     {user.ultima_conexion ? new Date(user.ultima_conexion).toLocaleTimeString() : ''}
                                                 </div>
                                             </td>
-                                            <td>
-                                                <span className={`badge ${user.estatus
-                                                    ? 'badge-success'
-                                                    : 'badge-warning'
-                                                    }`}>
-                                                    {user.estatus ? 'activo' : 'inactivo'}
-                                                </span>
+                                            <td data-label="Estado">
+                                                <div className="text-right">
+                                                    <span className={`badge ${user.estatus
+                                                        ? 'badge-success'
+                                                        : 'badge-warning'
+                                                        }`}>
+                                                        {user.estatus ? 'activo' : 'inactivo'}
+                                                    </span>
+                                                </div>
                                             </td>
-                                            <td>
-                                                <div className="d-flex gap-1">
+                                            <td data-label="Acciones">
+                                                <div className="d-flex gap-1 justify-center flex-wrap">
                                                     <button
                                                         className="p-2 hover:bg-accent/10 rounded transition-all"
                                                         title="Ver detalles"
