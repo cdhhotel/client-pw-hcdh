@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bed, Plus, RefreshCw, Search, AlertCircle, CheckCircle2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { roomService } from '../services/roomService';
 import { RoomRow } from '../components/RoomRow';
 import { RoomFormModal } from '../components/RoomFormModal';
@@ -141,14 +142,36 @@ export const AdminRooms = () => {
     };
 
     const handleDeleteRoom = async (id, numero) => {
-        if (window.confirm(`¿Está seguro de que desea eliminar la habitación ${numero}?`)) {
-            try {
-                await roomService.deleteRoom(id);
-                setRooms(prev => prev.filter(room => room.id !== id));
-                showSuccess(`Habitación ${numero} eliminada exitosamente.`);
-            } catch (err) {
-                setError(err.message || 'Error al eliminar la habitación.');
-            }
+        const result = await Swal.fire({
+            title: '¿Eliminar Habitación?',
+            text: `¿Está seguro de que desea eliminar la habitación ${numero}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await roomService.deleteRoom(id);
+            setRooms(prev => prev.filter(room => room.id !== id));
+            Swal.fire({
+                title: '¡Eliminada!',
+                text: `Habitación ${numero} eliminada exitosamente.`,
+                icon: 'success',
+                confirmButtonColor: '#3d2b1f'
+            });
+        } catch (err) {
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'Error al eliminar la habitación.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
+            });
         }
     };
 

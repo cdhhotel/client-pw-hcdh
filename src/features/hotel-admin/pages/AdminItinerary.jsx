@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MapPin, Plus, RefreshCw, Search, AlertCircle, CheckCircle2, Calendar } from 'lucide-react';
+import Swal from 'sweetalert2';
 import { itineraryService } from '../services/itineraryService';
 import { ItineraryRow } from '../components/ItineraryRow';
 import { ItineraryFormModal } from '../components/ItineraryFormModal';
@@ -222,19 +223,41 @@ export const AdminItinerary = () => {
 
   const handleDelete = async (id, nombre, type = 'sitio') => {
     const term = type === 'evento' ? 'evento de temporada' : 'sitio cercano';
-    if (window.confirm(`¿Está seguro de que desea eliminar el ${term} "${nombre}"?`)) {
-      try {
-        if (type === 'evento') {
-          await itineraryService.deleteEvento(id);
-          setEventos(prev => prev.filter(i => i.id !== id));
-        } else {
-          await itineraryService.delete(id);
-          setSitios(prev => prev.filter(i => i.id !== id));
-        }
-        showSuccess(`Eliminado correctamente.`);
-      } catch (err) {
-        setError(err.message || 'Error al eliminar.');
+    const result = await Swal.fire({
+      title: `¿Eliminar ${type === 'evento' ? 'Evento' : 'Sitio'}?`,
+      text: `¿Está seguro de que desea eliminar el ${term} "${nombre}"?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#dc2626',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      if (type === 'evento') {
+        await itineraryService.deleteEvento(id);
+        setEventos(prev => prev.filter(i => i.id !== id));
+      } else {
+        await itineraryService.delete(id);
+        setSitios(prev => prev.filter(i => i.id !== id));
       }
+      Swal.fire({
+        title: '¡Eliminado!',
+        text: 'Eliminado correctamente.',
+        icon: 'success',
+        confirmButtonColor: '#3d2b1f'
+      });
+    } catch (err) {
+      Swal.fire({
+        title: 'Error',
+        text: err.message || 'Error al eliminar.',
+        icon: 'error',
+        confirmButtonColor: '#dc2626'
+      });
     }
   };
 
@@ -319,7 +342,7 @@ export const AdminItinerary = () => {
       </div>
 
       {/* Selector de Pestañas (Tabs) */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', gap: '0.5rem', marginTop: '0.5rem' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '1px solid var(--border)', gap: '0.5rem', marginTop: '0.5rem' }}>
         <button
           onClick={() => { setActiveTab('sitios'); setSearchTerm(''); }}
           style={{
@@ -384,7 +407,8 @@ export const AdminItinerary = () => {
               placeholder={`Buscar ${activeTab === 'eventos' ? 'evento' : 'sitio'} por nombre...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-control w-full pl-9"
+              className="form-control w-full"
+              style={{ paddingLeft: '2.5rem' }}
             />
           </div>
           {activeTab === 'sitios' && (
@@ -426,7 +450,7 @@ export const AdminItinerary = () => {
           </div>
         ) : (
           <div className="admin-table-container overflow-x-auto w-full">
-            <table className="admin-table w-full min-w-[800px]">
+            <table className="admin-table w-full md:min-w-[800px]">
               <thead>
                 <tr>
                   <th>Nombre</th>
@@ -463,7 +487,7 @@ export const AdminItinerary = () => {
           </div>
         ) : (
           <div className="admin-table-container overflow-x-auto w-full">
-            <table className="admin-table w-full min-w-[800px]">
+            <table className="admin-table w-full md:min-w-[800px]">
               <thead>
                 <tr>
                   <th>Nombre</th>

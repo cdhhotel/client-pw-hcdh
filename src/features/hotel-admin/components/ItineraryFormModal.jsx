@@ -111,7 +111,7 @@ export const ItineraryFormModal = ({
         <form onSubmit={onSubmit} style={{ padding: '1.75rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Selector de Tipo (Bloqueado en modo edición) */}
-          <div style={{ display: 'flex', gap: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '0.5rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem 1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '0.5rem' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 'bold', fontSize: '0.82rem', color: 'var(--secondary)', cursor: isEditMode ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans)' }}>
               <input
                 type="radio"

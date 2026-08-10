@@ -632,6 +632,11 @@ select.form-control option {
     min-height: 38px;
   }
 
+  .admin-table td > * {
+    text-align: right;
+    word-break: break-word;
+  }
+
   .admin-table td:last-child {
     border-bottom: none;
   }
@@ -664,7 +669,7 @@ select.form-control option {
 
   /* Celda de acciones: alineación flexible y wrap en móvil */
   .admin-table td:last-child {
-    justify-content: center;
+    justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.5rem;
     padding-top: 0.75rem;
@@ -1043,5 +1048,11 @@ select.form-control option {
     transform: scale(0.95);
   }
 }
+
+/* Ensure SweetAlert dialogs always render above all modal overlays */
+.swal2-container {
+  z-index: 999999 !important;
+}
+
 
 

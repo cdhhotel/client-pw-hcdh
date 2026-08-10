@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { reservationsService } from '../services/reservations.service';
 import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 
 export const Reservations = () => {
     const [reservations, setReservations] = useState([]);
@@ -69,19 +70,32 @@ export const Reservations = () => {
         setFilteredReservations(result);
     }, [searchTerm, statusFilter, reservations]);
 
-    // Handler para cancelar reservación
-    const handleCancelReservation = async (id) => {
-        if (!window.confirm('¿Estás seguro de que deseas cancelar esta reservación? Esta acción no se puede deshacer.')) {
-            return;
-        }
+    // Handler para cancelar reservación con SweetAlert2
+    const handleCancelReservation = async (id, folio) => {
+        const result = await Swal.fire({
+            title: '¿Cancelar reservación?',
+            text: folio ? `¿Estás seguro de que deseas cancelar la reservación ${folio}?` : '¿Estás seguro de que deseas cancelar esta reservación?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d97706',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No, regresar',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed) return;
 
         setCancellingId(id);
-        const toastId = toast.loading('Cancelando reservación...');
         try {
             const res = await reservationsService.cancel(id);
             if (res.success || res) {
-                toast.success(res.message || 'Reservación cancelada correctamente.', { id: toastId });
-                // Recargar la lista
+                Swal.fire({
+                    title: '¡Cancelada!',
+                    text: res.message || 'La reservación fue cancelada correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#3d2b1f'
+                });
                 fetchReservations();
                 if (selectedRes && selectedRes.id === id) {
                     setSelectedRes(null);
@@ -89,25 +103,43 @@ export const Reservations = () => {
             }
         } catch (err) {
             console.error('Error al cancelar:', err);
-            toast.error(err.message || 'No se pudo cancelar la reservación.', { id: toastId });
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'No se pudo cancelar la reservación.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
+            });
         } finally {
             setCancellingId(null);
         }
     };
 
-    // Handler para confirmar reservación
-    const handleConfirmReservation = async (id) => {
-        if (!window.confirm('¿Desea confirmar la reservación?')) {
-            return;
-        }
+    // Handler para confirmar reservación con SweetAlert2
+    const handleConfirmReservation = async (id, folio) => {
+        const result = await Swal.fire({
+            title: '¿Confirmar reservación?',
+            text: folio ? `¿Deseas confirmar la reservación ${folio}?` : '¿Deseas confirmar la reservación?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#059e00',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, confirmar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed) return;
 
         setConfirmingId(id);
-        const toastId = toast.loading('Confirmando reservación...');
         try {
             const res = await reservationsService.confirm(id);
             if (res.success || res) {
-                toast.success(res.message || 'Reservación confirmada correctamente.', { id: toastId });
-                // Recargar la lista
+                Swal.fire({
+                    title: '¡Confirmada!',
+                    text: res.message || 'La reservación fue confirmada correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#3d2b1f'
+                });
                 fetchReservations();
                 if (selectedRes && selectedRes.id === id) {
                     setSelectedRes(null);
@@ -115,25 +147,43 @@ export const Reservations = () => {
             }
         } catch (err) {
             console.error('Error al confirmar:', err);
-            toast.error(err.message || 'No se pudo confirmar la reservación.', { id: toastId });
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'No se pudo confirmar la reservación.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
+            });
         } finally {
             setConfirmingId(null);
         }
     };
 
-    // Handler para eliminar reservación
-    const handleDeleteReservation = async (id) => {
-        if (!window.confirm('¿Estás seguro de que deseas ELIMINAR esta reservación? Esta acción la removerá del sistema.')) {
-            return;
-        }
+    // Handler para eliminar reservación con SweetAlert2
+    const handleDeleteReservation = async (id, folio) => {
+        const result = await Swal.fire({
+            title: '¿ELIMINAR reservación?',
+            text: folio ? `¿Estás seguro de ELIMINAR permanentemente la reservación ${folio}? Esta acción no se puede deshacer.` : '¿Estás seguro de que deseas ELIMINAR esta reservación? Esta acción no se puede deshacer.',
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed) return;
 
         setDeletingId(id);
-        const toastId = toast.loading('Eliminando reservación...');
         try {
             const res = await reservationsService.delete(id);
             if (res.success || res) {
-                toast.success(res.message || 'Reservación eliminada correctamente.', { id: toastId });
-                // Recargar la lista
+                Swal.fire({
+                    title: '¡Eliminada!',
+                    text: res.message || 'La reservación fue eliminada correctamente.',
+                    icon: 'success',
+                    confirmButtonColor: '#3d2b1f'
+                });
                 fetchReservations();
                 if (selectedRes && selectedRes.id === id) {
                     setSelectedRes(null);
@@ -141,7 +191,12 @@ export const Reservations = () => {
             }
         } catch (err) {
             console.error('Error al eliminar:', err);
-            toast.error(err.message || 'No se pudo eliminar la reservación.', { id: toastId });
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'No se pudo eliminar la reservación.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
+            });
         } finally {
             setDeletingId(null);
         }
@@ -342,7 +397,7 @@ export const Reservations = () => {
                                                             </button>
                                                             {res.estado !== 'confirmada' && res.estado !== 'activa' && (
                                                                 <button
-                                                                    onClick={() => handleConfirmReservation(res.id)}
+                                                                    onClick={() => handleConfirmReservation(res.id, res.folio)}
                                                                     className="btn"
                                                                     style={{
                                                                         padding: '0.4rem 0.65rem',
@@ -367,7 +422,7 @@ export const Reservations = () => {
                                                             )}
                                                             {res.estado !== 'cancelada' && res.estado !== 'finalizada' && (
                                                                 <button
-                                                                    onClick={() => handleCancelReservation(res.id)}
+                                                                    onClick={() => handleCancelReservation(res.id, res.folio)}
                                                                     className="btn"
                                                                     style={{
                                                                         padding: '0.4rem 0.65rem',
@@ -391,7 +446,7 @@ export const Reservations = () => {
                                                                 </button>
                                                             )}
                                                             <button
-                                                                onClick={() => handleDeleteReservation(res.id)}
+                                                                onClick={() => handleDeleteReservation(res.id, res.folio)}
                                                                 className="btn"
                                                                 style={{
                                                                     padding: '0.4rem 0.65rem',
@@ -442,7 +497,7 @@ export const Reservations = () => {
                         right: 0,
                         bottom: 0,
                         backgroundColor: 'rgba(0,0,0,0.65)',
-                        zIndex: 99999,
+                        zIndex: 10000,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -450,7 +505,7 @@ export const Reservations = () => {
                         backdropFilter: 'blur(6px)',
                         WebkitBackdropFilter: 'blur(6px)',
                     }}
-                    onClick={() => setSelectedRes(null)}
+                        onClick={() => setSelectedRes(null)}
                     >
                         <div className="glass-panel animate-fade-in" style={{
                             width: '100%',
@@ -463,7 +518,7 @@ export const Reservations = () => {
                             boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
                             position: 'relative'
                         }}
-                        onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                         >
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -578,7 +633,7 @@ export const Reservations = () => {
                             <div style={{ display: 'flex', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '0.75rem', marginTop: '1.75rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
                                 {selectedRes.estado !== 'cancelada' && selectedRes.estado !== 'finalizada' && (
                                     <button
-                                        onClick={() => handleCancelReservation(selectedRes.id)}
+                                        onClick={() => handleCancelReservation(selectedRes.id, selectedRes.folio)}
                                         className="btn"
                                         style={{
                                             backgroundColor: 'rgba(220,38,38,0.08)',
@@ -595,7 +650,7 @@ export const Reservations = () => {
                                     </button>
                                 )}
                                 <button
-                                    onClick={() => handleDeleteReservation(selectedRes.id)}
+                                    onClick={() => handleDeleteReservation(selectedRes.id, selectedRes.folio)}
                                     className="btn"
                                     style={{
                                         backgroundColor: 'rgba(220, 38, 38, 0.15)',
