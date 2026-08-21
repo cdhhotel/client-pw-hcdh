@@ -121,5 +121,17 @@ export const verificarDisponibilidad = (lugar, fecha) => {
     }
   }
 
+  // 3. Si no posee ni horarios_json ni un campo de horario en texto
+  const tieneHorariosJson = lugar.horarios_json && Array.isArray(lugar.horarios_json) && lugar.horarios_json.length > 0;
+  const tieneHorarioTexto = lugar.horario && lugar.horario.trim() !== '' && !lugar.horario.toLowerCase().includes('sin horario');
+
+  if (!tieneHorariosJson && !tieneHorarioTexto) {
+    return {
+      disponible: true,
+      sinHorario: true,
+      motivo: 'Sin horario registrado'
+    };
+  }
+
   return { disponible: true };
 };

@@ -244,7 +244,11 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
               </span>
             )}
           </div>
-          {!check.disponible && (
+          {check.sinHorario ? (
+            <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#b45309', background: 'rgba(217, 119, 6, 0.08)', padding: '0.05rem 0.25rem', border: '1px solid rgba(217, 119, 6, 0.25)', display: 'inline-flex', alignItems: 'center', gap: '2px', width: 'fit-content', marginTop: '0.15rem' }}>
+              ⚠️ Sin horario registrado
+            </span>
+          ) : !check.disponible && (
             <span style={{ fontSize: '8px', fontWeight: 'bold', color: '#dc2626', background: 'rgba(239, 68, 68, 0.08)', padding: '0.05rem 0.25rem', border: '1px solid rgba(239, 68, 68, 0.2)', display: 'inline-flex', alignItems: 'center', gap: '2px', width: 'fit-content', marginTop: '0.15rem' }}>
               ⚠️ {check.motivo || 'No disponible'}
             </span>
@@ -597,7 +601,26 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
               )}
             </div>
           )}
-          {!check.disponible && (
+          {check.sinHorario ? (
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              background: 'rgba(217, 119, 6, 0.06)',
+              border: '1px solid rgba(217, 119, 6, 0.25)',
+              color: '#b45309',
+              fontSize: '11px',
+              padding: '0.25rem 0.6rem',
+              fontWeight: 'bold',
+              fontFamily: 'var(--font-sans)',
+              borderRadius: '2px',
+              marginTop: '0.5rem',
+              width: 'fit-content'
+            }}>
+              <AlertTriangle size={12} />
+              <span>Aviso: Este sitio no cuenta con horario registrado</span>
+            </div>
+          ) : !check.disponible && (
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -637,7 +660,7 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
           )}
 
           {/* Horario de Atención */}
-          {activity.horario && (
+          {activity.horario ? (
             <div
               style={{
                 display: 'flex',
@@ -652,6 +675,21 @@ export const ActivityCard = ({ activity, isSelected, onToggle, isMapFocused, isC
               <span style={{ fontWeight: '600', color: '#44403c', whiteSpace: 'pre-line', lineHeight: 1.4 }}>
                 {activity.horario}
               </span>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.375rem',
+                fontSize: '0.75rem',
+                color: '#78716c',
+                fontFamily: 'var(--font-sans)',
+                fontStyle: 'italic'
+              }}
+            >
+              <Clock size={12} style={{ color: '#a8a29e', flexShrink: 0 }} />
+              <span>Sin horario registrado</span>
             </div>
           )}
 

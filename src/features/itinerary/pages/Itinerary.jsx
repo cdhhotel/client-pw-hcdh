@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { MapPin, RefreshCw, Trash2, Home, Landmark, Utensils, HeartPulse, Compass, Star, ChevronRight, Check, Phone, ShieldAlert, Car, X, AlertTriangle } from 'lucide-react';
+import { MapPin, RefreshCw, Trash2, Home, Landmark, Utensils, HeartPulse, Compass, Star, ChevronRight, Check, Phone, ShieldAlert, Car, X, AlertTriangle, GripVertical, ChevronUp, ChevronDown } from 'lucide-react';
 import { api } from '../../../services/api';
 import { verificarDisponibilidad } from '../utils/availability';
 import { DayPlanner } from '../components/DayPlanner';
@@ -234,6 +234,63 @@ export const Itinerary = () => {
     }
     return actList;
   }, [plan, selectedDay, lugares, sortByTime]);
+
+  // ── Estado y funciones para Reordenamiento Drag & Drop ──
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+
+  const handleMoveActivity = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || toIndex >= dayPlan.length) return;
+
+    const currentDayList = [...dayPlan];
+    const [movedItem] = currentDayList.splice(fromIndex, 1);
+    currentDayList.splice(toIndex, 0, movedItem);
+
+    const updatedIds = currentDayList.map(item => item.id);
+
+    setPlan(prev => {
+      const newPlan = { ...prev, [selectedDay]: updatedIds };
+      localStorage.setItem('itinerary_plan', JSON.stringify(newPlan));
+      return newPlan;
+    });
+
+    if (sortByTime) {
+      setSortByTime(false);
+      localStorage.setItem('itinerary_sort_by_time', 'false');
+    }
+  };
+
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    try {
+      e.dataTransfer.setData('text/plain', index.toString());
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e, targetIndex) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== targetIndex) {
+      handleMoveActivity(draggedIndex, targetIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   // ── Limpiar todas las actividades de un día ──
   const clearDay = () => {
@@ -477,7 +534,9 @@ export const Itinerary = () => {
         const formattedHorario = l.horario ? l.horario.replace(/\n/g, '<br/>') : '';
         const dateOfCurrentDay = obtenerFechaDia(d);
         const check = verificarDisponibilidad(l, dateOfCurrentDay);
-        const availabilityWarning = !check.disponible
+        const availabilityWarning = check.sinHorario
+          ? `<div class="warning-badge info-badge" style="background: rgba(217, 119, 6, 0.08); border-color: rgba(217, 119, 6, 0.25); color: #b45309;">⚠️ Aviso: Sin horario registrado</div>`
+          : !check.disponible
           ? `<div class="warning-badge">⚠️ Aviso: ${check.motivo || 'No disponible hoy'}</div>`
           : '';
 
@@ -922,6 +981,26 @@ export const Itinerary = () => {
                   </div>
                 </div>
 
+                {/* Banner de ayuda para reordenar */}
+                {dayPlan.length > 1 && (
+                  <div style={{
+                    fontSize: '0.75rem',
+                    color: 'var(--primary)',
+                    fontWeight: '600',
+                    background: 'rgba(160, 68, 42, 0.06)',
+                    border: '1px dashed rgba(160, 68, 42, 0.3)',
+                    borderRadius: 'var(--border-radius-sm)',
+                    padding: '0.5rem 0.75rem',
+                    marginBottom: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <GripVertical size={16} />
+                    <span>Puedes arrastrar las actividades o usar las flechas para acomodarlas a tu gusto.</span>
+                  </div>
+                )}
+
                 {/* Mapear actividades */}
                 {dayPlan.map((lugar, index) => {
                   const subCat = lugar.categoria || 'General';
@@ -930,9 +1009,28 @@ export const Itinerary = () => {
                   const imageUrl = lugar.imagen_url || CATEGORY_IMAGES[mainCat] || '/images/otras.png';
                   const isLast = index === dayPlan.length - 1;
                   const check = verificarDisponibilidad(lugar, obtenerFechaDia(selectedDay));
+                  const isDragging = draggedIndex === index;
+                  const isDragOver = dragOverIndex === index;
 
                   return (
-                    <div key={lugar.id} style={{ display: 'flex', gap: '1.5rem', position: 'relative', marginBottom: isLast ? '0' : '1.5rem' }}>
+                    <div
+                      key={lugar.id}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      style={{
+                        display: 'flex',
+                        gap: '1.5rem',
+                        position: 'relative',
+                        marginBottom: isLast ? '0' : '1.5rem',
+                        opacity: isDragging ? 0.4 : 1,
+                        transition: 'opacity 0.15s ease, box-shadow 0.15s ease',
+                        borderRadius: 'var(--border-radius-sm)',
+                        boxShadow: isDragOver && draggedIndex !== index ? '0 0 0 2px var(--primary)' : 'none'
+                      }}
+                    >
 
                       {/* Nodo e hilo vertical */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '2.5rem', flexShrink: 0 }}>
@@ -959,6 +1057,64 @@ export const Itinerary = () => {
                           position: 'relative'
                         }}
                       >
+                        {/* Control de arrastre y flechas arriba/abajo */}
+                        <div
+                          style={{
+                            display: 'flex',
+                            flexDirection: isMobile ? 'row' : 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.15rem',
+                            color: 'var(--secondary)',
+                            opacity: 0.75,
+                            paddingRight: isMobile ? '0' : '0.25rem',
+                            userSelect: 'none'
+                          }}
+                        >
+                          <div
+                            style={{ cursor: 'grab', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.25rem' }}
+                            title="Arrastrar para reordenar"
+                          >
+                            <GripVertical size={18} />
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '2px' }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleMoveActivity(index, index - 1); }}
+                              disabled={index === 0}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                padding: '2px',
+                                cursor: index === 0 ? 'not-allowed' : 'pointer',
+                                color: index === 0 ? '#d6d3d1' : 'var(--secondary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              title="Mover arriba"
+                            >
+                              <ChevronUp size={15} />
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleMoveActivity(index, index + 1); }}
+                              disabled={index === dayPlan.length - 1}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                padding: '2px',
+                                cursor: index === dayPlan.length - 1 ? 'not-allowed' : 'pointer',
+                                color: index === dayPlan.length - 1 ? '#d6d3d1' : 'var(--secondary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                              title="Mover abajo"
+                            >
+                              <ChevronDown size={15} />
+                            </button>
+                          </div>
+                        </div>
+
                         {/* Imagen miniatura */}
                         <div style={{ width: isMobile ? '100%' : '5.5rem', height: '5.5rem', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', flexShrink: 0 }}>
                           <img
@@ -1009,8 +1165,32 @@ export const Itinerary = () => {
                             <p style={{ fontSize: '0.7rem', color: '#78716c', margin: 0, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>
                               Horario sugerido: {lugar.horario}
                             </p>
-                          ) : null}
-                          {!check.disponible && (
+                          ) : (
+                            <p style={{ fontSize: '0.7rem', color: '#78716c', margin: 0, fontStyle: 'italic', fontFamily: 'var(--font-sans)' }}>
+                              Sin horario registrado
+                            </p>
+                          )}
+                          {check.sinHorario ? (
+                            <div style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              background: 'rgba(217, 119, 6, 0.08)',
+                              border: '1px solid rgba(217, 119, 6, 0.25)',
+                              color: '#b45309',
+                              fontSize: '10px',
+                              padding: '0.2rem 0.5rem',
+                              fontWeight: 'bold',
+                              textTransform: 'uppercase',
+                              fontFamily: 'var(--font-sans)',
+                              marginTop: '0.4rem',
+                              borderRadius: '2px',
+                              width: 'fit-content'
+                            }}>
+                              <AlertTriangle size={11} />
+                              <span>Aviso: Sin horario registrado</span>
+                            </div>
+                          ) : !check.disponible && (
                             <div style={{
                               display: 'inline-flex',
                               alignItems: 'center',
