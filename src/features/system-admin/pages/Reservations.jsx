@@ -2,9 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import {
     Calendar, Users, Search, RefreshCw, XCircle,
-    CheckCircle, Loader2, Eye, AlertTriangle, ShieldAlert, Check, Trash2
+    CheckCircle, Loader2, Eye, AlertTriangle, ShieldAlert, Check, Trash2, LogOut, Sparkles, Download, FileText
 } from 'lucide-react';
 import { reservationsService } from '../services/reservations.service';
+import { updateRoomStatus, getStayDays } from '../../../services/cleaningService';
+import { exportReservationsToExcel } from '../../../utils/exportExcel';
+import { generatePdfAnalyticsReport } from '../../../utils/exportPdfReport';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 
@@ -15,6 +18,7 @@ export const Reservations = () => {
     const [cancellingId, setCancellingId] = useState(null);
     const [confirmingId, setConfirmingId] = useState(null);
     const [deletingId, setDeletingId] = useState(null);
+    const [checkoutId, setCheckoutId] = useState(null);
     const [error, setError] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('todos');
@@ -158,6 +162,104 @@ export const Reservations = () => {
         }
     };
 
+    // Handler para realizar Check-Out (finaliza reservación, cambia habitación a estatus 'limpieza' y notifica WhatsApp)
+    const handleCheckoutReservation = async (resObj) => {
+        const roomNum = resObj.habitacion?.numero || 'N/A';
+        const roomName = resObj.habitacion?.nombre || '';
+        const guestName = resObj.huesped_reservacion?.find(hr => hr.es_principal)?.huesped?.nombre || '';
+
+        const result = await Swal.fire({
+            title: '¿Realizar Check-Out?',
+            text: `Se finalizará la reservación ${resObj.folio || ''} y la Habitación #${roomNum} cambiará automáticamente a estatus EN LIMPIEZA.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3b82f6',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, hacer Check-Out',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed) return;
+
+        setCheckoutId(resObj.id);
+        try {
+            const res = await reservationsService.checkout(resObj.id);
+            if (res.habitacion_id || res.success) {
+                const roomId = resObj.habitacion_id || resObj.habitacion?.id;
+                if (roomId) {
+                    await updateRoomStatus(roomId, 'limpieza');
+                }
+
+                Swal.fire({
+                    title: '¡Check-Out Completado!',
+                    text: `La Habitación #${roomNum} fue registrada en estatus EN LIMPIEZA.`,
+                    icon: 'success',
+                    confirmButtonColor: '#3b82f6'
+                });
+
+                fetchReservations();
+                if (selectedRes && selectedRes.id === resObj.id) {
+                    setSelectedRes(null);
+                }
+            }
+        } catch (err) {
+            console.error('Error al hacer check-out:', err);
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'No se pudo realizar el check-out.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
+            });
+        } finally {
+            setCheckoutId(null);
+        }
+    };
+
+    // Handler para solicitar limpieza en estancias de más de 3 días
+    const handleRequestCleaning = async (resObj) => {
+        const roomNum = resObj.habitacion?.numero || 'N/A';
+        const roomName = resObj.habitacion?.nombre || '';
+        const guestName = resObj.huesped_reservacion?.find(hr => hr.es_principal)?.huesped?.nombre || '';
+        const stayDays = getStayDays(resObj.fecha_entrada, resObj.fecha_salida);
+
+        const result = await Swal.fire({
+            title: '🧹 Solicitar Limpieza de Habitación',
+            text: `Esta reservación tiene una estancia de ${stayDays} días. ¿Deseas cambiar la Habitación #${roomNum} a estatus EN LIMPIEZA y notificar por WhatsApp?`,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#0284c7',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Sí, cambiar a Limpieza',
+            cancelButtonText: 'Cancelar',
+            reverseButtons: true
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const roomId = resObj.habitacion_id || resObj.habitacion?.id;
+            if (roomId) {
+                await updateRoomStatus(roomId, 'limpieza');
+            }
+            sendCleaningWhatsAppNotification(roomNum, roomName, guestName, `Limpieza intermedia (Estancia de ${stayDays} días)`);
+            Swal.fire({
+                title: '¡Habitación en Limpieza!',
+                text: `La Habitación #${roomNum} fue actualizada a estatus EN LIMPIEZA y se abrió WhatsApp.`,
+                icon: 'success',
+                confirmButtonColor: '#3d2b1f'
+            });
+            fetchReservations();
+        } catch (err) {
+            Swal.fire({
+                title: 'Error',
+                text: err.message || 'No se pudo actualizar el estatus de la habitación.',
+                icon: 'error',
+                confirmButtonColor: '#dc2626'
+            });
+        }
+    };
+
     // Handler para eliminar reservación con SweetAlert2
     const handleDeleteReservation = async (id, folio) => {
         const result = await Swal.fire({
@@ -243,15 +345,38 @@ export const Reservations = () => {
                             Historial y control de reservas del Hotel Casa Dolores
                         </p>
                     </div>
-                    <button
-                        onClick={fetchReservations}
-                        className="btn"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border-color)', backgroundColor: 'transparent' }}
-                        disabled={loading}
-                    >
-                        <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-                        Recargar
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                        <button
+                            type="button"
+                            onClick={() => generatePdfAnalyticsReport(filteredReservations)}
+                            className="btn"
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: '#ffffff', border: 'none', fontWeight: 600, padding: '0.55rem 1.1rem', borderRadius: 'var(--border-radius-sm)', cursor: 'pointer' }}
+                            title="Generar e imprimir Reporte Ejecutivo en PDF"
+                        >
+                            <FileText size={15} />
+                            Reporte PDF
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => exportReservationsToExcel(filteredReservations)}
+                            className="btn"
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#16a34a', color: '#ffffff', border: 'none', fontWeight: 600, padding: '0.55rem 1.1rem', borderRadius: 'var(--border-radius-sm)', cursor: 'pointer' }}
+                            title="Descargar reporte completo en formato Excel (.csv)"
+                        >
+                            <Download size={15} />
+                            Exportar a Excel
+                        </button>
+                        <button
+                            type="button"
+                            onClick={fetchReservations}
+                            className="btn"
+                            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', border: '1px solid var(--border-color)', backgroundColor: 'transparent' }}
+                            disabled={loading}
+                        >
+                            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+                            Recargar
+                        </button>
+                    </div>
                 </div>
 
                 {/* Buscador y Filtros */}
@@ -270,21 +395,60 @@ export const Reservations = () => {
                         />
                     </div>
 
-                    {/* Filtro de Estado */}
-                    <div style={{ minWidth: '200px' }}>
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="form-control"
-                            style={{ margin: 0 }}
-                        >
-                            <option value="todos">Todos los estados</option>
-                            <option value="pendiente">Pendientes</option>
-                            <option value="confirmada">Confirmadas</option>
-                            <option value="activa">Activas (En estancia)</option>
-                            <option value="finalizada">Finalizadas</option>
-                            <option value="cancelada">Canceladas</option>
-                        </select>
+                </div>
+
+                {/* Pestañas de Filtro por Estado (Scrollable) */}
+                <div style={{ width: '100%', overflowX: 'auto', borderBottom: '1px solid var(--border)', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', minWidth: 'max-content', paddingBottom: 0, scrollbarWidth: 'thin' }}>
+                        {[
+                            { id: 'todos', label: 'Todas', count: reservations.length },
+                            { id: 'confirmada', label: 'Confirmadas', count: reservations.filter(r => (r.estado || '').toLowerCase() === 'confirmada' || (r.estado || '').toLowerCase() === 'confirmed').length },
+                            { id: 'pendiente', label: 'Pendientes', count: reservations.filter(r => (r.estado || '').toLowerCase() === 'pendiente' || (r.estado || '').toLowerCase() === 'pending').length },
+                            { id: 'activa', label: 'Activas', count: reservations.filter(r => (r.estado || '').toLowerCase() === 'activa' || (r.estado || '').toLowerCase() === 'active').length },
+                            { id: 'finalizada', label: 'Finalizadas', count: reservations.filter(r => (r.estado || '').toLowerCase() === 'finalizada' || (r.estado || '').toLowerCase() === 'completed').length },
+                            { id: 'cancelada', label: 'Canceladas', count: reservations.filter(r => (r.estado || '').toLowerCase() === 'cancelada' || (r.estado || '').toLowerCase() === 'canceled').length },
+                        ].map(tab => {
+                            const isActive = statusFilter === tab.id;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    type="button"
+                                    onClick={() => setStatusFilter(tab.id)}
+                                    style={{
+                                        padding: '0.65rem 1.25rem',
+                                        fontSize: '0.88rem',
+                                        fontFamily: 'var(--font-sans)',
+                                        fontWeight: isActive ? 700 : 500,
+                                        color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+                                        backgroundColor: isActive ? 'rgba(160, 68, 42, 0.08)' : 'transparent',
+                                        border: isActive ? '1px solid var(--border)' : '1px solid transparent',
+                                        borderBottom: isActive ? '3px solid var(--primary)' : '1px solid transparent',
+                                        borderRadius: '8px 8px 0 0',
+                                        marginBottom: '-1px',
+                                        cursor: 'pointer',
+                                        whiteSpace: 'nowrap',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        transition: 'all 0.15s ease',
+                                    }}
+                                >
+                                    <span>{tab.label}</span>
+                                    <span
+                                        style={{
+                                            fontSize: '0.72rem',
+                                            padding: '0.15rem 0.5rem',
+                                            borderRadius: '12px',
+                                            backgroundColor: isActive ? 'var(--primary)' : 'rgba(0,0,0,0.07)',
+                                            color: isActive ? '#FFF' : 'var(--text-muted)',
+                                            fontWeight: 600,
+                                        }}
+                                    >
+                                        {tab.count}
+                                    </span>
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -395,7 +559,7 @@ export const Reservations = () => {
                                                             >
                                                                 <Eye size={14} /> Detalles
                                                             </button>
-                                                            {res.estado !== 'confirmada' && res.estado !== 'activa' && (
+                                                            {res.estado !== 'confirmada' && res.estado !== 'activa' && res.estado !== 'finalizada' && res.estado !== 'cancelada' && (
                                                                 <button
                                                                     onClick={() => handleConfirmReservation(res.id, res.folio)}
                                                                     className="btn"
@@ -420,6 +584,57 @@ export const Reservations = () => {
                                                                     Confirmar
                                                                 </button>
                                                             )}
+
+                                                            {/* Check-Out (pasa habitación a En Limpieza) */}
+                                                            {res.estado !== 'finalizada' && res.estado !== 'cancelada' && (
+                                                                <button
+                                                                    onClick={() => handleCheckoutReservation(res)}
+                                                                    className="btn"
+                                                                    style={{
+                                                                        padding: '0.4rem 0.65rem',
+                                                                        fontSize: '0.8rem',
+                                                                        backgroundColor: 'rgba(59, 130, 246, 0.08)',
+                                                                        color: '#2563eb',
+                                                                        border: '1px solid rgba(59, 130, 246, 0.25)',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        whiteSpace: 'nowrap'
+                                                                    }}
+                                                                    disabled={checkoutId === res.id}
+                                                                    title="Realizar Check-Out y poner habitación en Limpieza"
+                                                                >
+                                                                    {checkoutId === res.id ? (
+                                                                        <Loader2 size={14} className="animate-spin" />
+                                                                    ) : (
+                                                                        <LogOut size={14} />
+                                                                    )}
+                                                                    Check-Out
+                                                                </button>
+                                                            )}
+
+                                                            {/* Solicitud de Limpieza para estancias de >3 días */}
+                                                            {getStayDays(res.fecha_entrada, res.fecha_salida) >= 3 && res.estado !== 'cancelada' && res.estado !== 'finalizada' && (
+                                                                <button
+                                                                    onClick={() => handleRequestCleaning(res)}
+                                                                    className="btn"
+                                                                    style={{
+                                                                        padding: '0.4rem 0.65rem',
+                                                                        fontSize: '0.8rem',
+                                                                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                                                                        color: '#0284c7',
+                                                                        border: '1px solid rgba(14, 165, 233, 0.25)',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                        gap: '4px',
+                                                                        whiteSpace: 'nowrap'
+                                                                    }}
+                                                                    title={`Estancia de ${getStayDays(res.fecha_entrada, res.fecha_salida)} días: Solicitar servicio de limpieza`}
+                                                                >
+                                                                    <Sparkles size={14} /> Limpieza (+3d)
+                                                                </button>
+                                                            )}
+
                                                             {res.estado !== 'cancelada' && res.estado !== 'finalizada' && (
                                                                 <button
                                                                     onClick={() => handleCancelReservation(res.id, res.folio)}

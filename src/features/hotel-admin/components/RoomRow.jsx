@@ -1,4 +1,5 @@
 import { Pencil, Trash2, Image as ImageIcon } from 'lucide-react';
+import { sendCleaningWhatsAppNotification } from '../../../services/cleaningService';
 
 export const RoomRow = ({ room, hotelName, onEdit, onDelete }) => {
     const imgList = room.atributos_extra?.imagenes || [];
@@ -15,44 +16,71 @@ export const RoomRow = ({ room, hotelName, onEdit, onDelete }) => {
                         className="w-[70px] h-[50px] object-cover rounded border border-[var(--border)]"
                     />
                 ) : (
-                    <div className="w-[70px] h-[50px] bg-[var(--bg-linen)] flex items-center justify-center rounded border border-[var(--border)] text-[var(--text-muted)]">
-                        <ImageIcon size={18} />
+                    <div className="w-[70px] h-[50px] rounded border border-[var(--border)] bg-[rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-[var(--text-muted)] text-[0.65rem] gap-0.5">
+                        <ImageIcon size={16} />
+                        <span>Sin foto</span>
                     </div>
                 )}
             </td>
 
-            {/* Número */}
-            <td data-label="Número" className="font-bold text-base text-[var(--secondary)]">
-                {room.numero}
+            {/* Número / Nombre */}
+            <td data-label="Habitación">
+                <div className="font-semibold text-[var(--primary)] text-base">
+                    Hab. #{room.numero}
+                </div>
+                {room.nombre && (
+                    <div className="text-xs text-[var(--text-muted)] font-normal mt-0.5">
+                        {room.nombre}
+                    </div>
+                )}
             </td>
 
-            {/* Nombre / Tipo */}
-            <td data-label="Nombre / Tipo">
-                <div className="font-semibold">{room.nombre || 'Sin nombre'}</div>
-                <div className="text-xs text-[var(--text-muted)] capitalize">{room.tipo_habitacion}</div>
+            {/* Tipo */}
+            <td data-label="Tipo" className="capitalize text-sm font-medium">
+                {room.tipo_habitacion}
             </td>
 
             {/* Hotel */}
-            <td data-label="Hotel" className="text-sm text-[var(--text-muted)]">
+            <td data-label="Hotel" className="text-sm font-medium text-[var(--text-muted)]">
                 {hotelName}
             </td>
 
-            {/* Capacidad */}
-            <td data-label="Capacidad" className="text-sm">
-                <div>Máx: {room.capacidad_maxima} pers.</div>
-                <div className="text-xs text-[var(--text-muted)]">
-                    {room.numero_camas} camas ({room.tipo_camas || 'N/A'})
-                </div>
+            {/* Capacidad / Camas */}
+            <td data-label="Capacidad" className="text-xs text-[var(--text-muted)]">
+                <div>Max. {room.capacidad_maxima} pers.</div>
+                <div>{room.numero_camas} camas ({room.tipo_camas || 'N/A'})</div>
             </td>
 
             {/* Precio */}
-            <td data-label="Precio" className="font-semibold text-[var(--primary)]">
+            <td data-label="Precio" className="font-semibold text-sm">
                 ${Number(room.precio_base_noche).toLocaleString()} MXN
             </td>
 
             {/* Estatus */}
             <td data-label="Estatus">
                 {room.estatus === 'disponible' && <span className="badge badge-success">Disponible</span>}
+                {room.estatus === 'limpieza' && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        <span className="badge badge-info" style={{ backgroundColor: 'rgba(59, 130, 246, 0.15)', color: '#2563eb', border: '1px solid rgba(59, 130, 246, 0.3)' }}>Limpieza</span>
+                        {/* <button
+                            type="button"
+                            onClick={() => sendCleaningWhatsAppNotification(room.numero, room.nombre)}
+                            title="Avisar limpieza por WhatsApp"
+                            style={{
+                                padding: '0.15rem 0.45rem',
+                                fontSize: '0.7rem',
+                                backgroundColor: '#25D366',
+                                color: '#FFF',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                            }}
+                        >
+                            WhatsApp
+                        </button> */}
+                    </div>
+                )}
                 {room.estatus === 'mantenimiento' && <span className="badge badge-warning">Mantenimiento</span>}
                 {room.estatus === 'ocupada' && <span className="badge badge-danger">Ocupada</span>}
             </td>

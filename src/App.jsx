@@ -3,6 +3,7 @@ import { AuthProvider } from './app/AuthContext';
 import { ScrollToTop } from './components/ScrollToTop';
 import { MainLayout } from './layouts/MainLayout';
 import { AdminLayout } from './layouts/AdminLayout';
+import { PortalHome } from './features/public/pages/PortalHome';
 import { Home } from './features/public/pages/Home';
 import { Rooms } from './features/rooms/pages/Rooms';
 import { Contacto } from './features/public/pages/Contacto';
@@ -17,6 +18,7 @@ import { AdminRooms } from './features/hotel-admin/pages/AdminRooms';
 import { AdminItinerary } from './features/hotel-admin/pages/AdminItinerary';
 import { Itinerary } from './features/itinerary/pages/Itinerary';
 import { CategoryPage } from './features/itinerary/pages/CategoryPage';
+import { AboutUs } from './features/public/pages/AboutUs';
 
 function App() {
   return (
@@ -24,11 +26,15 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
-          {/* Rutas Públicas del Sitio Web */}
-          <Route path="/" element={<MainLayout />}>
-            <Route index element={<Home />} />
+          {/* Pantalla Portal de Inicio Dual */}
+          <Route path="/" element={<PortalHome />} />
+
+          {/* Rutas Públicas del Sitio Web (Hotel Casa Dolores) */}
+          <Route element={<MainLayout />}>
+            <Route path="casa-dolores" element={<Home />} />
             <Route path="rooms" element={<Rooms />} />
             <Route path="booking" element={<Booking />} />
+            <Route path="sobre-nosotros" element={<AboutUs />} />
             <Route path="itinerary" element={<Itinerary />} />
             <Route path="itinerary/:categoryKey" element={<CategoryPage />} />
             <Route path="login" element={<Login />} />

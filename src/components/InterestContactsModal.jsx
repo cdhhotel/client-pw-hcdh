@@ -14,7 +14,7 @@ export const InterestContactsModal = () => {
   return (
     <>
       {/* Botón flotante de Servicios y Emergencias */}
-      <button
+      {/* <button
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Abrir Servicios y Emergencias"
@@ -51,7 +51,7 @@ export const InterestContactsModal = () => {
       >
         <Phone size={16} />
         <span>Servicios y Emergencias</span>
-      </button>
+      </button> */}
 
       {/* Modal de contactos de interés */}
       {isOpen && (

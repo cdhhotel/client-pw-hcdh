@@ -13,6 +13,7 @@ import {
   SparklesIcon,
 } from '@heroicons/react/24/solid';
 import { api } from '../../../services/api';
+import { FormattedText } from '../../../components/FormattedText';
 
 import bgtalavera from '../../../assets/bgtalavera.png';
 import bgsecondary from '../../../assets/sala.png';
@@ -35,10 +36,12 @@ function getRoomImage(room) {
 /** Mapa de amenidades → ícono + etiqueta + color (paleta del hotel) */
 const AMENITY_MAP = {
   'Wi-Fi': { icon: WifiIcon, label: 'Wi-Fi', bg: 'rgba(160,68,42,0.10)', color: '#A0442A' },
-  'TV': { icon: TvIcon, label: 'Televisión', bg: 'rgba(107,74,47,0.10)', color: '#6B4A2F' },
+  'TV': { icon: TvIcon, label: 'TV', bg: 'rgba(107,74,47,0.10)', color: '#6B4A2F' },
   'Baño completo': { icon: HomeModernIcon, label: 'Baño completo', bg: 'rgba(122,128,97,0.12)', color: '#7A8061' },
+  'Kit de Baño': { icon: SparklesIcon, label: 'Kit de Baño', bg: 'rgba(160,68,42,0.08)', color: '#B55239' },
+  'Toallas': { icon: SparklesIcon, label: 'Toallas', bg: 'rgba(122,128,97,0.10)', color: '#7A8061' },
+  'Ventilador': { icon: SunIcon, label: 'Ventilador', bg: 'rgba(179,138,58,0.12)', color: '#B38A3A' },
   'Terraza': { icon: SunIcon, label: 'Terraza', bg: 'rgba(179,138,58,0.12)', color: '#B38A3A' },
-  'Productos de Baño': { icon: SparklesIcon, label: 'Productos de Baño', bg: 'rgba(160,68,42,0.08)', color: '#B55239' },
 };
 
 /** Amenidades guardadas en atributos_extra */
@@ -48,11 +51,13 @@ function getAmenidades(room) {
   if (Array.isArray(extra.amenidades)) return extra.amenidades;
   if (Array.isArray(extra.amenities)) return extra.amenities;
   const chips = [];
-  if (extra.extras) chips.push('Productos de Baño');
-  if (extra.terraza) chips.push('Terraza');
+  if (extra.extras) chips.push('Kit de Baño');
+  if (extra.toallas) chips.push('Toallas');
   if (extra.bano) chips.push('Baño completo');
   if (extra.tv) chips.push('TV');
   if (extra.wifi) chips.push('Wi-Fi');
+  if (extra.ventilador) chips.push('Ventilador');
+  if (extra.terraza && !extra.ventilador) chips.push('Terraza');
   return chips;
 }
 
@@ -366,7 +371,7 @@ export const Rooms = () => {
                       paddingBottom: '0.75rem',
                       borderBottom: '3px solid var(--primary)',
                     }}>
-                      {selectedRoom.nombre}
+                      {selectedRoom.numero ? `Habitación ${selectedRoom.numero} — ${selectedRoom.nombre}` : selectedRoom.nombre}
                     </h2>
 
                     {/* Huéspedes + Tipo de cama */}
@@ -403,17 +408,12 @@ export const Rooms = () => {
 
                     {/* Descripción larga */}
                     {descLarga && (
-                      <p style={{
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '0.97rem',
-                        color: 'var(--text-muted)',
-                        lineHeight: '1.8',
-                        marginBottom: 0,
+                      <div style={{
                         paddingTop: descCorta ? '0.75rem' : 0,
                         borderTop: descCorta ? '1px dashed var(--border)' : 'none',
                       }}>
-                        {descLarga}
-                      </p>
+                        <FormattedText text={descLarga} />
+                      </div>
                     )}
 
                     {!descCorta && !descLarga && (
@@ -595,7 +595,7 @@ export const Rooms = () => {
                         {/* Contenido */}
                         <div style={{ padding: '1rem 1.1rem' }}>
                           <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', color: 'var(--secondary)', marginBottom: '0.4rem', fontWeight: 700 }}>
-                            {room.nombre}
+                            {room.numero ? `Hab. #${room.numero} - ${room.nombre}` : room.nombre}
                           </h4>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>

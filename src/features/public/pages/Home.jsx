@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath, Loader2, X, Search } from 'lucide-react';
+import { Calendar, Users, Coffee, Waves, MapPin, Compass, Bed, Wifi, Bath, Loader2, X, Search, Star, ExternalLink, Award, Key, MessageSquare, CheckCircle2, Tag, Sparkles } from 'lucide-react';
 import { api } from '../../../services/api';
 import portadaInicio from '../../../assets/background-home.jpeg';
 import logoHorizontal from '../../../assets/logohorizontal.jpeg';
@@ -36,6 +36,42 @@ export const Home = () => {
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showMobileModal, setShowMobileModal] = useState(false);
+
+  // Estadísticas reales obtenidas de Airbnb
+  const [airbnbData, setAirbnbData] = useState({
+    rating: 4.77,
+    maxRating: 5.0,
+    totalReviews: 13,
+    listingTitle: 'Casa Dolores Hidalgo, hab 9',
+    listingUrl: 'https://www.airbnb.mx/rooms/1245181293769210016?check_in=2026-09-08&check_out=2026-09-09',
+    categoryRatings: [
+      { label: 'Limpieza', score: 4.5 },
+      { label: 'Veracidad', score: 4.6 },
+      { label: 'Llegada', score: 4.8 },
+      { label: 'Comunicación', score: 4.8 },
+      { label: 'Ubicación', score: 5.0 },
+      { label: 'Calidad-precio', score: 4.8 },
+    ],
+  });
+
+  useEffect(() => {
+    const fetchAirbnbRating = async () => {
+      try {
+        const airbnbResult = await api.get('/hotel/airbnb-rating');
+        if (airbnbResult?.data) {
+          const resData = airbnbResult.data;
+          if (resData.data) {
+            setAirbnbData(resData.data);
+          } else if (resData.rating) {
+            setAirbnbData(resData);
+          }
+        }
+      } catch (err) {
+        console.error('Error al cargar calificación de Airbnb:', err);
+      }
+    };
+    fetchAirbnbRating();
+  }, []);
 
 
   useEffect(() => {
@@ -464,7 +500,7 @@ export const Home = () => {
                       {isFrameEmpty && (
                         <div className="absolute inset-0 p-4 md:p-6 flex flex-col justify-center items-center text-center border border-[var(--primary)] bg-[var(--bg-sand)]/70 backdrop-blur-[2px] transition-all duration-500">
                           <h3 className="text-sm md:text-lg font-sans font-bold uppercase tracking-widest text-[var(--secondary-hover)] leading-relaxed transform md:-rotate-90 md:whitespace-nowrap transition-transform duration-500">
-                            {room.nombre}
+                            {room.numero ? `Hab. #${room.numero} - ${room.nombre}` : room.nombre}
                           </h3>
                         </div>
                       )}
@@ -472,7 +508,23 @@ export const Home = () => {
                       {!isFrameEmpty && (
                         <div className="absolute inset-0 h-full w-full border-2 border-[var(--primary)] group dynamic-fade-in">
                           <div className="absolute inset-0 bg-black/40 transition-opacity duration-500"></div>
+
                           <div className="absolute inset-0 flex flex-col justify-center items-center p-6 text-center">
+                            {room.numero && (
+                              <span
+                                style={{
+                                  color: 'var(--gold)',
+                                  fontSize: '0.85rem',
+                                  fontWeight: 700,
+                                  letterSpacing: '2px',
+                                  textTransform: 'uppercase',
+                                  marginBottom: '0.4rem',
+                                  textShadow: '0 2px 8px rgba(0,0,0,0.8)'
+                                }}
+                              >
+                                Habitación {room.numero}
+                              </span>
+                            )}
                             <h3
                               className="text-xl md:text-3xl font-sans font-extrabold uppercase tracking-[0.2em] drop-shadow-lg mb-8"
                               style={{ color: '#ffffff', textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}
@@ -735,6 +787,121 @@ export const Home = () => {
             50% { opacity: 0.5; transform: scale(1.4); }
           }
         `}</style>
+      </section>
+
+      {/* Calificación y Reputación Airbnb */}
+      <section style={{ backgroundColor: '#ffffff', padding: '5rem 0', borderTop: '1px solid var(--border)' }}>
+        <div className="container" style={{ maxWidth: '850px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <span style={{ color: '#FF385C', fontWeight: 600, letterSpacing: '3px', textTransform: 'uppercase', fontSize: '0.8rem' }}>
+              Nuestra Reputación
+            </span>
+            <h2 className="section-title" style={{ marginTop: '0.5rem' }}>
+              Calificación en Airbnb
+            </h2>
+            <p className="section-subtitle" style={{ color: 'var(--text-muted)' }}>
+              Opiniones reales y verificadas de los huéspedes que se han hospedado en Casa Dolores Hidalgo.
+            </p>
+          </div>
+
+          <div className="glass-panel" style={{ padding: '2rem', borderRadius: 'var(--border-radius-md)', borderTop: '4px solid #FF385C', boxShadow: 'var(--shadow-md)', backgroundColor: '#fff' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', margin: 0, color: '#111', fontWeight: 700 }}>
+                  Reputación Airbnb
+                </h3>
+                {/* <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Evaluaciones de huéspedes en el anuncio</span> */}
+              </div>
+              <span className="badge" style={{ backgroundColor: 'rgba(255, 56, 92, 0.1)', color: '#FF385C', border: '1px solid rgba(255, 56, 92, 0.3)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', padding: '0.35rem 0.75rem' }}>
+                <Award size={14} /> Excelente
+              </span>
+            </div>
+
+            {/* Puntuación destacada */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', backgroundColor: 'rgba(249, 250, 251, 0.9)', padding: '1.25rem 1.5rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border)', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+              <div style={{ textAlign: 'center', paddingRight: '1.25rem', borderRight: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '2.6rem', fontWeight: 800, color: '#111', lineHeight: 1 }}>
+                  {airbnbData.rating.toFixed(2)}
+                </div>
+                <div style={{ display: 'flex', gap: '2px', color: '#FF385C', marginTop: '0.35rem', justifyContent: 'center' }}>
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={14} style={{ fill: '#FF385C' }} />
+                  ))}
+                </div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.2rem' }}>
+                  {airbnbData.listingTitle}
+                </div>
+                <div style={{ fontSize: '0.88rem', color: '#FF385C', fontWeight: 600 }}>
+                  {airbnbData.totalReviews} evaluaciones verificadas
+                </div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+                  Anuncio oficial en Airbnb.mx
+                </div>
+              </div>
+            </div>
+
+            {/* Desglose de Categorías */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: '0.85rem', marginBottom: '1.5rem' }}>
+              {(airbnbData.categoryRatings || []).map((cat) => {
+                const getIcon = (lbl) => {
+                  const l = (lbl || '').toLowerCase();
+                  if (l.includes('limpieza')) return <Sparkles size={16} style={{ color: '#FF385C' }} />;
+                  if (l.includes('veracidad')) return <CheckCircle2 size={16} style={{ color: '#FF385C' }} />;
+                  if (l.includes('llegada')) return <Key size={16} style={{ color: '#FF385C' }} />;
+                  if (l.includes('comunicación') || l.includes('comunicacion')) return <MessageSquare size={16} style={{ color: '#FF385C' }} />;
+                  if (l.includes('ubicación') || l.includes('ubicacion')) return <MapPin size={16} style={{ color: '#FF385C' }} />;
+                  if (l.includes('calidad') || l.includes('precio')) return <Tag size={16} style={{ color: '#FF385C' }} />;
+                  return <Star size={16} style={{ color: '#FF385C' }} />;
+                };
+
+                return (
+                  <div key={cat.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.88rem', backgroundColor: 'rgba(249, 250, 251, 0.9)', padding: '0.75rem 0.9rem', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                      {getIcon(cat.label)}
+                      <span style={{ color: 'var(--text-main)', fontWeight: 600, whiteSpace: 'nowrap' }}>{cat.label}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                      <div style={{ width: '60px', height: '6px', backgroundColor: '#e5e7eb', borderRadius: '3px', overflow: 'hidden' }}>
+                        <div style={{ width: `${(cat.score / 5) * 100}%`, height: '100%', backgroundColor: '#FF385C', borderRadius: '3px' }} />
+                      </div>
+                      <span style={{ fontWeight: 700, minWidth: '26px', textAlign: 'right', color: '#111' }}>{cat.score.toFixed(1)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Botón de Enlace Externo a Airbnb */}
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.25rem' }}>
+              <a
+                href={airbnbData.listingUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  backgroundColor: '#FF385C',
+                  color: '#FFFFFF',
+                  fontWeight: 600,
+                  fontSize: '0.9rem',
+                  padding: '0.75rem 1.25rem',
+                  borderRadius: 'var(--border-radius-sm)',
+                  textDecoration: 'none',
+                  boxShadow: '0 2px 10px rgba(255, 56, 92, 0.25)',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <ExternalLink size={16} /> Ver Anuncio en Airbnb
+              </a>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   );

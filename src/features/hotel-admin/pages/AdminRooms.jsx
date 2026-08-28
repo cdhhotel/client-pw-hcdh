@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { roomService } from '../services/roomService';
 import { RoomRow } from '../components/RoomRow';
 import { RoomFormModal } from '../components/RoomFormModal';
+import { sendCleaningWhatsAppNotification } from '../../../services/cleaningService';
 
 const initialFormState = {
     hotelId: '',
@@ -20,10 +21,11 @@ const initialFormState = {
     estatus: 'disponible',
     atributosExtra: {
         extras: false,
-        terraza: false,
+        toallas: false,
         bano: false,
         tv: false,
-        wifi: false
+        wifi: false,
+        ventilador: false,
     }
 };
 
@@ -129,10 +131,11 @@ export const AdminRooms = () => {
             estatus: room.estatus || 'disponible',
             atributosExtra: {
                 extras: !!extra.extras,
-                terraza: !!extra.terraza,
+                toallas: !!extra.toallas,
                 bano: !!extra.bano,
                 tv: !!extra.tv,
                 wifi: !!extra.wifi,
+                ventilador: !!extra.ventilador,
             }
         });
         setNewImages([]);
@@ -235,8 +238,9 @@ export const AdminRooms = () => {
                     <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="form-control w-full sm:w-48">
                         <option value="all">Todos los estados</option>
                         <option value="disponible">Disponibles</option>
-                        <option value="mantenimiento">En mantenimiento</option>
                         <option value="ocupada">Ocupadas</option>
+                        <option value="limpieza">En limpieza</option>
+                        <option value="mantenimiento">En mantenimiento</option>
                     </select>
                 </div>
                 <button className="btn btn-actua p-3 w-full md:w-auto flex justify-center items-center" onClick={loadData} disabled={loading}>

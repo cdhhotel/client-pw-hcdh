@@ -20,6 +20,13 @@ export const reservationsService = {
   },
 
   /**
+   * Realiza Check-Out y pasa la habitación a estatus 'limpieza'
+   */
+  checkout(id) {
+    return api.post(`/reservations/${id}/checkout`);
+  },
+
+  /**
    * Elimina una reservación por ID
    */
   delete(id) {

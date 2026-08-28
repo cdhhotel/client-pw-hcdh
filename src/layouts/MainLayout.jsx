@@ -36,7 +36,7 @@ export const MainLayout = () => {
       >
         <div className="container mx-auto flex justify-between items-center w-full">
           {/* Logo y Nombre */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/casa-dolores" className="flex items-center gap-3 group">
             {/* <img
               src="/logo_mono.png"
               alt="Logo Hotel Casa Dolores"
@@ -65,8 +65,6 @@ export const MainLayout = () => {
           <nav className="hidden md:flex items-center gap-8 h-full">
             <NavLink
               to="/rooms"
-              target="_blank"
-              rel="noopener noreferrer"
               className={({ isActive }) =>
                 `font-medium pb-1 border-b-2 transition-colors duration-300 ${isActive
                   ? 'text-[var(--primary)] border-[var(--primary)]'
@@ -79,12 +77,24 @@ export const MainLayout = () => {
               Habitaciones
             </NavLink>
 
+            <NavLink
+              to="/sobre-nosotros"
+              className={({ isActive }) =>
+                `font-medium pb-1 border-b-2 transition-colors duration-300 ${isActive
+                  ? 'text-[var(--primary)] border-[var(--primary)]'
+                  : isScrolled
+                    ? 'border-transparent hover:text-[var(--primary)]'
+                    : 'border-transparent hover:text-[var(--primary-hover)]'
+                }`
+              }
+            >
+              Sobre Nosotros
+            </NavLink>
+
             {/* Admin Acceso */}
             {isAdmin && (
               <Link
                 to="/admin"
-                target="_blank"
-                rel="noopener noreferrer"
                 className={`btn btn-outline py-2 px-4 text-xs flex items-center gap-1.5 transition-all duration-300 ${isScrolled
                   ? 'border-[var(--secondary)] text-[var(--secondary)]'
                   : 'border-[var(--white)] text-[var(--white)] hover:bg-[var(--white)] hover:text-[var(--secondary)]'
@@ -110,7 +120,7 @@ export const MainLayout = () => {
                 </button>
               </div>
             ) : (
-              <Link to="/booking" target="_blank" rel="noopener noreferrer" className="btn btn-primary py-2.5 px-6 text-sm rounded-md">
+              <Link to="/booking" className="btn btn-primary py-2.5 px-6 text-sm rounded-md">
                 Reservar
               </Link>
             )}
@@ -128,11 +138,11 @@ export const MainLayout = () => {
         {/* Enlaces Menú Móvil */}
         {isMenuOpen && (
           <div className="glass-panel animate-fade-in absolute top-full left-0 right-0 p-8 flex flex-col gap-6 border-b border-[var(--border)] text-[var(--text-main)]">
-            <Link to="/" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)}>Inicio</Link>
-            <Link to="/rooms" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)}>Habitaciones</Link>
-            <Link to="/booking" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)}>Reservar</Link>
+            <Link to="/casa-dolores" onClick={() => setIsMenuOpen(false)}>Inicio</Link>
+            <Link to="/rooms" onClick={() => setIsMenuOpen(false)}>Habitaciones</Link>
+            <Link to="/booking" onClick={() => setIsMenuOpen(false)}>Reservar</Link>
             {isAdmin && (
-              <Link to="/admin" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)} className="text-[var(--primary)] font-bold">
+              <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="text-[var(--primary)] font-bold">
                 Panel Administrativo
               </Link>
             )}
@@ -144,7 +154,7 @@ export const MainLayout = () => {
                 </button>
               </div>
             ) : (
-              <Link to="/login" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)} className="btn btn-primary text-center w-full">
+              <Link to="/login" onClick={() => setIsMenuOpen(false)} className="btn btn-primary text-center w-full">
                 Iniciar Sesión
               </Link>
             )}
@@ -205,10 +215,11 @@ export const MainLayout = () => {
             <div>
               <h3 style={{ marginBottom: '1.25rem', color: 'var(--primary)' }}>Enlaces</h3>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.95rem', color: 'var(--white)' }}>
-                <li><Link to="/" target="_blank" rel="noopener noreferrer">Inicio</Link></li>
-                <li><Link to="/rooms" target="_blank" rel="noopener noreferrer">Habitaciones</Link></li>
-                <li><Link to="/booking" target="_blank" rel="noopener noreferrer">Reservar Ahora</Link></li>
-                <li><Link to="/login" target="_blank" rel="noopener noreferrer">Área del Personal</Link></li>
+                <li><Link to="/casa-dolores">Inicio</Link></li>
+                <li><Link to="/rooms">Habitaciones</Link></li>
+                <li><Link to="/booking">Reservar Ahora</Link></li>
+                <li><Link to="/sobre-nosotros">Sobre Nosotros</Link></li>
+                <li><Link to="/login">Área del Personal</Link></li>
               </ul>
             </div>
           </div>
@@ -220,7 +231,7 @@ export const MainLayout = () => {
 
       {/* Botones flotantes (WhatsApp y Servicios y Emergencia) */}
       <WhatsAppButton />
-      <InterestContactsModal />
+      {/* <InterestContactsModal /> */}
     </div>
   );
 };

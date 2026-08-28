@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { itineraryService } from '../services/itineraryService';
 import { ItineraryRow } from '../components/ItineraryRow';
 import { ItineraryFormModal } from '../components/ItineraryFormModal';
+import { ITINERARY_CATEGORIES } from '../../itinerary/constants/categories';
 
 // Separar líneas de días y horas de servicio del campo horario (Legacy string parser)
 const parseHorarioToEntries = (horarioStr) => {
@@ -320,7 +321,12 @@ export const AdminItinerary = () => {
     return matchesSearch;
   });
 
-  const categorias = [...new Set(sitios.map(i => i.categoria).filter(Boolean))];
+  const allSubcategoriesOrder = Object.values(ITINERARY_CATEGORIES).flat();
+  const rawCategorias = [...new Set(sitios.map(i => i.categoria).filter(Boolean))];
+  const categorias = [
+    ...allSubcategoriesOrder.filter(cat => rawCategorias.includes(cat)),
+    ...rawCategorias.filter(cat => !allSubcategoriesOrder.includes(cat))
+  ];
 
   return (
     <div className="animate-fade-in flex flex-col gap-6 w-full">
@@ -341,10 +347,10 @@ export const AdminItinerary = () => {
         </button>
       </div>
 
-      {/* Selector de Pestañas (Tabs) */}
+      {/* Selector de Pestañas Principales (Sitios vs Eventos) */}
       <div style={{ display: 'flex', flexWrap: 'wrap', borderBottom: '1px solid var(--border)', gap: '0.5rem', marginTop: '0.5rem' }}>
         <button
-          onClick={() => { setActiveTab('sitios'); setSearchTerm(''); }}
+          onClick={() => { setActiveTab('sitios'); setSearchTerm(''); setCategoriaFilter('all'); }}
           style={{
             padding: '0.75rem 1.25rem',
             background: 'none',
@@ -363,7 +369,7 @@ export const AdminItinerary = () => {
           <MapPin size={16} /> Sitios Cercanos ({sitios.length})
         </button>
         <button
-          onClick={() => { setActiveTab('eventos'); setSearchTerm(''); }}
+          onClick={() => { setActiveTab('eventos'); setSearchTerm(''); setCategoriaFilter('all'); }}
           style={{
             padding: '0.75rem 1.25rem',
             background: 'none',
@@ -397,7 +403,7 @@ export const AdminItinerary = () => {
         </div>
       )}
 
-      {/* Filtros */}
+      {/* Filtro de Búsqueda */}
       <div className="glass-panel flex flex-col md:flex-row justify-between gap-4 p-5 rounded-[var(--border-radius-md)] w-full">
         <div className="flex flex-col sm:flex-row gap-4 flex-grow w-full md:max-w-2xl">
           <div className="relative flex-grow w-full">
@@ -411,18 +417,6 @@ export const AdminItinerary = () => {
               style={{ paddingLeft: '2.5rem' }}
             />
           </div>
-          {activeTab === 'sitios' && (
-            <select
-              value={categoriaFilter}
-              onChange={(e) => setCategoriaFilter(e.target.value)}
-              className="form-control w-full sm:w-52"
-            >
-              <option value="all">Todas las categorías</option>
-              {categorias.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          )}
         </div>
         <button
           className="btn btn-actua p-3 w-full md:w-auto flex justify-center items-center"
@@ -432,6 +426,103 @@ export const AdminItinerary = () => {
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
+
+      {/* Pestañas de Filtro por Categoría (Scrollable horizontalmente) */}
+      {activeTab === 'sitios' && (
+        <div style={{ width: '100%', overflowX: 'auto', borderBottom: '1px solid var(--border)' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              minWidth: 'max-content',
+              paddingBottom: 0,
+              scrollbarWidth: 'thin',
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setCategoriaFilter('all')}
+              style={{
+                padding: '0.65rem 1.25rem',
+                fontSize: '0.88rem',
+                fontFamily: 'var(--font-sans)',
+                fontWeight: categoriaFilter === 'all' ? 700 : 500,
+                color: categoriaFilter === 'all' ? 'var(--primary)' : 'var(--text-muted)',
+                backgroundColor: categoriaFilter === 'all' ? 'rgba(160, 68, 42, 0.08)' : 'transparent',
+                border: categoriaFilter === 'all' ? '1px solid var(--border)' : '1px solid transparent',
+                borderBottom: categoriaFilter === 'all' ? '3px solid var(--primary)' : '1px solid transparent',
+                borderRadius: '8px 8px 0 0',
+                marginBottom: '-1px',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <span>Todas</span>
+              <span
+                style={{
+                  fontSize: '0.72rem',
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '12px',
+                  backgroundColor: categoriaFilter === 'all' ? 'var(--primary)' : 'rgba(0,0,0,0.07)',
+                  color: categoriaFilter === 'all' ? '#FFF' : 'var(--text-muted)',
+                  fontWeight: 600,
+                }}
+              >
+                {sitios.length}
+              </span>
+            </button>
+
+            {categorias.map(cat => {
+              const count = sitios.filter(s => s.categoria === cat).length;
+              const isActive = categoriaFilter === cat;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategoriaFilter(cat)}
+                  style={{
+                    padding: '0.65rem 1.25rem',
+                    fontSize: '0.88rem',
+                    fontFamily: 'var(--font-sans)',
+                    fontWeight: isActive ? 700 : 500,
+                    color: isActive ? 'var(--primary)' : 'var(--text-muted)',
+                    backgroundColor: isActive ? 'rgba(160, 68, 42, 0.08)' : 'transparent',
+                    border: isActive ? '1px solid var(--border)' : '1px solid transparent',
+                    borderBottom: isActive ? '3px solid var(--primary)' : '1px solid transparent',
+                    borderRadius: '8px 8px 0 0',
+                    marginBottom: '-1px',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span>{cat}</span>
+                  <span
+                    style={{
+                      fontSize: '0.72rem',
+                      padding: '0.15rem 0.5rem',
+                      borderRadius: '12px',
+                      backgroundColor: isActive ? 'var(--primary)' : 'rgba(0,0,0,0.07)',
+                      color: isActive ? '#FFF' : 'var(--text-muted)',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Tabla principal */}
       {loading ? (

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Calendar, Users, Briefcase, Mail, Phone, User, CheckCircle2, AlertCircle, Loader2, Download, MessageCircle, Plus, Trash2 } from 'lucide-react';
+import { Calendar, Users, Briefcase, Mail, Phone, User, CheckCircle2, AlertCircle, Loader2, Download, MessageCircle, Plus, Trash2, FileText, X, ShieldAlert, Info } from 'lucide-react';
 import { api } from '../../../services/api';
 import { useAuth } from '../../../app/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
@@ -50,6 +50,8 @@ export const Booking = () => {
   const [nights, setNights] = useState(0);
   const [loading, setLoading] = useState(false);
   const [bookingResult, setBookingResult] = useState(null);
+  const [showCancellationModal, setShowCancellationModal] = useState(false);
+  const [cancellationPolicy, setCancellationPolicy] = useState('');
   const receiptRef = useRef(null);
 
   // Actualizar formData si cambian los parámetros URL
@@ -131,24 +133,28 @@ export const Booking = () => {
     fetchRooms();
   }, [formData.checkIn, formData.checkOut, presetRoom, presetGuests]);
 
-  // Cargar teléfono oficial del hotel para el botón de WhatsApp
+  // Cargar información oficial del hotel (teléfono para WhatsApp y política de cancelación)
   useEffect(() => {
-    const fetchHotelPhone = async () => {
+    const fetchHotelInfo = async () => {
       try {
         const response = await api.get('/hotel/hotels');
         const hotels = response?.data?.data ?? response?.data ?? [];
         if (hotels.length > 0) {
-          const rawPhone = hotels[0].telefono?.replace(/\D/g, '');
+          const firstHotel = hotels[0];
+          if (firstHotel.politica_cancelacion) {
+            setCancellationPolicy(firstHotel.politica_cancelacion);
+          }
+          const rawPhone = firstHotel.telefono?.replace(/\D/g, '');
           if (rawPhone) {
             const formattedPhone = rawPhone.length === 10 ? `52${rawPhone}` : rawPhone;
             setHotelPhone(formattedPhone);
           }
         }
       } catch (err) {
-        console.error('Error al cargar teléfono del hotel para WhatsApp:', err);
+        console.error('Error al cargar información del hotel:', err);
       }
     };
-    fetchHotelPhone();
+    fetchHotelInfo();
   }, []);
 
   // 2. Rellenar automáticamente los datos del usuario si ha iniciado sesión
@@ -311,29 +317,7 @@ export const Booking = () => {
       });
       setStep(4);
 
-      // Redirigir automáticamente a WhatsApp
-      const roomListDetails = selectedRooms.map((item, idx) => {
-        const rObj = rooms.find((r) => String(r.id) === String(item.roomId));
-        return `  - Habitación ${idx + 1}: ${rObj?.nombre || 'Suite'} (${item.guests} huéspedes)`;
-      }).join('\n');
-
-      const message = `*Nueva Reservación (${selectedRooms.length} ${selectedRooms.length === 1 ? 'Habitación' : 'Habitaciones'}) - Hotel Casa Dolores*\n\n` +
-        `*Folio(s):* ${foliosStr}\n` +
-        `*Huésped:* ${formData.nombre} ${formData.apellidos}\n` +
-        `*Correo:* ${formData.email || 'No proporcionado'}\n` +
-        `*Teléfono:* ${formData.telefono}\n\n` +
-        `*Detalles de la Estancia:*\n` +
-        `${roomListDetails}\n` +
-        `- *Fecha de Entrada:* ${formData.checkIn}\n` +
-        `- *Fecha de Salida:* ${formData.checkOut}\n` +
-        `- *Total Huéspedes:* ${formData.guests} personas\n` +
-        `- *Estancia:* ${nights} ${nights === 1 ? 'noche' : 'noches'}\n` +
-        `- *Peticiones Especiales:* ${formData.specialRequests || 'Ninguna'}\n\n` +
-        `*Total Confirmado:* $${Number(totalFinal).toLocaleString('es-MX')} MXN\n` +
-        `*Estado del Pago:* Pendiente (Efectivo / Transferencia al check-in)`;
-
-      const encodedMessage = encodeURIComponent(message);
-      window.open(`https://wa.me/${hotelPhone}?text=${encodedMessage}`, '_blank');
+      // Fin de registro de reserva
     } catch (err) {
       console.error('Error al registrar reservación en el servidor:', err);
       toast.error(err.message || 'Hubo un error al registrar tu reservación. Por favor, verifica la disponibilidad.');
@@ -358,6 +342,30 @@ export const Booking = () => {
       <div className="container py-section animate-fade-in" style={{ maxWidth: '1000px' }}>
         <h1 className="section-title">Reserva tu Estancia</h1>
         <p className="section-subtitle">Completa el formulario en unos pasos sencillos</p>
+
+        {/* Botón Políticas de Cancelación */}
+        {/* <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <button
+            type="button"
+            onClick={() => setShowCancellationModal(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              color: 'var(--primary)',
+              backgroundColor: 'rgba(160, 68, 42, 0.08)',
+              border: '1px solid var(--primary)',
+              borderRadius: '20px',
+              padding: '0.45rem 1.1rem',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <FileText size={15} /> Ver Políticas de Cancelación
+          </button>
+        </div> */}
 
         {/* Indicador de Pasos */}
         {step < 4 && (
@@ -690,6 +698,26 @@ export const Booking = () => {
                   <span>Total Estimado</span>
                   <span>${totalPrice.toLocaleString()} MXN</span>
                 </div>
+                <div style={{ marginTop: '0.85rem', borderTop: '1px dashed var(--border)', paddingTop: '0.75rem', textAlign: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowCancellationModal(true)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.82rem',
+                      fontWeight: 600,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    <Info size={14} /> Políticas de cancelación
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -834,6 +862,142 @@ export const Booking = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de Políticas de Cancelación */}
+      {showCancellationModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+            zIndex: 2000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.25rem',
+          }}
+          onClick={() => setShowCancellationModal(false)}
+        >
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: 'var(--border-radius-md)',
+              maxWidth: '560px',
+              width: '100%',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+              animation: 'fadeIn 0.25s ease-out',
+              borderTop: '5px solid var(--primary)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header del Modal */}
+            <div
+              style={{
+                padding: '1.25rem 1.5rem',
+                borderBottom: '1px solid var(--border)',
+                display: 'flex',
+                justify: 'space-between',
+                alignItems: 'center',
+                backgroundColor: 'var(--bg-linen)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                <FileText size={20} style={{ color: 'var(--primary)' }} />
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--secondary)', fontWeight: 700 }}>
+                  Políticas de Cancelación
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCancellationModal(false)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Cuerpo del Modal */}
+            <div style={{ padding: '1.5rem', fontSize: '0.92rem', lineHeight: '1.6', color: 'var(--text-main)', maxHeight: '70vh', overflowY: 'auto' }}>
+              <p style={{ marginTop: 0, color: 'var(--text-muted)' }}>
+                En <strong>Hotel Casa Dolores Hidalgo</strong> deseamos brindarte claridad y tranquilidad en la gestión de tus reservaciones.
+              </p>
+
+              {cancellationPolicy ? (
+                <div style={{ backgroundColor: 'rgba(160, 68, 42, 0.06)', borderLeft: '4px solid var(--primary)', padding: '1.25rem', borderRadius: '0 6px 6px 0', marginTop: '1rem', whiteSpace: 'pre-line' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)', fontSize: '0.98rem', fontWeight: 700 }}>
+                    Política Oficial de Cancelación
+                  </h4>
+                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-main)', lineHeight: '1.7' }}>
+                    {cancellationPolicy}
+                  </p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                  {/* Card 1: Cancelación Gratuita */}
+                  <div style={{ backgroundColor: 'rgba(34, 197, 94, 0.08)', borderLeft: '4px solid #16a34a', padding: '1rem', borderRadius: '0 6px 6px 0' }}>
+                    <h4 style={{ margin: '0 0 0.35rem 0', color: '#15803d', fontSize: '0.95rem', fontWeight: 700 }}>
+                      ✓ Cancelación Sin Costo (Hasta 48 hrs)
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#166534' }}>
+                      Puedes cancelar tu reservación sin ningún tipo de penalización hasta 48 horas antes de la fecha de tu check-in (15:00 hrs).
+                    </p>
+                  </div>
+
+                  {/* Card 2: Cancelación Tardía / No Show */}
+                  <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.08)', borderLeft: '4px solid #dc2626', padding: '1rem', borderRadius: '0 6px 6px 0' }}>
+                    <h4 style={{ margin: '0 0 0.35rem 0', color: '#b91c1c', fontSize: '0.95rem', fontWeight: 700 }}>
+                      ⚠ Cancelaciones Tardías o No-Show
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#991b1b' }}>
+                      Las cancelaciones dentro de las 48 horas previas a la llegada o la inasistencia (No-Show) generarán un cargo equivalente al costo de la primera noche.
+                    </p>
+                  </div>
+
+                  {/* Card 3: Modificaciones */}
+                  <div style={{ backgroundColor: 'rgba(234, 179, 8, 0.08)', borderLeft: '4px solid #ca8a04', padding: '1rem', borderRadius: '0 6px 6px 0' }}>
+                    <h4 style={{ margin: '0 0 0.35rem 0', color: '#a16207', fontSize: '0.95rem', fontWeight: 700 }}>
+                      ✎ Modificación de Fechas
+                    </h4>
+                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#854d0e' }}>
+                      Los cambios de fecha están sujetos a disponibilidad de habitaciones y posibles variaciones tarifarias según la temporada elegida.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Información de Contacto */}
+              <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                <strong>¿Dudas o requerimientos especiales?</strong><br />
+                Contáctanos al correo <a href="mailto:casadoloreshidalgohotel@gmail.com" style={{ color: 'var(--primary)', fontWeight: 600 }}>casadoloreshidalgohotel@gmail.com</a> o por WhatsApp/Teléfono al <span style={{ fontWeight: 600, color: 'var(--secondary)' }}>418 177 5155</span>.
+              </div>
+            </div>
+
+            {/* Footer del Modal */}
+            <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid var(--border)', textAlign: 'right', backgroundColor: 'var(--bg-sand)' }}>
+              <button
+                type="button"
+                onClick={() => setShowCancellationModal(false)}
+                className="btn btn-primary"
+                style={{ padding: '0.55rem 1.75rem', fontSize: '0.88rem' }}
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

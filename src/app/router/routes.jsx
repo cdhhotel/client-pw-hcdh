@@ -9,6 +9,7 @@ import { AdminLayout } from "../../layouts/AdminLayout";
 import { Home } from "../../features/public/pages/Home";
 import { Rooms } from "../../features/rooms/pages/Rooms";
 import { Booking } from "../../features/booking/pages/Booking";
+import { AboutUs } from "../../features/public/pages/AboutUs";
 import { Login } from "../../features/auth/pages/Login";
 import { Contacto } from "../../features/public/pages/Contacto";
 
@@ -35,6 +36,7 @@ export const AppRoutes = () => {
                 <Route index element={<Home />} />
                 <Route path="rooms" element={<Rooms />} />
                 <Route path="booking" element={<Booking />} />
+                <Route path="sobre-nosotros" element={<AboutUs />} />
                 <Route path="login" element={<Login />} />
                 <Route path="contacto" element={<Contacto />} />
             </Route>

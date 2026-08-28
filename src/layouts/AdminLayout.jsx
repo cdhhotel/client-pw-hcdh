@@ -40,7 +40,7 @@ export const AdminLayout = () => {
     <>
       {/* Logo */}
       <div style={{ marginBottom: '2.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link to="/" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-main)', textDecoration: 'none' }}>
+        <Link to="/casa-dolores" onClick={closeSidebar} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-main)', textDecoration: 'none' }}>
           <img
             src="/logo_mono.png"
             alt="Logo Hotel Casa Dolores"
@@ -98,11 +98,11 @@ export const AdminLayout = () => {
       {/* Pie del sidebar */}
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
         <Link
-          to="/"
+          to="/casa-dolores"
           onClick={closeSidebar}
           style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.7rem 1rem', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-muted)', fontSize: '0.88rem', textDecoration: 'none' }}
         >
-          <Home size={17} /> Volver al Sitio
+          <Home size={17} /> Volver a Casa Dolores
         </Link>
         <button
           onClick={handleLogout}

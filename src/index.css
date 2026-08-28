@@ -6,20 +6,20 @@
   --primary: #A0442A;           /* Títulos y Botones Primarios */
   --primary-hover: #B55239;     /* Hovers y Enlaces activos */
   --btn-editd:#77281a;
-  --secondary: #6B4A2F;         /* Texto principal y acentos oscuros */
-  --secondary-light: #a3744b;         /* Texto principal y acentos oscuros */
-  --secondary-hover: #523823;   /* Nogal Oscuro */
+  --secondary: #452C19;         /* Texto principal y acentos oscuros */
+  --secondary-light: #6E4D32;   /* Texto secundario cálido */
+  --secondary-hover: #321F10;   /* Nogal Oscuro */
   --accent: #7A8061;            /* Detalles orgánicos y jardines */
   --accent-hover: #63684d;      
   --gold: #B38A3A;              /* Iconos y detalles artesanal */
   --gold-hover: #a17e2d;      
-  --text-h: #A0442A;          
+  --text-h: #8B341B;            /* Títulos */
   --bg-secondary: #49372a;      /* Fondo secundario */
-  --bg-linen: #F5F0E6;          /* Fondo base (Tonalidad solicitada) */
+  --bg-linen: #F5F0E6;          /* Fondo base */
   --bg-sand: #D8C8A8;           /* Para secciones, tarjetas y footers */
-  --text-main: #6B4A2F;         /* texto base */
-  --text-muted: #584330;        /* texto secundario */
-  --border: #C8B99B;            /* divisiones sutiles */
+  --text-main: #2C1A0E;         /* Texto base de alto contraste */
+  --text-muted: #4A3525;        /* Texto secundario firme y legible */
+  --border: #C8B99B;            /* Divisiones sutiles */
   --white: #FDFBF7;             /* Blanco */
   --btn-edit:#79865c;
   --btn-actua:#ac9d6d;
@@ -483,17 +483,19 @@ select.form-control option {
 .admin-table th {
   background-color: var(--bg-sand);
   padding: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--secondary);
+  color: #2D1A0E;
 }
 
 .admin-table td {
   padding: 1rem;
   border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
+  color: #20130A;
+  font-weight: 500;
 }
 
 .admin-table tr:last-child td {

@@ -207,6 +207,7 @@ export const RoomFormModal = ({
                                 >
                                     <option value="disponible">Disponible</option>
                                     <option value="ocupada">Ocupada</option>
+                                    <option value="limpieza">En limpieza</option>
                                     <option value="mantenimiento">En mantenimiento</option>
                                 </select>
                             </div>
@@ -216,7 +217,7 @@ export const RoomFormModal = ({
                     {/* ─── Sección: Capacidad y precio ─── */}
                     <div>
                         <p style={sectionTitle}>Capacidad y Precio</p>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem' }}>
                             <div>
                                 <label style={labelStyle}>Precio / Noche (MXN) *</label>
                                 <input
@@ -245,7 +246,7 @@ export const RoomFormModal = ({
                                     style={{ width: '100%' }}
                                 />
                             </div>
-                            <div>
+                            {/* <div>
                                 <label style={labelStyle}>Metros cuadrados</label>
                                 <input
                                     type="number"
@@ -257,7 +258,7 @@ export const RoomFormModal = ({
                                     className="form-control"
                                     style={{ width: '100%' }}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <label style={labelStyle}>Núm. de camas *</label>
                                 <input
@@ -323,8 +324,8 @@ export const RoomFormModal = ({
                         <p style={sectionTitle}>Atributos Especiales</p>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem' }}>
                             {[
-                                { name: 'extras', label: 'Amenidades' },
-                                { name: 'toallas', label: 'Toallas Suaves' },
+                                { name: 'extras', label: 'Kit de Baño' },
+                                { name: 'toallas', label: 'Toallas' },
                                 { name: 'bano', label: 'Baño completo' },
                                 { name: 'tv', label: 'TV' },
                                 { name: 'wifi', label: 'Wi-Fi' },
@@ -377,6 +378,22 @@ export const RoomFormModal = ({
                                                     alt="Imagen existente"
                                                     style={{ width: 90, height: 68, objectFit: 'cover', borderRadius: 4, border: '1px solid var(--border)' }}
                                                 />
+                                                {formData.numero && (
+                                                    <span style={{
+                                                        position: 'absolute',
+                                                        bottom: 4,
+                                                        left: 4,
+                                                        background: 'rgba(0, 0, 0, 0.75)',
+                                                        color: '#fff',
+                                                        fontSize: '0.65rem',
+                                                        fontWeight: 'bold',
+                                                        padding: '1px 5px',
+                                                        borderRadius: '3px',
+                                                        pointerEvents: 'none'
+                                                    }}>
+                                                        Hab. #{formData.numero}
+                                                    </span>
+                                                )}
                                                 <button
                                                     type="button"
                                                     onClick={() => onRemoveExistingImage(url)}
@@ -419,6 +436,22 @@ export const RoomFormModal = ({
                                                 alt={`Preview ${idx + 1}`}
                                                 style={{ width: 90, height: 68, objectFit: 'cover', borderRadius: 4, border: '2px dashed var(--accent)' }}
                                             />
+                                            {formData.numero && (
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    bottom: 4,
+                                                    left: 4,
+                                                    background: 'rgba(0, 0, 0, 0.75)',
+                                                    color: '#fff',
+                                                    fontSize: '0.65rem',
+                                                    fontWeight: 'bold',
+                                                    padding: '1px 5px',
+                                                    borderRadius: '3px',
+                                                    pointerEvents: 'none'
+                                                }}>
+                                                    Hab. #{formData.numero}
+                                                </span>
+                                            )}
                                             <button
                                                 type="button"
                                                 onClick={() => onRemoveLocalImage(idx)}
